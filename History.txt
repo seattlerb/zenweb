@@ -1,4 +1,9 @@
 ###############################################################################
+2002-07-15 2.8.1				   00 major / 01 minor / 00 bug
+
+	+ Removed "mailto:" from MADE metadata to have anti-spam links.
+
+###############################################################################
 2002-05-29 2.8.0				   00 major / 02 minor / 04 bug
 
 	! Added ruby code interpolation in MetadataRenderer

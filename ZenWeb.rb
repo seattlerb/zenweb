@@ -132,7 +132,7 @@ class ZenWebsite
 
   include CGI::Html4Tr
 
-  VERSION = '2.8.0'
+  VERSION = '2.8.1'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
@@ -1266,7 +1266,7 @@ class HtmlTemplateRenderer < HtmlRenderer
     push("<HEAD>\n")
     push("<TITLE>#{titletext}</TITLE>\n")
 
-    push("<LINK REV=\"MADE\" HREF=\"mailto:#{email}\">\n") if email
+    push("<LINK REV=\"MADE\" HREF=\"#{email}\">\n") if email
     push("<LINK REL=\"STYLESHEET\" HREF=\"#{stylesheet}\" type=text/css title=\"#{stylesheet}\">\n") if stylesheet
 
     push("<META NAME=\"rating\" CONTENT=\"#{rating}\">\n")
