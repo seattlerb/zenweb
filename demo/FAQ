@@ -1,0 +1,12 @@
+# 'title' = 'Frequently Asked Questions'
+# "description" = "FAQ for ZenWeb"
+# "keywords" = "ZenWeb, FAQ"
+
+** Dump it quick, organize later
+
+%- Q: I don't want to use ZenWeb for a whole domain, just a small portion of the website, but it keeps making absolute URLs that don't work well for this design. How can I use ZenWeb?
+%= A: Add RelativeRenderer to your list of renderers in your top level metadata.txt file. If you used ZenWebsite.rb to create your website, the entry should be there, otherwise add "'renderers' = [ 'StandardRenderer', 'RelativeRenderer' ]".
+
+%- Q: XXX
+%= A: YYY
+

@@ -56,24 +56,23 @@ class HtmlTemplateRenderer < HtmlRenderer
     titletext   = @document.fulltitle
 
     # header
-    push("<!DOCTYPE HTML PUBLIC \"-//W3C//#{dtd}//EN\">\n")
-    push("<HTML>\n")
-    push("<HEAD>\n")
-    push("<TITLE>#{titletext}</TITLE>\n")
-
-    push("<LINK REV=\"MADE\" HREF=\"#{email}\">\n") if email
-    push("<LINK REL=\"STYLESHEET\" HREF=\"#{stylesheet}\" type=text/css title=\"#{stylesheet}\">\n") if stylesheet
-
-    push("<META NAME=\"rating\" CONTENT=\"#{rating}\">\n")
-    push("<META NAME=\"GENERATOR\" CONTENT=\"#{ZenWebsite.banner}\">\n")
-    push("<META NAME=\"author\" CONTENT=\"#{author}\">\n") if author
-    push("<META NAME=\"copyright\" CONTENT=\"#{copyright}\">\n") if copyright
-    push("<META NAME=\"keywords\" CONTENT=\"#{keywords}\">\n") if keywords
-    push("<META NAME=\"description\" CONTENT=\"#{description}\">\n") if description
-    push("<META HTTP-EQUIV=\"content-type\" CONTENT=\"text/html; charset=#{charset}\">") if charset
-
-    push("</HEAD>\n")
-    push("<BODY" + (bgcolor ? " BGCOLOR=\"#{bgcolor}\"" : '') + ">\n")
+    push([
+	   "<!DOCTYPE HTML PUBLIC \"-//W3C//#{dtd}//EN\">\n",
+	   "<HTML>\n",
+	   "<HEAD>\n",
+	   "<TITLE>#{titletext}</TITLE>\n",
+	   email ? "<LINK REV=\"MADE\" HREF=\"#{email}\">\n" : [],
+	   stylesheet ? "<LINK REL=\"STYLESHEET\" HREF=\"#{stylesheet}\" type=text/css title=\"#{stylesheet}\">\n" : [],
+	   "<META NAME=\"rating\" CONTENT=\"#{rating}\">\n",
+	   "<META NAME=\"GENERATOR\" CONTENT=\"#{ZenWebsite.banner}\">\n",
+	   author ? "<META NAME=\"author\" CONTENT=\"#{author}\">\n" : [],
+	   copyright ? "<META NAME=\"copyright\" CONTENT=\"#{copyright}\">\n" : [],
+	   keywords ? "<META NAME=\"keywords\" CONTENT=\"#{keywords}\">\n" : [],
+	   description ? "<META NAME=\"description\" CONTENT=\"#{description}\">\n" : [],
+	   charset ? "<META HTTP-EQUIV=\"content-type\" CONTENT=\"text/html; charset=#{charset}\">" : [],
+	   "</HEAD>\n",
+	   "<BODY" + (bgcolor ? " BGCOLOR=\"#{bgcolor}\"" : '') + ">\n",
+	 ])
 
     self.navbar
 
@@ -86,12 +85,12 @@ class HtmlTemplateRenderer < HtmlRenderer
       push("<H1>#{title}</H1>\n")
     end
 
-    push("<H2>#{subtitle}</H2>\n") if subtitle
-    push("<HR SIZE=\"3\" NOSHADE>\n\n")
-
-    push(content)
-
-    push("<HR SIZE=\"3\" NOSHADE>\n\n")
+    push([
+	   subtitle ? "<H2>#{subtitle}</H2>\n" : [],
+	   "<HR SIZE=\"3\" NOSHADE>\n\n",
+	   content,
+	   "<HR SIZE=\"3\" NOSHADE>\n\n",
+	 ])
 
     self.navbar
 
@@ -116,36 +115,25 @@ class HtmlTemplateRenderer < HtmlRenderer
     sitemap = @website.sitemap
     search  = @website["/Search.html"]
 
-    push("<P>\n")
-
-    push("<A HREF=\"#{sitemap.url}\"><STRONG>Sitemap</STRONG></A>")
-
-    if search then
-      push(" | ")
-      push("<A HREF=\"#{search.url}\"><STRONG>Search</STRONG></A>")
-    end
-
-    push(" || ")
+    push([
+	   "<P>\n",
+	   "<A HREF=\"#{sitemap.url}\"><STRONG>Sitemap</STRONG></A>",
+	   search ? " | <A HREF=\"#{search.url}\"><STRONG>Search</STRONG></A>" : [],
+	   " || ",
+	 ])
 
     path = []
     current = @document
-
     while current
       current = current.parent
       path.unshift(current) if current
     end
 
-    path.each { | doc |
-      url = doc.url
-      title = doc['title']
-
-      push("<A HREF=\"#{url}\">#{title}</A>\n")
-      push(sep)
-    }
-
-    push(@document['title'])
-
-    push("</P>\n")
+    push([
+	   path.map{|doc| ["<A HREF=\"#{doc.url}\">#{doc['title']}</A>\n", sep]},
+	   @document['title'],
+	   "</P>\n",
+	 ])
 
     return []
   end

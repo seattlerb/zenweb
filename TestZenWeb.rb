@@ -976,7 +976,7 @@ class TestMetadataRenderer < ZenTestCase
   def test_include
     r = MetadataRenderer.new(@doc)
     result = r.render("TEXT\n\#{include '../include.txt'}\nTEXT")
-    expected = "TEXT\n\#metadata = false\nThis is some 42\ncommon text.\nTEXT"
+    expected = "TEXT\n#metadata = false\nThis is some 42\ncommon text.\nTEXT"
     assert_equal(expected, result,
 		 "Include should inject text from files")
   end
@@ -984,10 +984,27 @@ class TestMetadataRenderer < ZenTestCase
   def test_include_strip
     r = MetadataRenderer.new(@doc)
     result = r.render("TEXT\n\#{include '../include.txt', true}\nTEXT")
-    expected = "TEXT\n\This is some 42\ncommon text.\nTEXT"
+    expected = "TEXT\nThis is some 42\ncommon text.\nTEXT"
     assert_equal(expected, result,
 		 "Include should inject text from files")
   end
+
+  def test_link
+    r = MetadataRenderer.new(@doc)
+    result = r.render("TEXT\n\#{link '/index.html', 'Go Away'}\nTEXT")
+    expected = "TEXT\n<A HREF=\"/index.html\">Go Away</A>\nTEXT"
+    assert_equal(expected, result,
+		 "link should create appropriate href")
+  end
+
+  def test_img
+    r = MetadataRenderer.new(@doc)
+    result = r.render("TEXT\n\#{img '/goaway.png', 'Go Away'}\nTEXT")
+    expected = "TEXT\n<IMG SRC=\"/goaway.png\" ALT=\"Go Away\" BORDER=0>\nTEXT"
+    assert_equal(expected, result,
+		 "img should create appropriate img")
+  end
+
 end
 
 class TestSitemapRenderer < ZenTestCase
@@ -1075,9 +1092,6 @@ class TestRelativeRenderer < ZenTestCase
     ].join('')
 
     result = @renderer.render(content)
-
-    # just to satisfy me and make sure the relative urls are still there...
-    @doc.render
 
     assert_equal(expect, result)
   end

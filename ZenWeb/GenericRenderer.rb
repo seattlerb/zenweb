@@ -41,11 +41,14 @@ class GenericRenderer
 
   def push(obj)
     if obj.is_a?(Array) then
-      obj.each { | item |
-	self.push(item)
-      }
+      stuff = obj.flatten
+      @result.push(*stuff) unless stuff.empty?
     else
-      @result.push(obj.to_s)
+      if false then
+	@result.push(obj.to_s)
+      else
+	@result.push(obj)
+      end	
     end
   end
 

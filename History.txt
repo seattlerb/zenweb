@@ -1,3 +1,10 @@
+*** 2.15.2 / 2003-05-22
+
++ 3 minor enhancements
+	+ Added two helper methods link and img, to clean up metadata files.
+	+ Lots of cleanup and (minor) optimization in the renderers.
+	+ Added the start of a FAQ to the demo pages.
+
 *** 2.15.1 / 2003-03-05
 
 + 1 minor enhancement

@@ -1,37 +1,5 @@
 #!/usr/local/bin/ruby -w
 
-############################################################
-# Old timings are at the end of this file
-############################################################
-# New render(string)->string architecture
-############################################################
-# %   cumulative   self              self     total
-# time   seconds   seconds    calls  ms/call  ms/call  name
-# 13.61    11.70     11.70     1533     7.63   176.06  Array#each
-# 12.77    22.66     10.97      235    46.68    69.88  IO#foreach
-# 12.51    33.41     10.75    14955     0.72     1.08  GenericRenderer#push
-#  5.78    38.38      4.97      355    14.00    31.43  ZenDocument#createList
-#  4.39    42.16      3.77    35405     0.11     0.11  Array#push
-#
-# real	1m39.577s
-# user	1m27.635s
-# sys	0m7.733s
-############################################################
-# Previous render(Array)->Array architecture
-############################################################
-#   %   cumulative   self              self     total
-#  time   seconds   seconds    calls  ms/call  ms/call  name
-#  26.83    27.75     27.75    61960     0.45     0.89  GenericRenderer#push
-#  15.06    43.33     15.58     2059     7.57   164.09  Array#each
-#   9.67    53.33     10.00      235    42.55    62.00  IO#foreach
-#   5.89    59.42      6.09    82184     0.07     0.07  Array#push
-#   4.74    64.32      4.90    64417     0.08     0.08  Kernel.is_a?
-#
-# real    2m1.142s
-# user    1m44.934s
-# sys     0m12.849s
-############################################################
-
 require 'ftools' # for File::* below
 
 $TESTING = FALSE unless defined? $TESTING
@@ -776,6 +744,33 @@ class Metadata < Hash
 end
 
 ############################################################
+# Object methods - shortcuts for users
+
+=begin
+
+--- link(url, title)
+
+    Returns a string with an anchor with the appropriate data.
+
+=end
+
+def link(url, title)
+  return "<A HREF=\"#{url}\">#{title}</A>"
+end
+
+=begin
+
+--- img(url, alt, height=0, width=0, border=0)
+
+    Returns a string with an image tag with the appropriate data.
+
+=end
+
+def img(url, alt, height=nil, width=nil, border=0)
+  return "<IMG SRC=\"#{url}\" ALT=\"#{alt}\" BORDER=#{border}" +(height ? " HEIGHT=#{height}" : '')+(width ? " WIDTH=#{width}" : '')+">"
+end
+
+############################################################
 # Main:
 
 if __FILE__ == $0
@@ -801,6 +796,36 @@ if __FILE__ == $0
   ZenWebsite.new(url, path, dest).renderSite()
 
 end
+
+############################################################
+# New render(string)->string architecture
+############################################################
+# %   cumulative   self              self     total
+# time   seconds   seconds    calls  ms/call  ms/call  name
+# 13.61    11.70     11.70     1533     7.63   176.06  Array#each
+# 12.77    22.66     10.97      235    46.68    69.88  IO#foreach
+# 12.51    33.41     10.75    14955     0.72     1.08  GenericRenderer#push
+#  5.78    38.38      4.97      355    14.00    31.43  ZenDocument#createList
+#  4.39    42.16      3.77    35405     0.11     0.11  Array#push
+#
+# real	1m39.577s
+# user	1m27.635s
+# sys	0m7.733s
+############################################################
+# Previous render(Array)->Array architecture
+############################################################
+#   %   cumulative   self              self     total
+#  time   seconds   seconds    calls  ms/call  ms/call  name
+#  26.83    27.75     27.75    61960     0.45     0.89  GenericRenderer#push
+#  15.06    43.33     15.58     2059     7.57   164.09  Array#each
+#   9.67    53.33     10.00      235    42.55    62.00  IO#foreach
+#   5.89    59.42      6.09    82184     0.07     0.07  Array#push
+#   4.74    64.32      4.90    64417     0.08     0.08  Kernel.is_a?
+#
+# real    2m1.142s
+# user    1m44.934s
+# sys     0m12.849s
+############################################################
 
 ############################################################
 # Pre-stupid-metadata cache:
