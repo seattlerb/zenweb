@@ -6,6 +6,7 @@ require 'ZenWeb'
 require 'ZenWeb/SitemapRenderer'
 require 'ZenWeb/TocRenderer'
 require 'ZenWeb/StupidRenderer'
+require 'ZenWeb/HtmlTableRenderer'
 
 require 'test/unit'
 
@@ -1457,7 +1458,6 @@ d\t\t\te\tf
     util_render(expected, input, "Multiple tabs should collapse")
   end
 
-
   def test_render_paragraphs
     input = "something
 
@@ -1482,6 +1482,62 @@ something else
     util_render(expected, input,
 		"Multiple paragraphs should be properly split and parsed")
   end
+
+  def test_render_styled
+
+    @doc['style_blah']      = "%(c1)|%(c2)|%(c3)\n"
+    @doc['style_blah_pre']  = "PRE\n"
+    @doc['style_blah_post'] = "POST"
+    @doc['style_blah_head'] = "c1/c2/c3\n"
+
+    input = "<tabs style=blah>
+c1\tc2\tc3
+d\te\tf
+</tabs>
+"
+
+    expected = "PRE
+c1/c2/c3
+d|e|f
+POST"
+
+    util_render(expected, input,
+		"something FIX")
+  end
+
+  def test_render_styled_mixed
+
+    @doc['style_blah']      = "%(c1)|%(c2)|%(c3)\n"
+    @doc['style_blah_pre']  = "PRE\n"
+    @doc['style_blah_post'] = "POST\n"
+    @doc['style_blah_head'] = "c1/c2/c3\n"
+
+    input = "<tabs style=blah>
+c1\tc2\tc3
+d\te\tf
+</tabs>
+
+<tabs>
+a\tb\tc
+d\te\tf
+</tabs>
+"
+
+    expected = "PRE
+c1/c2/c3
+d|e|f
+POST
+
+<table border=\"0\">
+<tr><th>a</th><th>b</th><th>c</th></tr>
+<tr><td>d</td><td>e</td><td>f</td></tr>
+</table>
+"
+
+    util_render(expected, input,
+		"something FIX")
+  end
+
 end
 
 # this is more here to shut up ZenTest than anything else.
@@ -1489,5 +1545,29 @@ class TestXXXRenderer < ZenRendererTest
   def test_render
     # TODO: convert
     assert_equal("This is a test", @renderer.render("This is a test"))
+  end
+end
+
+# The hash extension code is located in the HtmlTableRenderer file
+class TestHashExtension < Test::Unit::TestCase
+  def setup
+    @data = { :col1 => "data1", :col2 => "data2", :col3 => "data3" }
+  end
+
+  def test_hash_simple
+    assert_equal "data1", @data % "%(col1)"
+  end
+
+  def test_hash_sized
+    assert_equal "data1     ", @data % "%-10(col1)"
+    assert_equal "     data1", @data % "%10(col1)"
+  end
+
+  def test_hash_multiple
+    assert_equal "data1|data2|data3", @data % "%(col1)|%(col2)|%(col3)"
+  end
+
+  def test_hash_missing
+    assert_equal "", @data % "%(col5)"
   end
 end
