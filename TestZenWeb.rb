@@ -69,12 +69,12 @@ class TestZenWebsite < ZenTest
 
   def test_initialize_tilde
     # missing a leading slash
-    data = "xxx/user"
+    data = "xxx"
     html = "xxxhtml"
     begin
-      @web = ZenWebsite.new("/SiteMap.html", data, html).renderSite()
+      @web = ZenWebsite.new("/~user/SiteMap.html", data, html).renderSite()
     rescue ArgumentError
-      fail("Got an ArgumentError")
+      fail("Got an ArgumentError" + $!)
     end
   end
 
@@ -229,6 +229,33 @@ class TestZenDocument < ZenTest
     end
   end
 
+  def test_newerThanTarget_missing
+    # setup, delete target file, call function. Must return true
+
+    puts @doc.newerThanTarget
+
+    assert(@doc.newerThanTarget, 
+	   "doc must be newer because target is missing")
+	   
+  end
+
+  def test_newerThanTarget_yes
+    # setup, touch source file, call function. Must return true
+
+    puts @doc.newerThanTarget
+
+    assert(@doc.newerThanTarget, "doc must be newer")
+  end
+
+  def test_newerThanTarget_no
+    # setup, touch target file, call function. Must return false
+
+    puts ! @doc.newerThanTarget
+
+    assert(! @doc.newerThanTarget, "doc must not be newer")
+    assert(false)
+  end
+
   def test_parentURL
     # 1 level deep
     @doc = ZenDocument.new("/Something.html", @web)
@@ -280,8 +307,8 @@ class TestZenDocument < ZenTest
     assert_not_nil(parent,
 		   "Parent must not be nil")
 
-    assert_equal("/index.html", parent.url,
-		 "Parent url must be correct")
+    assert_equals("/index.html", parent.url,
+		  "Parent url must be correct")
   end
 
   def test_dir

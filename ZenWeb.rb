@@ -311,6 +311,18 @@ class ZenDocument
 
 =begin
 
+--- ZenDocument#newerThanTarget
+
+    Returns true if the sourcefile is newer than the targetfile.
+
+=end
+
+  def newerThanTarget()
+    return true
+  end
+
+=begin
+
 --- ZenDocument#parentURL
 
     Returns the parent url of this document. That is either the
@@ -1043,7 +1055,8 @@ class HtmlRenderer < GenericRenderer
 
     if (hash) then
       result += "<DL>\n"
-      hash.each { | key, val |
+      hash.keys.sort.each { | key |
+	val = hash[key]
 	result += "  <DT>#{key}</DT>\n"
 	result += "  <DD>#{val}</DD>\n\n"
       }
