@@ -674,12 +674,29 @@ class Metadata < Hash
 
   def initialize(directory, toplevel = "/")
 
+    unless (test(?e, directory)) then
+      raise ArgumentError, "directory #{directory} does not exist"
+    end
+
+    unless (test(?d, toplevel)) then
+      raise ArgumentError, "toplevel directory #{toplevel} does not exist"
+    end
+
+    # FIX: add a test to check that toplevel is ABOVE directory, not below
+    # NOTE: can be equal
+
+    abs_dir = File.expand_path(directory)
+    abs_top = File.expand_path(toplevel)
+
+    if (abs_top.length > abs_dir.length || abs_dir.index(abs_top) != 0) then
+      raise ArgumentError, "toplevel is not a parent dir to directory"
+    end
+
     if (test(?f, directory)) then
       directory = File.dirname(directory)
     end
 
     self.loadFromDirectory(directory, toplevel)
-
   end
 
 =begin
