@@ -653,7 +653,7 @@ class ZenRendererTest < ZenTestCase
     end
   end
 
-  def util_render(expected, input, message)
+  def util_render(expected, input, message="")
     assert_equal(expected, @renderer.render(input), message)
   end
 
@@ -664,7 +664,7 @@ class TestGenericRenderer < ZenRendererTest
   def test_push
     assert_equal('', @renderer.result)
     @renderer.push("something")
-    assert_equal('something', @renderer.result)
+    assert_equal('something', @renderer.result(false))
     @renderer.push(["completely", "different"])
     assert_equal('somethingcompletelydifferent', @renderer.result)
   end
@@ -672,7 +672,7 @@ class TestGenericRenderer < ZenRendererTest
   def test_unshift
     assert_equal('', @renderer.result)
     @renderer.unshift("something")
-    assert_equal('something', @renderer.result)
+    assert_equal('something', @renderer.result(false))
     @renderer.unshift(["completely", "different"])
     assert_equal('completelydifferentsomething', @renderer.result)
   end
@@ -695,7 +695,7 @@ class TestGenericRenderer < ZenRendererTest
 
   def test_scan_region_miss
     s = "this is some text\n"
-    util_scan_region(s, s) do |region|
+    util_scan_region(s, s) do |region, context|
       flunk "There is no region"
     end
   end
@@ -703,16 +703,16 @@ class TestGenericRenderer < ZenRendererTest
   def test_scan_region_one_line
     s = 'text <start>region<end> text'
 
-    util_scan_region('', s) do |region|
+    util_scan_region('', s) do |region, context|
       assert_equal s, region, "Region must match entire line"
     end
   end
 
   def test_scan_region_single
     s = "text\n<start>\nregion\n<end>\ntext"
-    e = "text\nfound\ntext\n"
-    util_scan_region(e, s) do |region|
-      @renderer.push "found\n" unless region =~ /^</
+    e = "text\nfound\ntext"
+    util_scan_region(e, s) do |region, context|
+      @renderer.push "found\n" unless context == :START or context == :END
     end
   end
 
@@ -804,20 +804,20 @@ class TestFileAttachmentRenderer < ZenRendererTest
 
   # TODO: refactor
   def test_simple
-    f = "line 1\nline 2\nline 3"
+    f = "line 1\nline 2\nline 3\n"
     f2 = "  line 1\n  line 2\n  line 3"
-    s = "blah blah\n\n<file name=\"something.txt\">\n#{f}\n</file>\n\nblah blah"
-    e = "blah blah\n\n#{f2}\n<A HREF=\"something.txt\">Download something.txt</A>\n\nblah blah"
+    s = "blah blah\n\n<file name=\"something.txt\">\n#{f}</file>\n\nblah blah"
+    e = "blah blah\n\n#{f2}\n\n<A HREF=\"something.txt\">Download something.txt</A>\n\nblah blah"
     util_render e, s, "FAR must render the content correctly"
     assert test(?f, 'testhtml/ryand/something.txt'), "File must exist or you suck"
     assert_equal f, File.new('testhtml/ryand/something.txt').read
   end
 
   def test_eric_is_a_fucktard
-    f = "line 1\n\nline 2\nline 3"
+    f = "line 1\n\nline 2\nline 3\n"
     f2 = "  line 1\n  \n  line 2\n  line 3"
-    s = "blah blah\n\n<file name=\"something.txt\">\n#{f}\n</file>\n\nblah blah"
-    e = "blah blah\n\n#{f2}\n<A HREF=\"something.txt\">Download something.txt</A>\n\nblah blah"
+    s = "blah blah\n\n<file name=\"something.txt\">\n#{f}</file>\n\nblah blah"
+    e = "blah blah\n\n#{f2}\n\n<A HREF=\"something.txt\">Download something.txt</A>\n\nblah blah"
     util_render e, s, "FAR must render the content correctly, even if eric is a fucktard"
     assert test(?f, 'testhtml/ryand/something.txt'), "File must exist or you suck"
     assert_equal f, File.new('testhtml/ryand/something.txt').read
@@ -1277,24 +1277,185 @@ class TestTocRenderer < ZenRendererTest
   end
 end
 
-class TestStupidRenderer < ZenRendererTest
-  def util_render(input, expected)
-    result = @renderer.render(input)
-    assert_equal(expected, result)
+
+class TestCalendarRenderer < ZenRendererTest
+  def setup
+    super
+    @oct = "<table class=\"calendar\"><tr><td valign=\"top\"><table class=\"view y2004 m10\">
+<tr class=\"title\">
+<th colspan=7>October 2004</th>
+</tr>
+<tr class=\"weektitle\"
+<th class=\"sun\">Sun</th>
+<th class=\"mon\">Mon</th>
+<th class=\"tue\">Tue</th>
+<th class=\"wed\">Wed</th>
+<th class=\"thu\">Thu</th>
+<th class=\"fri\">Fri</th>
+<th class=\"sat\">Sat</th></tr>
+<tr class=\"days firstweek\">
+<td colspan=5>&nbsp;</td>
+<td class=\"d01 fri\">1</td>
+<td class=\"d02 sat\">2</td>
+</tr>
+<tr class=\"days\">
+<td class=\"d03 sun\">3</td>
+<td class=\"d04 mon\">4</td>
+<td class=\"d05 tue\">5</td>
+<td class=\"d06 wed\">6</td>
+<td class=\"d07 thu\">7</td>
+<td class=\"d08 fri\">8</td>
+<td class=\"d09 sat\">9</td>
+</tr>
+<tr class=\"days\">
+<td class=\"d10 sun\">10</td>
+<td class=\"d11 mon\">11</td>
+<td class=\"d12 tue\">12</td>
+<td class=\"d13 wed\">13</td>
+<td class=\"d14 thu\">14</td>
+<td class=\"d15 fri\">15</td>
+<td class=\"d16 sat\">16</td>
+</tr>
+<tr class=\"days\">
+<td class=\"d17 sun\">17</td>
+<td class=\"d18 mon\">18</td>
+<td class=\"d19 tue\">19</td>
+<td class=\"d20 wed\">20</td>
+<td class=\"d21 thu\">21</td>
+<td class=\"d22 fri\">22</td>
+<td class=\"d23 sat\">23</td>
+</tr>
+<tr class=\"days\">
+<td class=\"d24 sun\">24</td>
+<td class=\"d25 mon\">25</td>
+<td class=\"d26 tue\">26</td>
+<td class=\"d27 wed event\">27</td>
+<td class=\"d28 thu\">28</td>
+<td class=\"d29 fri\">29</td>
+<td class=\"d30 sat\">30</td>
+</tr>
+<tr class=\"days\">
+<td class=\"d31 sun\">31</td>
+<td colspan=6>&nbsp;</td>
+</tr>
+</table>
+</td>
+<td class=\"eventlist\">
+<ul>
+<li>2004-10-27:
+<ul>
+<li>Ryan's birfday!
+</ul>
+</ul>
+</td>
+</tr>
+</table>
+"
+
+    @may = "<table class=\"calendar\"><tr><td valign=\"top\"><table class=\"view y2004 m05\">
+<tr class=\"title\">
+<th colspan=7>May 2004</th>
+</tr>
+<tr class=\"weektitle\"
+<th class=\"sun\">Sun</th>
+<th class=\"mon\">Mon</th>
+<th class=\"tue\">Tue</th>
+<th class=\"wed\">Wed</th>
+<th class=\"thu\">Thu</th>
+<th class=\"fri\">Fri</th>
+<th class=\"sat\">Sat</th></tr>
+<tr class=\"days firstweek\">
+<td colspan=6>&nbsp;</td>
+<td class=\"d01 sat\">1</td>
+</tr>
+<tr class=\"days\">
+<td class=\"d02 sun\">2</td>
+<td class=\"d03 mon\">3</td>
+<td class=\"d04 tue\">4</td>
+<td class=\"d05 wed\">5</td>
+<td class=\"d06 thu\">6</td>
+<td class=\"d07 fri\">7</td>
+<td class=\"d08 sat\">8</td>
+</tr>
+<tr class=\"days\">
+<td class=\"d09 sun\">9</td>
+<td class=\"d10 mon\">10</td>
+<td class=\"d11 tue\">11</td>
+<td class=\"d12 wed\">12</td>
+<td class=\"d13 thu\">13</td>
+<td class=\"d14 fri\">14</td>
+<td class=\"d15 sat\">15</td>
+</tr>
+<tr class=\"days\">
+<td class=\"d16 sun\">16</td>
+<td class=\"d17 mon\">17</td>
+<td class=\"d18 tue\">18</td>
+<td class=\"d19 wed\">19</td>
+<td class=\"d20 thu\">20</td>
+<td class=\"d21 fri\">21</td>
+<td class=\"d22 sat\">22</td>
+</tr>
+<tr class=\"days\">
+<td class=\"d23 sun\">23</td>
+<td class=\"d24 mon\">24</td>
+<td class=\"d25 tue\">25</td>
+<td class=\"d26 wed event\">26</td>
+<td class=\"d27 thu\">27</td>
+<td class=\"d28 fri\">28</td>
+<td class=\"d29 sat\">29</td>
+</tr>
+<tr class=\"days\">
+<td class=\"d30 sun\">30</td>
+<td class=\"d31 mon\">31</td>
+<td colspan=5>&nbsp;</td>
+</tr>
+</table>
+</td>
+<td class=\"eventlist\">
+<ul>
+<li>2004-05-26:
+<ul>
+<li>Eric's bifday!
+</ul>
+</ul>
+</td>
+</tr>
+</table>
+"
   end
 
+  def test_render_forward
+    expect = @may + @oct
+    input  = "<cal>
+2004-05-26: Eric's bifday!
+2004-10-27: Ryan's birfday!
+</cal>"
+    util_render(expect, input)
+  end
+
+  def test_render_reverse
+    expect = @oct + @may
+    input  = "<cal reverse>
+2004-05-26: Eric's bifday!
+2004-10-27: Ryan's birfday!
+</cal>"
+    util_render(expect, input)
+  end
+end
+
+class TestStupidRenderer < ZenRendererTest
   def test_render_undefined
     util_render("This is some text", "This is some text")
   end
 
   def test_render_leet
     @doc['stupidmethod'] = 'leet'
-    util_render("This is some text", '+]-[|$ |$ $0/\/\3 +3><+')
+    util_render('+]-[|$ |$ $0/\/\3 +3><+', "This is some text")
   end
 
   def test_render_strip
     @doc['stupidmethod'] = 'strip'
-    util_render("This is some text", "Ths s sm txt")
+    util_render("Ths s sm txt", "This is some text")
   end
 
   def test_render_unknown
@@ -1357,7 +1518,6 @@ d\te\tf
 <tr><th>a</th><th>b</th><th>c</th></tr>
 <tr><td>d</td><td>e</td><td>f</td></tr>
 </table>
-
 "
 
     assert_equal(expected, @renderer.render(input))
@@ -1374,7 +1534,6 @@ d\t\t\te\tf
 <tr><th>a</th><th>b</th><th>c</th></tr>
 <tr><td>d</td><td>e</td><td>f</td></tr>
 </table>
-
 "
 
     assert_equal(expected, @renderer.render(input))
@@ -1400,8 +1559,6 @@ something else
 </table>
 
 something else
-
-
 "
 
     assert_equal(expected, @renderer.render(input))
