@@ -53,9 +53,9 @@ class HtmlTemplateRenderer < HtmlRenderer
     rating      = @document['rating'] || 'general'
     stylesheet  = @document['stylesheet']
     subtitle    = @document['subtitle']
-    title       = @document['title'] || 'Unknown Title'
+    title       = @document.title
     icbm        = @document['icbm']
-    icbm_title  = @document['icbm_title'] || @document.title
+    icbm_title  = @document['icbm_title'] || title
     charset     = @document['charset']
     style       = @document['style']
 

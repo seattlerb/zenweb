@@ -11,10 +11,11 @@
 
 *** 2.17.0 / 2004-03-17
 
-+ 3 minor enhancements
++ 4 minor enhancements
 	+ Added FileAttachmentRenderer
 	+ Added ordered HTML list support with the "=" delimiter
 	+ Workaround added until a bug is fixed in ruby (should be in 1.8.2). This speeds up ZenWeb by 50% on my website.
+	+ Added HTML <link> support for up, top, and  contents forward link types.
 + 1 bug fixes
 	+ Couldn't call parent on the top page.
 

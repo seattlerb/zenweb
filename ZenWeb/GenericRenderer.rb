@@ -73,8 +73,10 @@ class GenericRenderer
   end
 
   # DOC GenericRenderer#result
-  def result
-    return @result.join('')
+  def result(clear=true)
+    result = @result.join('')
+    @result = [] if clear
+    return result
   end
 
 =begin

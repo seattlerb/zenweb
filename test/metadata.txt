@@ -2,7 +2,7 @@
 
 "key1" = 24
 
-"renderers" = [ 'StandardRenderer', 'RelativeRenderer' ]
+"renderers" = [ 'StandardRenderer' ]
 
 'author'      = 'Ryan Davis'
 # 'banner'      = 'some sort of link to a banner image'

@@ -1,4 +1,5 @@
-RUBY?=ruby
+RUBY?=ruby18
+RDOC?=rdoc18
 RUBYFLAGS?=-v
 
 all: docs
@@ -24,6 +25,9 @@ requirements:
 force:
 docs: force
 	$(RUBY) $(RUBYFLAGS) -w -I. ZenWeb.rb docs
+
+rdoc: force
+	$(RDOC)
 
 PREFIX=/usr/local
 install:
