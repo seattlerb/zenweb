@@ -191,6 +191,9 @@ class ZenDocument
 
   def initialize(url, website)
 
+    raise ArgumentError, "url was nil" if url.nil?
+    raise ArgumentError, "web was nil" if website.nil?
+
     @url      = url
     @website  = website
     @datapath = nil
