@@ -1,4 +1,4 @@
-#'$Id: //depot/main/src/ZenWeb/ZenWeb/HTMLGen/HTMLgen.py#1 $'
+#'$Id: //depot/main/src/ZenWeb/ZenWeb/HTMLGen/HTMLgen.py#2 $'
 
 # COPYRIGHT (C) 1996, 1997, 1998  ROBIN FRIEDRICH  email:Robin.Friedrich@pdq.net
 # Permission to use, copy, modify, and distribute this software and
@@ -1444,7 +1444,10 @@ class AbstractTagSingle:
 		"""
 		name = string.lower(name)
 		if name in self.attrs:
-			self.attr_dict[name] = ' %s="%s"' % (name, value)
+			if value != None:
+				self.attr_dict[name] = ' %s="%s"' % (name, value)
+			else:
+				self.attr_dict[name] = ' %s' % name
 		else:
 			self.__dict__[name] = value
 
