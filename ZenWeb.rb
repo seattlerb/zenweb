@@ -92,7 +92,7 @@ class ZenWebsite
 
   include CGI::Html4Tr
 
-  VERSION = '2.1.0'
+  VERSION = '2.1.1'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
@@ -1393,6 +1393,7 @@ class TextToHtmlRenderer < HtmlRenderer
       p.gsub!(/\\&/, "&amp;")
       p.gsub!(/\\</, "&lt;")
       p.gsub!(/\\>/, "&gt;")
+      p.gsub!(/\\\{/, "{")
 
       if (p =~ /^(\*\*+)\s*(.*)$/) then
 	level = $1.length
