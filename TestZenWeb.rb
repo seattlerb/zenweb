@@ -7,9 +7,7 @@ require 'ZenWeb/SitemapRenderer'
 require 'ZenWeb/TocRenderer'
 require 'ZenWeb/StupidRenderer'
 
-require 'test/unit/testresult'
-require 'test/unit/testcase'
-require 'zentestrunner'
+require 'test/unit'
 
 # this is used across different classes for html list tests
 $text_list_data = "+ a\n\t+ a1\n\t\t+ a1a\n+ b\n\t+ b1\n\t\t+ b1a\n\t\t+ b1b\n+ c\n\t+ c1\n\t\t+ c1a\n\t+ c2\n\t\t+ c2a\n\t\t+ c2b\n\t\t+ c2c\n\t\t+ c2d"
@@ -27,29 +25,25 @@ def shutupwhile
 
   $stdout.flush
   $stderr.flush
-  $defout.flush
 
-  oldstdout = $stdout.dup
-  oldstderr = $stderr.dup
+  oldstdout = $stdout
+  oldstderr = $stderr
 
-  $stdout.reopen($dead)
-  $stderr.reopen($dead)
-  $defout.reopen($dead)
+  $stdout = $dead
+  $stderr = $dead
 
   yield
 
   $stdout.flush
   $stderr.flush
-  $defout.flush
 
   $stdout = oldstdout
   $stderr = oldstderr
-  $defout.reopen($stdout)
 end
 
 class ZenTestCase < Test::Unit::TestCase # ZenTest SKIP
 
-  def set_up
+  def setup
     @datadir = "test"
     @htmldir = "testhtml"
     @sitemapUrl = "/SiteMap.html"
@@ -57,17 +51,13 @@ class ZenTestCase < Test::Unit::TestCase # ZenTest SKIP
     @web = ZenWebsite.new(@sitemapUrl, @datadir, @htmldir)
     @doc = @web[@url]
     @content = @doc.renderContent
-
-    if self.class.name =~ /Test(\w+Renderer)$/ then
-      rendererclass = $1
-      require "ZenWeb/#{rendererclass}"
-      theClass = Module.const_get(rendererclass)
-      @renderer = theClass.send("new", @doc) # TODO: move everyone over to this
-    end
-
   end
 
-  def tear_down
+  def test_null
+    # shuts up test::unit's stupid logic
+  end
+
+  def teardown
     if (test(?d, @htmldir)) then
       `rm -rf #{@htmldir}` 
     end
@@ -80,7 +70,7 @@ end
 
 class TestZenWebsite < ZenTestCase
 
-  def tear_down
+  def teardown
     if (test(?d, @htmldir)) then
       `rm -rf #{@htmldir}`
     end
@@ -166,7 +156,7 @@ class TestZenWebsite < ZenTestCase
   end
 
   # WARN: I think these tests are too prescriptive
-  # REFACTOR: make an OrderedArray
+  # REFACTOR: make an OrderedHash
   def test_doc_order
     doc_order = @web.doc_order
     assert_kind_of(Array, doc_order)
@@ -199,7 +189,7 @@ end
 
 class TestZenDocument < ZenTestCase
 
-  def set_up
+  def setup
     super
     @expected_datapath = "test/ryand/index"
     @expected_htmlpath = "testhtml/ryand/index.html"
@@ -504,7 +494,7 @@ end
 
 class TestZenSitemap < TestZenDocument
 
-  def set_up
+  def setup
     super
     @url = @sitemapUrl
     @web = ZenWebsite.new(@url, "test", "testhtml")
@@ -557,11 +547,11 @@ end
 
 class TestMetadata < ZenTestCase
 
-  def set_up
+  def setup
     @hash = Metadata.new("test/ryand")
   end
 
-  def tear_down
+  def teardown
   end
 
   def test_initialize_good
@@ -625,9 +615,24 @@ end
 ############################################################
 # All Renderer Tests:
 
-class TestGenericRenderer < ZenTestCase
+class ZenRendererTest < ZenTestCase
 
-  def set_up
+  def setup
+    super
+
+    if self.class.name =~ /Test(\w+Renderer)$/ then
+      rendererclass = $1
+      require "ZenWeb/#{rendererclass}"
+      theClass = Module.const_get(rendererclass)
+      @renderer = theClass.send("new", @doc) # TODO: move everyone over to this
+    end
+
+  end
+end
+
+class TestGenericRenderer < ZenRendererTest
+
+  def setup
     super
     @renderer = GenericRenderer.new(@doc)
   end
@@ -660,7 +665,7 @@ class TestGenericRenderer < ZenTestCase
   end
 end
 
-class TestCompositeRenderer < ZenTestCase
+class TestCompositeRenderer < ZenRendererTest
   def test_renderers
     newrenderer = StupidRenderer.new(@doc)
     assert_equal([], @renderer.renderers)
@@ -710,7 +715,7 @@ class TestCompositeRenderer < ZenTestCase
   end
 end
 
-class TestStandardRenderer < ZenTestCase
+class TestStandardRenderer < ZenRendererTest
   def test_initialize
     renderers = @renderer.renderers
     assert_equal(5, renderers.size)
@@ -722,7 +727,7 @@ class TestStandardRenderer < ZenTestCase
   end
 end
 
-class TestHtmlRenderer < ZenTestCase
+class TestHtmlRenderer < ZenRendererTest
 
   def test_array2html_one_level
     assert_equal("<UL>\n  <LI>line 1</LI>\n  <LI>line 2</LI>\n</UL>\n",
@@ -750,7 +755,7 @@ class TestHtmlRenderer < ZenTestCase
 
 end
 
-class TestHtmlTemplateRenderer < ZenTestCase
+class TestHtmlTemplateRenderer < ZenRendererTest
 
   # TODO: need to test the following: html element conversions, url
   # conversions, headers, rules, pre blocks, paragraphs
@@ -768,8 +773,8 @@ class TestHtmlTemplateRenderer < ZenTestCase
 <META NAME=\"copyright\" CONTENT=\"1996-2001, Zen Spider Software\">
 </HEAD>
 <BODY>
-<P>
-<A HREF=\"../SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"../index.html\">My Website</A>
+<P class=\"navbar\">
+<A HREF=\"../SiteMap.html\">Sitemap</A> || <A HREF=\"../index.html\">My Website</A>
  / Ryan\'s Homepage</P>
 <H1>Ryan\'s Homepage</H1>
 <H2>Version 2.0</H2>
@@ -779,7 +784,7 @@ class TestHtmlTemplateRenderer < ZenTestCase
 
   def test_render_foot
     @content = @doc.renderContent
-    expected = "\n<HR SIZE=\"3\" NOSHADE>\n\n<P>\n<A HREF=\"../SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan's Homepage</P>\n\n<P>This is my footer, jive turkey</P></BODY>\n</HTML>\n"
+    expected = "\n<HR SIZE=\"3\" NOSHADE>\n\n<P class=\"navbar\">\n<A HREF=\"../SiteMap.html\">Sitemap</A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan's Homepage</P>\n\n<P>This is my footer, jive turkey</P></BODY>\n</HTML>\n"
 
     assert_not_nil(@content.index(expected),
 		   "Must render the HTML footer")
@@ -787,15 +792,15 @@ class TestHtmlTemplateRenderer < ZenTestCase
 
   def test_navbar
     @content = @doc.renderContent
-    assert(@content =~ "<A HREF=\"../SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan\'s Homepage</P>\n",
+    assert(@content =~ %r%<A HREF=\"../SiteMap.html\">Sitemap</A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan\'s Homepage</P>\n%,
 	   "Must render navbar correctly")
   end
 
 end
 
-class TestSubpageRenderer < ZenTestCase
+class TestSubpageRenderer < ZenRendererTest
 
-  def set_up
+  def setup
     super
     @renderer = SubpageRenderer.new(@doc)
   end
@@ -814,7 +819,7 @@ class TestSubpageRenderer < ZenTestCase
 
 end
 
-class TestTextToHtmlRenderer < ZenTestCase
+class TestTextToHtmlRenderer < ZenRendererTest
 
   def util_render(regex, msg)
     # FIX: just render from the renderer directly
@@ -856,7 +861,7 @@ class TestTextToHtmlRenderer < ZenTestCase
   end
 
   def test_render_dict1
-    util_render("<DL>\n  <DT>Term 1</DT>\n  <DD>Def 1</DD>\n\n  <DT>Term 2</DT>\n  <DD>Def 2</DD>\n\n</DL>\n\n",
+    util_render(%r%<DL>\n  <DT>Term 1</DT>\n  <DD>Def 1</DD>\n\n  <DT>Term 2</DT>\n  <DD>Def 2</DD>\n\n</DL>\n\n%,
 		       "Must render simple dictionary list")
   end
 
@@ -909,7 +914,7 @@ class TestTextToHtmlRenderer < ZenTestCase
 
   def test_render_pre
 
-    util_render("<PRE>PRE blocks are paragraphs that are indented two spaces on each line.\nThe two spaces will be stripped, and all other indentation will be left\nalone.\n   this allows me to put things like code examples in and retain\n       their formatting.</PRE>",
+    util_render(%r%<PRE>PRE blocks are paragraphs that are indented two spaces on each line.\nThe two spaces will be stripped, and all other indentation will be left\nalone.\n   this allows me to put things like code examples in and retain\n       their formatting.</PRE>%,
 		       "Must render PRE blocks from indented paragraphs")
   end
 
@@ -936,7 +941,7 @@ class TestTextToHtmlRenderer < ZenTestCase
   end
 end
 
-class TestFooterRenderer < ZenTestCase
+class TestFooterRenderer < ZenRendererTest
   def test_render
     # must create own web so we do not attach to a pregenerated index.html
     web = ZenWebsite.new(@sitemapUrl, "test", "testhtml")
@@ -954,7 +959,7 @@ class TestFooterRenderer < ZenTestCase
   end
 end
 
-class TestHeaderRenderer < ZenTestCase
+class TestHeaderRenderer < ZenRendererTest
   def test_render
     @doc = ZenDocument.new("/index.html", @web)
     @doc['header'] = "header 1\n";
@@ -967,7 +972,7 @@ class TestHeaderRenderer < ZenTestCase
   end
 end
 
-class TestMetadataRenderer < ZenTestCase
+class TestMetadataRenderer < ZenRendererTest
   def test_render
     @doc['nothing'] = 'you'
     assert_equal('I hate you', @renderer.render('I hate #{nothing}'))
@@ -1007,9 +1012,9 @@ class TestMetadataRenderer < ZenTestCase
 
 end
 
-class TestSitemapRenderer < ZenTestCase
+class TestSitemapRenderer < ZenRendererTest
 
-  def set_up
+  def setup
     super
   end
 
@@ -1059,8 +1064,9 @@ class TestSitemapRenderer < ZenTestCase
 
 end
 
-class TestRelativeRenderer < ZenTestCase
-  def set_up
+class TestRelativeRenderer < ZenRendererTest
+
+  def setup
     super
     @renderer = RelativeRenderer.new(@doc)
   end
@@ -1112,7 +1118,7 @@ class TestRelativeRenderer < ZenTestCase
   end
 end
 
-class TestRubyCodeRenderer < ZenTestCase
+class TestRubyCodeRenderer < ZenRendererTest
   def test_render()
     # XMP is a POS, so this is as much as I'm willing to test right
     # now until I can pinpoint the bug and go though xmp properly or
@@ -1124,9 +1130,9 @@ class TestRubyCodeRenderer < ZenTestCase
   end
 end
 
-class TestTocRenderer < ZenTestCase
+class TestTocRenderer < ZenRendererTest
 
-  def set_up
+  def setup
     super
   end
 
@@ -1182,7 +1188,7 @@ class TestTocRenderer < ZenTestCase
   end
 end
 
-class TestStupidRenderer < ZenTestCase
+class TestStupidRenderer < ZenRendererTest
   def util_render(input, expected)
     result = @renderer.render(input)
     assert_equal(expected, result)
@@ -1220,7 +1226,7 @@ class TestStupidRenderer < ZenTestCase
   end
 end
 
-class TestCompactRenderer < ZenTestCase
+class TestCompactRenderer < ZenRendererTest
   def test_render
 
     input = "
@@ -1250,14 +1256,43 @@ line 3</pre></body></html>"
   end
 end
 
+class TestHtmlTableRenderer < ZenRendererTest
+  def test_render_plain
+    input = "<tabs>
+a\tb\tc
+d\te\tf
+</tabs>
+"
+
+    expected = "<table border=\"0\">
+<tr><td>a</td><td>b</td><td>c</td></tr>
+<tr><td>d</td><td>e</td><td>f</td></tr>
+</table>
+"
+
+    assert_equal(expected, @renderer.render(input))
+  end
+
+  def test_render_multitabs
+    input = "<tabs>
+a\tb\t\t\tc
+d\t\t\te\tf
+</tabs>
+"
+
+    expected = "<table border=\"0\">
+<tr><td>a</td><td>b</td><td>c</td></tr>
+<tr><td>d</td><td>e</td><td>f</td></tr>
+</table>
+"
+
+    assert_equal(expected, @renderer.render(input))
+  end
+end
+
 # this is more here to shut up ZenTest than anything else.
-class TestXXXRenderer < ZenTestCase
+class TestXXXRenderer < ZenRendererTest
   def test_render
     assert_equal("This is a test", @renderer.render("This is a test"))
   end
 end
-
-if __FILE__ == $0 then
-  run_all_tests_with(ZenTestRunner) 
-end
-

@@ -32,18 +32,12 @@ class RubyCodeRenderer < GenericRenderer
 	
 	begin
 	  cmd = "irb --prompt xmp --noreadline 2>/dev/null"
-	  puts "Running irb for code:"
-	  puts p
+	  puts "Running irb for code:\n#{p}" unless $TESTING
 	  IO.popen(cmd, "r+") { |xmp|
-	    p.split(/\n/).each { |line|
-	      push("  #{line}")
-	      if line !~ /^\s+\#/ then
-		xmp.puts(line)
-		s = xmp.gets.chomp!
-		s.sub!(/==>(.*)$/, '==\\><EM>\1</EM>')
-		push("    #{s}")
-	      end
-	    }
+	    xmp.puts(p + "\nexit")
+	    result = xmp.read
+	    result.gsub!(/==>(.*)$/, '==\\><EM>\1</EM>')
+	    push result
 	  }
 	rescue Exception => something
 	  $stderr.puts "xmp: #{something}\nTrace =\n" + $@.join("\n") + "\n"

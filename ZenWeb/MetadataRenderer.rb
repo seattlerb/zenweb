@@ -12,6 +12,8 @@ Converts all metadata references into their values.
 
 class MetadataRenderer < GenericRenderer
 
+  @@cache = {}
+
 =begin
 
 --- MetadataRenderer#render(content)
@@ -31,12 +33,21 @@ class MetadataRenderer < GenericRenderer
       # otherwise try to eval it. If that fails, just give text.
       unless (val) then
 	begin
-	  val = eval(key)
+	  # this allows evals that fail (expensive) to be cached, 
+	  # and good code to be eval'd every time.
+	  # I think this is a good balance.
+	  if @@cache[key] then
+	    val = @@cache[key]
+	  else
+	    val = eval(key)
+	  end
 	rescue NameError
 	  val = key
+	  @@cache[key] = key
 	rescue Exception => err
 	  $stderr.puts "eval failed in MetadataRenderer for #{@document.datapath}: #{err}. Code = '#{key}'"
 	  val = key
+	  @@cache[key] = key
 	end
       end
       

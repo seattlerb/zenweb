@@ -1,9 +1,10 @@
 RUBY?=ruby
+RUBYFLAGS?=
 
 all: demo
 
 test: requirements syntax 
-	$(RUBY) -w -I. TestZenWeb.rb $(TEST)
+	$(RUBY) $(RUBYFLAGS) -w -I. TestZenWeb.rb $(TEST)
 
 syntax:
 	$(RUBY) -wc ZenWeb.rb
@@ -22,7 +23,7 @@ requirements:
 
 force:
 demo: force
-	$(RUBY) -w -I. ZenWeb.rb demo
+	$(RUBY) $(RUBYFLAGS) -w -I. ZenWeb.rb demo
 
 PREFIX=/usr/local
 install:
