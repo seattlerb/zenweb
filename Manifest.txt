@@ -6,6 +6,7 @@ TestZenWeb.rb
 ZenWeb.rb
 ZenWeb/CompactRenderer.rb
 ZenWeb/CompositeRenderer.rb
+ZenWeb/FileAttachmentRenderer.rb
 ZenWeb/FooterRenderer.rb
 ZenWeb/GenericRenderer.rb
 ZenWeb/HeaderRenderer.rb
