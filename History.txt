@@ -1,13 +1,17 @@
 *** 2.17.1 / ????-??-??
 
++ N minor enhancements
+	+ Modified RubyCodeRenderer to use <ruby> tags instead of ! lines.
 + N bugs fixed
 	+ Revamped a number of tests.
 	+ Fixed a problem where files with dashes in their names were rejected.
 	+ Extended GenericRenderer#scan_region to pass the context to the yield block.
-	+ Fixed a bug in HtmlTableRenderer when a paragraph butts up against it. 
+	+ Fixed scan_region so it preserves all whitespace as-is.
 	+ Switched HtmlTableRenderer to scan by line, not by paragraph.
 	+ ICBM metadata was missing a newline.
 	+ TextToHtmlRenderer no longer wraps in P tags if it detects a block tag.
+	+ Lots of work in tests to make cleaner/better.
+	+ Added several tests.
 
 *** 2.17.0 / 2004-03-17
 

@@ -676,8 +676,7 @@ class ZenRendererTest < ZenTestCase
   end
 
   def test_nothing
-    # TODO: double check that all of these should be here
-    if self.class.name !~ /Compact|TextToHtml|SubPage|Standard|Stupid|Subpage|Sitemap|RubyCode|HtmlTemplate|TestHtmlRenderer|ZenRendererTest/ then
+    if self.class.name !~ /Compact|TextToHtml|Standard|Sitemap|HtmlTemplate|TestHtmlRenderer|ZenRendererTest/ then
       s = "blah blah\n\nblah blah\nblah blah\n\nblah blah"
       util_virgin_render(s, s, "#{self.class} shouldn't modify non-interesting text") {} # nothing to do
     end
@@ -1209,7 +1208,9 @@ class TestSitemapRenderer < ZenRendererTest
 		"Must properly convert the urls to a list")
   end
 
-  # TODO: I need to be able to programatically generate/alter sitemaps.
+  def test_the_whole_thing
+    flunk("TODO: I need to be able to programatically generate/alter sitemaps.")
+  end
 
 end
 
@@ -1418,8 +1419,8 @@ line 3</pre>
 line 2
 line 3</pre></body></html>"
 
-    # TODO: convert
-    assert_equal(expected, @renderer.render(input))
+    util_render(expected, input,
+		"Compact renderer must strip the correct newlines")
   end
 end
 

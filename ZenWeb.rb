@@ -603,7 +603,7 @@ class ZenSitemap < ZenDocument
 
       next if f == ""
 
-      if f =~ /^\s*([\/\~\.\w\-]+)$/
+      if f =~ /^\s*([\/:~.\w-]+)$/
 	url = $1
 
 	if (url == self.url) then
