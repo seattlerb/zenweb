@@ -70,8 +70,8 @@ class ZenWebsite
 
   VERSION = '2.1.0'
 
-  # TODO: figure out why I shouldn't provide access to the last two
-  attr_reader :datadir, :htmldir, :sitemap, :documents, :doc_order
+  attr_reader :datadir, :htmldir, :sitemap
+  attr_reader :documents, :doc_order if $TESTING
 
 =begin
 
@@ -179,7 +179,8 @@ class ZenDocument
   attr_writer :content if $TESTING
 
   # TODO: why should I allow this?
-  attr_reader :subpages, :website
+  # attr_reader :subpages
+  # attr_reader :website
 
 =begin
 
@@ -668,8 +669,6 @@ class Metadata < Hash
     Instantiates a new metadata object and loads the data from
     ((|directory|)) up to the ((|toplevel|)) directory.
 
-    TODO: set up a metadata dictionary structure w/ parent refs
-
 =end
 
   def initialize(directory, toplevel = "/")
@@ -682,12 +681,9 @@ class Metadata < Hash
       raise ArgumentError, "toplevel directory #{toplevel} does not exist"
     end
 
-    # FIX: add a test to check that toplevel is ABOVE directory, not below
-    # NOTE: can be equal
-
+    # Check that toplevel is ABOVE directory, not below. Can be equal.
     abs_dir = File.expand_path(directory)
     abs_top = File.expand_path(toplevel)
-
     if (abs_top.length > abs_dir.length || abs_dir.index(abs_top) != 0) then
       raise ArgumentError, "toplevel is not a parent dir to directory"
     end
@@ -1028,7 +1024,6 @@ class HtmlTemplateRenderer < HtmlRenderer
     push("<HEAD>\n")
     push("<TITLE>#{titletext}</TITLE>\n")
 
-    # TODO: check both of these against the standard
     push("<LINK REV=\"MADE\" HREF=\"mailto:#{email}\">\n") if email
     push("<LINK REL=\"STYLESHEET\" HREF=\"#{stylesheet}\" type=text/css title=\"#{stylesheet}\">\n") if stylesheet
 
