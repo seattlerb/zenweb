@@ -1,6 +1,6 @@
-Requirements Document, Version 1.0.0, 
-Created: 2000-01-17
-Modified: 2000-01-17
+Requirements Document, Version 1.0.1,
+Created: 2001-01-17
+Modified: 2001-01-17
 
 + Must provide a generic architecture for generating a website from a
 file called a sitemap, and a directory of files that provide the
