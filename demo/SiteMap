@@ -1,8 +1,9 @@
-#title Demo Site
-#description Sitemap of the Demo Site
-#keywords map, website, Blah blah blah
+# 'description' = 'This is the demo sitemap.'
+# 'keywords' = 'map, website, ZenWeb'
+# 'renderers' = ['SitemapRenderer', 'TextToHtmlRenderer', 'HtmlTemplateRenderer', 'FooterRenderer']
+
 /index.html
-/SiteMap.html							SiteMap
+/SiteMap.html
 /QuickStart.html
 /Features.html
 /YourOwnWebsite.html

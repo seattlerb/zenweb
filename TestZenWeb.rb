@@ -20,7 +20,7 @@ class ZenTest < Test::Unit::TestCase
 
   def tear_down
     if (test(?d, @htmldir)) then
-      `rm -rf #{@htmldir}` unless $DEBUG
+#      `rm -rf #{@htmldir}` unless $DEBUG
     end
   end
 
@@ -33,7 +33,7 @@ class TestZenWebsite < ZenTest
 
   def tear_down
     if (test(?d, @htmldir)) then
-      `rm -rf #{@htmldir}` unless $DEBUG
+#      `rm -rf #{@htmldir}` unless $DEBUG
     end
   end
 
@@ -235,6 +235,14 @@ class TestZenDocument < ZenTest
 	   "doc must be newer because target is missing")
   end
 
+  def test_newerThanTarget_yes
+    util_newerThanTarget(true)
+  end
+
+  def test_newerThanTarget_no
+    util_newerThanTarget(false)
+  end
+
   def util_newerThanTarget(is_newer)
 
     @web.renderSite
@@ -244,25 +252,18 @@ class TestZenDocument < ZenTest
     assert(test(?f, @doc.datapath),
 	   "datapath must exist at #{@doc.datapath}")
 
+    time_old = '200101010000'
+    time_new = '200101020000'
+
     if (is_newer) then
-      `touch #{@doc.htmlpath}`
-      sleep .51
-      `touch #{@doc.datapath}`
+      `touch -t #{time_new} #{@doc.datapath}`
+      `touch -t #{time_old} #{@doc.htmlpath}`
       assert(@doc.newerThanTarget, "doc must be newer")
     else
-      `touch #{@doc.datapath}`
-      sleep .51
-      `touch #{@doc.htmlpath}`
+      `touch -t #{time_new} #{@doc.htmlpath}`
+      `touch -t #{time_old} #{@doc.datapath}`
       assert(! @doc.newerThanTarget, "doc must not be newer")
     end
-  end
-
-  def test_newerThanTarget_yes
-    util_newerThanTarget(true)
-  end
-
-  def test_newerThanTarget_no
-    util_newerThanTarget(false)
   end
 
   def test_parentURL

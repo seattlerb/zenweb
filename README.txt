@@ -22,6 +22,11 @@ FEATURES:
 + Simple text-to-html markup makes creating large websites easy.
 + Much much more... I should probably add that here, huh?
 
+REQUIREMENTS:
+
++ Ruby - not sure about minimal version, but 1.6.x has been tested.
++ Test::Unit testing framework via RAA on http://www.ruby-lang.org/.
+
 LICENSE:
 
 (The MIT License)
