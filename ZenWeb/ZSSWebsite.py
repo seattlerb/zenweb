@@ -1,6 +1,6 @@
 #!/bin/env python
 
-from HTMLgen import Image, Small, BR, Href, RawText, MailTo, Paragraph
+from HTMLgen import Image, Strong, Small, BR, Href, RawText, MailTo, Paragraph
 import time
 import string
 from ZenWeb import ZenWebsite, ZenDocument, AbsSiteMap, AbsRawDocument
@@ -43,16 +43,9 @@ class ZSSDocument(ZenDocument):
 		apply(ZenDocument.__init__, (self, website, url, prevp, nextp), kw)
 		self.author		= 'Ryan Davis'
 		self.email		= 'zss@ZenSpider.com'
-		self.sitename	= 'Zen Spider Software'
-#		self.background	= "/image/backgrounds/normal.gif"
+		self.sitename		= 'Zen Spider Software'
 
-#	def html_body_tag(self):
-#		return ZenDocument.html_body_tag(self) + '<BLOCKQUOTE>\n'
-#
-#	def html_foot(self):
-#		return '</BLOCKQUOTE>\n' + ZenDocument.html_foot(self)
-		
-	def nav_buttons(self):
+	def nav_bar(self):
 		"""Generate hyperlinked navigation buttons.
 
 		If a self.*URL attribute is null that corresponding button is
@@ -62,16 +55,29 @@ class ZSSDocument(ZenDocument):
 		
 		s = []
 
-		s.append(self.mungeButton(Image(self.website.prevIMG, border=0, alt='Previous'), self.prevpage))
-		s.append(self.mungeButton(Image(self.website.parentIMG, border=0, alt='Up'), self.parent))
-		s.append(self.mungeButton(Image(self.website.homeIMG, border=0, alt='Home Page'), self.website.homeURL))
-		s.append(self.mungeButton(Image(self.website.nextIMG, border=0, alt='Next'), self.nextpage))
-		s.append("<BR>\n")
-		s.append(self.mungeButton(Image(self.website.sitemapIMG, border=0, alt='SiteMap'), self.website.sitemap_pg))
-		s.append(self.mungeButton(Image(self.website.navhelpIMG, border=0, alt='Nav Help Page'), self.website.navhelp_pg))
-		s.append(self.mungeButton(Image(self.website.searchIMG, border=0, alt='Search'), self.website.search_pg))
+		sep = " / "
+		p=self.website.sitemap_pg
+		s.append(str(Href(p.url, Strong("SiteMap"))))
+		s.append(" | ")
+		p=self.website.search_pg
+		s.append(str(Href(p.url, Strong("Search"))))
+		s.append(" || ")
 
-		return string.join(s, '')
+		parent_path = [self]
+		current = self
+		while current.parent != None:
+			current = current.parent
+			parent_path.append(current)
+
+		while len(parent_path) > 0:
+			u=parent_path.pop()
+			if len(parent_path) > 0:
+				s.append(str(Href(u.url, u.title)))
+				s.append(sep)
+			else:
+				s.append(u.title)
+
+		return str(Paragraph(RawText(string.join(s, ''))))
 
 	def footer(self):
 		txt = Small("")	
@@ -79,7 +85,7 @@ class ZSSDocument(ZenDocument):
 		txt.append(Href("/Website/Philosophy.html", '"More matter, with less art." - Gertrude, Hamlet.'))
 		txt.append(BR())
 		txt.append('Copyright ')
-		txt.append(RawText('&copy; 1997'))
+		txt.append(RawText('&copy; 1997-2000'))
 		txt.append(MailTo(self.email, self.author))
 		txt.append(' & ')
 		txt.append(Href(self.website.homeURL, self.sitename))
