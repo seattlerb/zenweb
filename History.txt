@@ -1,7 +1,9 @@
 ###############################################################################
-2002-07-15 2.8.1				   00 major / 01 minor / 00 bug
+2002-08-03 2.8.1				   00 major / 00 minor / 03 bug
 
 	+ Removed "mailto:" from MADE metadata to have anti-spam links.
+	+ Allow for a backslashed colon to prevent automatic url conversion.
+	+ Fixed demo and overhauled it's documentation.
 
 ###############################################################################
 2002-05-29 2.8.0				   00 major / 02 minor / 04 bug
