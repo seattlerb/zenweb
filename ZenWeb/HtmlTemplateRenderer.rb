@@ -119,9 +119,9 @@ class HtmlTemplateRenderer < HtmlRenderer
     search  = @website["/Search.html"]
 
     push([
-	   "<P>\n",
-	   "<A HREF=\"#{sitemap.url}\"><STRONG>Sitemap</STRONG></A>",
-	   search ? " | <A HREF=\"#{search.url}\"><STRONG>Search</STRONG></A>" : [],
+	   "<P class=\"navbar\">\n",
+	   "<A HREF=\"#{sitemap.url}\">Sitemap</A>",
+	   search ? " | <A HREF=\"#{search.url}\"><EM>Search</EM></A>" : [],
 	   " || ",
 	 ])
 
