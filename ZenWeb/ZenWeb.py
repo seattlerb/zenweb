@@ -14,13 +14,16 @@
 # CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-""" An extension of HTMLGen 2.0 to provide site oriented HTML generation.
-	
-	ZenWeb is based on the notion of a sitemap, which defines a hierarchial multipage
-	website. It defines a class called ZenWebsite which defines the website as a whole,
-	ZenDocument which represents a regular page in ZenWebsite, and two specializations SiteMap
-	and RawDocument.
-"""#'
+"""
+
+	An extension of HTMLGen 2.0 to provide site oriented HTML
+	generation.  ZenWeb is based on the notion of a sitemap, which
+	defines a hierarchial multipage website. It defines a class
+	called ZenWebsite which defines the website as a whole,
+	ZenDocument which represents a regular page in ZenWebsite, and
+	two specializations SiteMap and RawDocument.
+
+"""
 
 from HTMLgen import SimpleDocument, mpath, Heading, RawText, List, Paragraph, SeriesDocument, DOCTYPE, Href, HR, Pre, Image
 from ZSSUtil import fileIsNewerThan, myopen, createList, makedirs
@@ -34,7 +37,7 @@ import regex
 import re
 import string
 
-__version__	 = '1.2.0'
+__version__	 = '1.2.1'
 
 class ZenWebsite:
 	""" Defines a website and manages the pages in that website based on a sitemap.
@@ -136,12 +139,16 @@ class ZenWebsite:
 
 			if (input[0] == "/"):
 				input = input[1:]
+
 			input = posixpath.join(self.datadir, input)
+			input = regsub.sub("~", "", input)
 
 			output = url
 			if (output[0] == "/"):
 				output = output[1:]
+
 			output = posixpath.join(self.htmldir, output)
+			output = regsub.sub("~", "", output)
 
 			# if you want to do the whole site when the sitemap
 			# is modified, add 'self.siteMapIsModified' to logic
@@ -339,10 +346,13 @@ class ZenDocument(SimpleDocument):
 			key = source[i+a+1:i+b-1]
 			alt = "{" + key + "}"
 			
-			# TODO insert check for value and warn if failed.
-			#value = self.glossary.get(key)
-			
-			output.append(str(self.glossary.get(key, alt)))
+			value = self.glossary.get(key)
+
+			if value == alt:
+				print "WARNING Couldn't find glossary entry for '%s'" % (key)
+			else:
+				output.append(str(self.glossary.get(key, alt)))
+
 			i = i + b
 			matched = subpat.search(source[i:])
 		else:
