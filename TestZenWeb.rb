@@ -720,6 +720,6 @@ if __FILE__ == $0
     suite.add_test(TestZenDocument.new("test_parent", "TestZenDocument"))
   end
 
-  RUNIT::CUI::TestRunner.run(suite)
+  exit RUNIT::CUI::TestRunner.run(suite).succeed?
 end
 
