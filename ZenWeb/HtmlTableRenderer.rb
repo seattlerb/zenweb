@@ -25,10 +25,7 @@ class HtmlTableRenderer < GenericRenderer
 
   def render(content)
 
-    text = content.split($PARAGRAPH_RE)
-    
-    text.each do | p |
-      if (p =~ /^<tabs>/i) then
+    self.each_paragraph_matching(content, /^<tabs>/i) do |p|
 	first=true
 	p.each_line do |line|
 	  line.chomp!
@@ -49,14 +46,10 @@ class HtmlTableRenderer < GenericRenderer
 		    line.split(/\t+/).join("</#{type}><#{type}>") +
 		    "</#{type}></tr>\n")
 	  end
-	  push line
-	end
-      else
-	push p
+        push line
       end
-      push("\n\n")
     end
-
+  
     return self.result
   end
 

@@ -41,7 +41,7 @@ class MetadataRenderer < GenericRenderer
 	  else
 	    val = eval(key)
 	  end
-	rescue NameError
+	rescue NameError => err
 	  val = key
 	  @@cache[key] = key
 	rescue Exception => err

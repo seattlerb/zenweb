@@ -101,12 +101,6 @@ end
 
 class TestZenWebsite < ZenTestCase
 
-  def teardown
-    if (test(?d, @htmldir)) then
-      `rm -rf #{@htmldir}`
-    end
-  end
-
   def test_initialize_bad_sitemap
     util_initialize("/doesn't exist", @datadir, @htmldir)
   end
@@ -657,16 +651,15 @@ class ZenRendererTest < ZenTestCase
       theClass = Module.const_get(rendererclass)
       @renderer = theClass.send("new", @doc) # TODO: move everyone over to this
     end
-
   end
+
+  def util_render(expected, input, message)
+    assert_equal(expected, @renderer.render(input), message)
+  end
+
 end
 
 class TestGenericRenderer < ZenRendererTest
-
-  def setup
-    super
-    @renderer = GenericRenderer.new(@doc)
-  end
 
   def test_push
     assert_equal('', @renderer.result)
@@ -694,6 +687,38 @@ class TestGenericRenderer < ZenRendererTest
     @renderer.push('this is some text')
     assert_equal('this is some text', @renderer.result)
   end
+
+  def util_scan_region(expected, input, &block)
+    @renderer.scan_region(input, /<start>/, /<end>/, &block)
+    assert_equal expected, @renderer.result
+  end
+
+  def test_scan_region_miss
+    s = "this is some text\n"
+    util_scan_region(s, s) do |region|
+      flunk "There is no region"
+    end
+  end
+
+  def test_scan_region_one_line
+    s = 'text <start>region<end> text'
+
+    util_scan_region('', s) do |region|
+      assert_equal s, region, "Region must match entire line"
+    end
+  end
+
+  def test_scan_region_single
+    s = "text\n<start>\nregion\n<end>\ntext"
+    e = "text\nfound\ntext\n"
+    util_scan_region(e, s) do |region|
+      @renderer.push "found\n" unless region =~ /^</
+    end
+  end
+
+  def ztest_scan_region_multiple
+  end
+
 end
 
 class TestCompositeRenderer < ZenRendererTest
@@ -750,12 +775,54 @@ class TestStandardRenderer < ZenRendererTest
   def test_initialize
     renderers = @renderer.renderers
     assert_equal(5, renderers.size)
+    # TODO: AAAAAAHHHHHHHH!
     assert_instance_of(SubpageRenderer, renderers[0])
     assert_instance_of(MetadataRenderer, renderers[1])
     assert_instance_of(TextToHtmlRenderer, renderers[2])
     assert_instance_of(HtmlTemplateRenderer, renderers[3])
     assert_instance_of(FooterRenderer, renderers[4])
   end
+end
+
+class TestFileAttachmentRenderer < ZenRendererTest
+
+  def setup
+    super
+    path = @doc.htmlpath
+    dir = File.dirname(path)
+    
+    unless (test(?d, dir)) then
+      File::makedirs(dir)
+    end
+  end
+
+  # TODO: push this as far up as possible
+  def test_nothing
+    s = "blah blah\n\nblah blah\n\nblah blah\n\nblah blah"
+    util_render s, s, "FAR must not modify text that doesn't contain file tags"
+  end
+
+  # TODO: refactor
+  def test_simple
+    f = "line 1\nline 2\nline 3"
+    f2 = "  line 1\n  line 2\n  line 3"
+    s = "blah blah\n\n<file name=\"something.txt\">\n#{f}\n</file>\n\nblah blah"
+    e = "blah blah\n\n#{f2}\n<A HREF=\"something.txt\">Download something.txt</A>\n\nblah blah"
+    util_render e, s, "FAR must render the content correctly"
+    assert test(?f, 'testhtml/ryand/something.txt'), "File must exist or you suck"
+    assert_equal f, File.new('testhtml/ryand/something.txt').read
+  end
+
+  def test_eric_is_a_fucktard
+    f = "line 1\n\nline 2\nline 3"
+    f2 = "  line 1\n  \n  line 2\n  line 3"
+    s = "blah blah\n\n<file name=\"something.txt\">\n#{f}\n</file>\n\nblah blah"
+    e = "blah blah\n\n#{f2}\n<A HREF=\"something.txt\">Download something.txt</A>\n\nblah blah"
+    util_render e, s, "FAR must render the content correctly, even if eric is a fucktard"
+    assert test(?f, 'testhtml/ryand/something.txt'), "File must exist or you suck"
+    assert_equal f, File.new('testhtml/ryand/something.txt').read
+  end
+
 end
 
 class TestHtmlRenderer < ZenRendererTest
@@ -812,6 +879,9 @@ class TestHtmlTemplateRenderer < ZenRendererTest
 <META NAME=\"GENERATOR\" CONTENT=\"#{ZenWebsite.banner}\">
 <META NAME=\"author\" CONTENT=\"Ryan Davis\">
 <META NAME=\"copyright\" CONTENT=\"1996-2001, Zen Spider Software\">
+<link rel=\"up\" href=\"../index.html\" title=\"My Website\">
+<link rel=\"contents\" href=\"../SiteMap.html\" title=\"Sitemap\">
+<link rel=\"top\" href=\"../index.html\" title=\"My Website\">
 </HEAD>
 <BODY>
 <P class=\"navbar\">
@@ -840,11 +910,6 @@ class TestHtmlTemplateRenderer < ZenRendererTest
 end
 
 class TestSubpageRenderer < ZenRendererTest
-
-  def setup
-    super
-    @renderer = SubpageRenderer.new(@doc)
-  end
 
   def test_render
 
@@ -965,22 +1030,18 @@ class TestTextToHtmlRenderer < ZenRendererTest
   end
 
   def test_createList_flat
-    r = TextToHtmlRenderer.new(@doc)
-
     assert_equal(["line 1", "line 2"],
-		 r.createList("line 1\nline 2\n"))
+		 @renderer.createList("line 1\nline 2\n"))
   end
 
   def test_createList_deep
-    r = TextToHtmlRenderer.new(@doc)
-
-    assert_equal($array_list_data, r.createList($text_list_data),
+    assert_equal($array_list_data,
+                 @renderer.createList($text_list_data),
 		 "createList must create the correct array from the text")
   end
 
   def test_createHash_simple
-    r = TextToHtmlRenderer.new(@doc)
-    hash, order = r.createHash("%- term 2\n%= def 2\n%-term 1\n%=def 1")
+    hash, order = @renderer.createHash("%- term 2\n%= def 2\n%-term 1\n%=def 1")
 
     assert_equal({"term 2" => "def 2", "term 1" => "def 1"}, hash)
     assert_equal(["term 2", "term 1"], order)
@@ -1019,41 +1080,34 @@ class TestHeaderRenderer < ZenRendererTest
 end
 
 class TestMetadataRenderer < ZenRendererTest
+  
   def test_render
     @doc['nothing'] = 'you'
-    assert_equal('I hate you', @renderer.render('I hate #{nothing}'))
+    util_render 'I hate you', 'I hate #{nothing}', 'metadata must be accessed from @doc'
   end
 
   def test_include
-    r = MetadataRenderer.new(@doc)
-    result = r.render("TEXT\n\#{include '../include.txt'}\nTEXT")
-    expected = "TEXT\n#metadata = false\nThis is some 42\ncommon text.\nTEXT"
-    assert_equal(expected, result,
-		 "Include should inject text from files")
+    util_render "TEXT\n#metadata = false\nThis is some 42\ncommon text.\nTEXT",
+                "TEXT\n\#{include '../include.txt'}\nTEXT",
+		"Include should inject text from files"
   end
 
   def test_include_strip
-    r = MetadataRenderer.new(@doc)
-    result = r.render("TEXT\n\#{include '../include.txt', true}\nTEXT")
-    expected = "TEXT\nThis is some 42\ncommon text.\nTEXT"
-    assert_equal(expected, result,
-		 "Include should inject text from files")
+    util_render("TEXT\nThis is some 42\ncommon text.\nTEXT", 
+                "TEXT\n\#{include '../include.txt', true}\nTEXT",
+                "Include should inject text from files")
   end
 
   def test_link
-    r = MetadataRenderer.new(@doc)
-    result = r.render("TEXT\n\#{link '/index.html', 'Go Away'}\nTEXT")
-    expected = "TEXT\n<A HREF=\"/index.html\">Go Away</A>\nTEXT"
-    assert_equal(expected, result,
-		 "link should create appropriate href")
+    util_render("TEXT\n<A HREF=\"/index.html\">Go Away</A>\nTEXT",
+                "TEXT\n\#{link '/index.html', 'Go Away'}\nTEXT",
+                "link should create appropriate href")
   end
 
   def test_img
-    r = MetadataRenderer.new(@doc)
-    result = r.render("TEXT\n\#{img '/goaway.png', 'Go Away'}\nTEXT")
-    expected = "TEXT\n<IMG SRC=\"/goaway.png\" ALT=\"Go Away\" BORDER=0>\nTEXT"
-    assert_equal(expected, result,
-		 "img should create appropriate img")
+    util_render("TEXT\n<IMG SRC=\"/goaway.png\" ALT=\"Go Away\" BORDER=0>\nTEXT",
+                "TEXT\n\#{img '/goaway.png', 'Go Away'}\nTEXT",
+                "img should create appropriate img")
   end
 
 end
@@ -1111,11 +1165,6 @@ class TestSitemapRenderer < ZenRendererTest
 end
 
 class TestRelativeRenderer < ZenRendererTest
-
-  def setup
-    super
-    @renderer = RelativeRenderer.new(@doc)
-  end
 
   def test_render
 
@@ -1178,13 +1227,7 @@ end
 
 class TestTocRenderer < ZenRendererTest
 
-  def setup
-    super
-  end
-
   def test_render
-
-    @renderer = TocRenderer.new(@doc)
 
     content = [
       "This is some content, probably the intro...\n",

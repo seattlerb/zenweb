@@ -28,6 +28,7 @@ class StandardRenderer < CompositeRenderer
   def initialize(document)
     super(document)
 
+    # TODO: make this a metadata variable
     self.addRenderer(SubpageRenderer.new(document))
     self.addRenderer(MetadataRenderer.new(document))
     self.addRenderer(TextToHtmlRenderer.new(document))

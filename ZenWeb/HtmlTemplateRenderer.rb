@@ -61,6 +61,8 @@ class HtmlTemplateRenderer < HtmlRenderer
 
     titletext   = @document.fulltitle
 
+    # TODO: iterate over a list of metas and add them in one nicely organized block
+
     # header
     push([
 	   "<!DOCTYPE HTML PUBLIC \"-//W3C//#{dtd}//EN\">\n",
@@ -78,6 +80,12 @@ class HtmlTemplateRenderer < HtmlRenderer
 	   description ? "<META NAME=\"description\" CONTENT=\"#{description}\">\n" : [],
 	   charset ? "<META HTTP-EQUIV=\"content-type\" CONTENT=\"text/html; charset=#{charset}\">" : [],
 	   icbm ? "<meta name=\"ICBM\" content=\"#{icbm}\">\n<meta name=\"DC.title\" content=\"#{icbm_title}\">" : [],
+
+           "<link rel=\"up\" href=\"#{@document.parentURL}\" title=\"#{@document.parent.title}\">\n",
+           "<link rel=\"contents\" href=\"#{@sitemap.url}\" title=\"#{@sitemap.title}\">\n",
+           "<link rel=\"top\" href=\"#{@website.top.url}\" title=\"#{@website.top.title}\">\n",
+           # TODO: add next/prev
+
 	   "</HEAD>\n",
 	   "<BODY" + (bgcolor ? " BGCOLOR=\"#{bgcolor}\"" : '') + ">\n",
 	 ])
@@ -120,19 +128,18 @@ class HtmlTemplateRenderer < HtmlRenderer
   def navbar
 
     sep = " / "
-    sitemap = @website.sitemap
     search  = @website["/Search.html"]
 
     push([
 	   "<P class=\"navbar\">\n",
-	   "<A HREF=\"#{sitemap.url}\">Sitemap</A>",
+	   "<A HREF=\"#{@sitemap.url}\">Sitemap</A>",
 	   search ? " | <A HREF=\"#{search.url}\"><EM>Search</EM></A>" : [],
 	   " || ",
 	 ])
 
     path = []
     current = @document
-    while current
+    while current and current != current.parent do
       current = current.parent
       path.unshift(current) if current
     end
