@@ -1,4 +1,12 @@
 ###############################################################################
+2002-05-17 2.7.4				   00 major / 00 minor / 04 bug
+
+	Added a 'demo' rule to the makefile.
+	Added a requirements section to the readme.
+	Modified incremental build tests to be much faster. Requires 'touch'.
+	demo/... Updated old python based demo ... oops.
+
+###############################################################################
 2002-05-14 2.7.3				   00 major / 00 minor / 03 bug
 
 	Implemented test_load, test_loadFromDirectory, test_renderContent_foot.
