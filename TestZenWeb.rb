@@ -28,14 +28,7 @@ end
 ############################################################
 # ZenWebsite:
 
-class TestZenWebsite < RUNIT::TestCase
-
-  def setup
-    @url = "/SiteMap.html"
-    @datadir = "test"
-    @htmldir = "testhtml"
-    @web = ZenWebsite.new(@url, @datadir, @htmldir)
-  end
+class TestZenWebsite < ZenTest
 
   def teardown
     if (test(?d, @htmldir)) then
@@ -55,7 +48,7 @@ class TestZenWebsite < RUNIT::TestCase
 
   def test_initialize2
     begin
-      @web = ZenWebsite.new(@url, "/doesn't exist", @htmldir)
+      @web = ZenWebsite.new(@sitemapUrl, "/doesn't exist", @htmldir)
     rescue
       assert_equals("ArgumentError", $!.class.to_s)
     else
@@ -112,7 +105,7 @@ class TestZenWebsite < RUNIT::TestCase
   end
 
   def test_index_accessor
-    assert_not_nil(@web[@url],
+    assert_not_nil(@web[@sitemapUrl],
 		   "index accessor must return the sitemap")
     assert_nil(@web["doesn't exist"],
 	       "index accessor must return nil for bad urls")
@@ -124,6 +117,14 @@ end
 # ZenDocument
 
 class TestZenDocument < ZenTest
+
+  def setup
+    super
+    @expected_datapath = "test/ryand/index"
+    @expected_htmlpath = "testhtml/ryand/index.html"
+    @expected_dir = "test/ryand"
+    @expected_subpages = [ '/~ryand/blah.html', '/~ryand/stuff/index.html' ]
+  end
 
   def test_initialize1
     # good url
@@ -189,12 +190,19 @@ class TestZenDocument < ZenTest
   def test_subpages
     @web.renderSite
     @doc = @web[@url]
-    assert_equals([ '/~ryand/blah.html', '/~ryand/stuff/index.html' ],
+    assert_equals(@expected_subpages,
 		  @doc.subpages.sort)
   end
 
   def test_render
-    # TODO: test_render
+    file = @doc.htmlpath
+    if (test(?f, file)) then
+      File.delete(file)
+    end
+
+    @doc.render
+
+    assert(test(?f, file), "document must render in correct location")
   end
 
   def test_renderContent_bad
@@ -268,15 +276,15 @@ class TestZenDocument < ZenTest
   end
 
   def test_dir
-    assert_equals("test/ryand", @doc.dir)
+    assert_equals(@expected_dir, @doc.dir)
   end
 
   def test_datapath
-    assert_equals("test/ryand/index", @doc.datapath)
+    assert_equals(@expected_datapath, @doc.datapath)
   end
 
   def test_htmlpath
-    assert_equals("testhtml/ryand/index.html", @doc.htmlpath)
+    assert_equals(@expected_htmlpath, @doc.htmlpath)
   end
 
 end
@@ -284,27 +292,51 @@ end
 ############################################################
 # ZenSitemap
 
-class TestZenSitemap < RUNIT::TestCase
+class TestZenSitemap < TestZenDocument
 
   def setup
-    @url = "/SiteMap.html"
+    super
+    @url = @sitemapUrl
     @web = ZenWebsite.new(@url, "test", "testhtml")
     @doc = @web[@url]
+    @content = @doc.renderContent
+
+    @expected_datapath = "test/SiteMap"
+    @expected_dir = "test"
+    @expected_htmlpath = "testhtml/SiteMap.html"
+    @expected_subpages = []
+
+    @expected_docs = ([ "/index.html",
+			"/SiteMap.html",
+			"/Something.html",
+			"/~ryand/index.html",
+			"/~ryand/blah.html",
+			"/~ryand/stuff/index.html"])
   end
 
-  def test_initialize
-    # TODO: def initialize(url, website)
+  def test_documents
+    docs = @doc.documents
+
+    @expected_docs.each { | url |
+      assert(docs.has_key?(url),
+	     "Sitemap's documents must include #{url}")
+
+      assert_equal(url != "/SiteMap.html" ? ZenDocument : ZenSitemap,
+		   docs[url].class,
+		   "Document #{url} must be the correct class")
+    }
   end
 
-  def test_getDocuments
-    # TODO: def getDocuments()
+  def test_doc_order
+    assert_equal(@expected_docs,
+		 @doc.doc_order,
+		 "Sitemap's document order must be correct")
   end
 
   def test_sitemap_content
-    content = @doc.renderContent
+    expected = "<H2>There are 6 pages in this website.</H2>\n<HR SIZE=\"3\" NOSHADE>\n\n<UL>\n  <LI><A HREF=\"/index.html\">My Homepage: Subtitle</A></LI>\n  <LI><A HREF=\"/SiteMap.html\">Sitemap: There are 6 pages in this website.</A></LI>\n  <LI><A HREF=\"/Something.html\">Something</A></LI>\n  <LI><A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A></LI>\n  <UL>\n    <LI><A HREF=\"/~ryand/blah.html\">blah</A></LI>\n    <LI><A HREF=\"/~ryand/stuff/index.html\">my stuff</A></LI>\n  </UL>\n</UL>"
 
-    # FIX: this should properly test the content.
-    assert_not_nil(content.index("<HTML>"),
+    assert_not_nil(@content.index(expected) > 0,
 		   "Must render some form of HTML")
   end
 end
