@@ -1,28 +1,5 @@
 #!/usr/local/bin/ruby -w
 
-$hash_inspect = {}
-$hash_inspect.default = 0
-
-if false then
-  class Hash
-    alias :old_inspect :inspect
-    def inspect
-      $hash_inspect[caller] += 1
-      #    caller.each do |line|
-      #      $hash_inspect[line] += 1
-      #    end
-      old_inspect
-    end
-  end
-
-  at_exit do
-    puts
-    puts "Hash.inspect calls:"
-    puts
-    puts $hash_inspect.sort_by {|k,v| v}.reverse
-  end
-end
-
 require 'ftools' # for File::* below
 
 $TESTING = FALSE unless defined? $TESTING
@@ -90,7 +67,7 @@ process.
 
 class ZenWebsite
 
-  VERSION = '2.16.0'
+  VERSION = '2.17.0'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
@@ -211,6 +188,19 @@ document could create several HTML pages).
 =end
 
 class ZenDocument
+
+  # 1.8 has a bug in it that causes MASSIVE slowdown with cyclic
+  # object graphs. The fix has been submitted, but won't be released
+  # until 1.8.2 or above. This is a hacky workaround that makes
+  # running tolerable. I should come up with a better solution to deal
+  # with debugging, but I haven't actually needed to debug in a while.
+  # Basically, avoid ever showing the website or sitemap in an inspect.
+
+  if false and VERSION =~ /^1\.8/ then
+    def inspect
+      return "<#{self.class}\@#{self.object_id}: #{self.url}>"
+    end
+  end
 
   # These are done manually:
   # attr_reader :datapath, :htmlpath, :metadata
@@ -435,6 +425,7 @@ class ZenDocument
   def parent
     parentURL = self.parentURL
     parent = (parentURL != self.url ? self.website[parentURL] : self)
+    parent = self if parent.nil?
 
     return parent
   end
@@ -873,121 +864,3 @@ if __FILE__ == $0
   Metadata.displayBadMetadata unless dirty
 
 end
-
-############################################################
-# 1.8:
-#   %   cumulative   self              self     total
-#  time   seconds   seconds    calls  ms/call  ms/call  name
-#  29.66    74.36     74.36     3524    21.10    82.42  Hash#inspect
-#  22.30   130.27     55.91   750968     0.07     0.07  String#inspect
-#   8.21   150.85     20.58     6534     3.15     5.30  Array#inspect
-#   4.18   161.33     10.48      272    38.53    57.72  IO#foreach
-#   3.66   170.50      9.17     1461     6.28   512.00  Array#each
-#   3.05   178.16      7.66   114860     0.07     0.07  Fixnum#==
-#   3.01   185.72      7.56     9571     0.79     1.16  Metadata#[]
-#   2.83   192.81      7.09     6582     1.08    96.97  Kernel.inspect
-#   2.13   198.15      5.34    11118     0.48     0.63  GenericRenderer#push
-#   1.74   202.51      4.36      558     7.81    18.01  TextToHtmlRenderer#createList
-#   1.26   205.66      3.15    10345     0.30     2.16  ZenDocument#metadata
-#   1.13   208.49      2.83     9571     0.30     3.75  ZenDocument#[]
-#   1.06   211.15      2.66    35849     0.07     0.07  Fixnum#+
-#       271.62 real       251.67 user        13.09 sys
-
-############################################################
-# 1.6:
-#   %   cumulative   self              self     total
-#  time   seconds   seconds    calls  ms/call  ms/call  name
-#  10.80     8.22      8.22     1976     4.16   115.85  Array#each
-#  10.17    15.96      7.74      272    28.46    41.87  IO#foreach
-#   9.40    23.11      7.15     9571     0.75     1.05  Metadata#[]
-#   5.85    27.56      4.45    11118     0.40     0.60  GenericRenderer#push
-#   5.84    32.00      4.44      558     7.96    17.83  TextToHtmlRenderer#createList
-#   3.69    34.81      2.81     9571     0.29     3.11  ZenDocument#[]
-#   3.25    37.28      2.47    10345     0.24     1.64  ZenDocument#metadata
-#   3.11    39.65      2.37    35845     0.07     0.07  Fixnum#+
-#   2.43    41.50      1.85    31857     0.06     0.06  Array#push
-#   1.95    42.98      1.48      864     1.71     6.70  Metadata#loadFromDirectory
-#   1.95    44.46      1.48    23770     0.06     0.06  String#+
-#   1.91    45.91      1.45    23968     0.06     0.06  Hash#[]
-#   1.71    47.21      1.30      259     5.02    77.80  HtmlTemplateRenderer#render
-#   1.68    48.49      1.28     2369     0.54     0.73  ZenDocument#parentURL
-#   1.60    49.71      1.22    16707     0.07     0.39  String#gsub!
-#   1.55    50.89      1.18      518     2.28    18.80  HtmlTemplateRenderer#navbar
-#   1.52    52.05      1.16       95    12.21    94.95  String#each
-#   1.22    52.98      0.93     2110     0.44     1.44  ZenDocument#parent
-#   1.08    53.80      0.82     6553     0.13     0.13  String#sub!
-#   1.03    54.58      0.78      558     1.40    13.76  HtmlRenderer#array2html
-#   1.01    55.35      0.77    14794     0.05     0.05  Kernel.is_a?
-#        83.30 real        77.03 user         4.50 sys
-
-
-############################################################
-# New render(string)->string architecture
-############################################################
-# %   cumulative   self              self     total
-# time   seconds   seconds    calls  ms/call  ms/call  name
-# 13.61    11.70     11.70     1533     7.63   176.06  Array#each
-# 12.77    22.66     10.97      235    46.68    69.88  IO#foreach
-# 12.51    33.41     10.75    14955     0.72     1.08  GenericRenderer#push
-#  5.78    38.38      4.97      355    14.00    31.43  ZenDocument#createList
-#  4.39    42.16      3.77    35405     0.11     0.11  Array#push
-#
-# real	1m39.577s
-# user	1m27.635s
-# sys	0m7.733s
-############################################################
-# Previous render(Array)->Array architecture
-############################################################
-#   %   cumulative   self              self     total
-#  time   seconds   seconds    calls  ms/call  ms/call  name
-#  26.83    27.75     27.75    61960     0.45     0.89  GenericRenderer#push
-#  15.06    43.33     15.58     2059     7.57   164.09  Array#each
-#   9.67    53.33     10.00      235    42.55    62.00  IO#foreach
-#   5.89    59.42      6.09    82184     0.07     0.07  Array#push
-#   4.74    64.32      4.90    64417     0.08     0.08  Kernel.is_a?
-#
-# real    2m1.142s
-# user    1m44.934s
-# sys     0m12.849s
-############################################################
-
-############################################################
-# Pre-stupid-metadata cache:
-############################################################
-# 33947 Metadata.load.foreach
-# 19533 ZenDocument.parseMetadata.foreach
-#   452 Metadata.load
-#   225 ZenSitemap.initialize.foreach
-#   221 ZenDocument.parseMetadata
-#     1 ZenSitemap.initialize
-#   %   cumulative   self              self     total
-#  time   seconds   seconds    calls  ms/call  ms/call  name
-#  26.39    60.79     60.79      674    90.19   209.73  IO#foreach
-#  15.56    96.63     35.84    54379     0.66     0.95  Object#methodcall
-#  11.88   124.00     27.37    61035     0.45     0.87  GenericRenderer#push
-#   6.46   138.88     14.88     2012     7.40   355.25  Array#each
-#   4.89   150.14     11.26    59307     0.19     0.30  Kernel.eval
-# real    4m20.347s
-# user    3m51.917s
-# sys     0m21.503s
-
-############################################################
-# Post-stupid-metadata cache:
-############################################################
-# 19533 ZenDocument.parseMetadata.foreach
-#   452 Metadata.load
-#   225 ZenSitemap.initialize.foreach
-#   221 ZenDocument.parseMetadata
-#   173 Metadata.load.foreach
-#     1 ZenSitemap.initialize
-#   %   cumulative   self              self     total
-#  time   seconds   seconds    calls  ms/call  ms/call  name
-#  22.51    26.91     26.91    61035     0.44     0.87  GenericRenderer#push
-#  12.26    41.58     14.66     2012     7.29   190.62  Array#each
-#  11.12    54.88     13.30      230    57.81   157.00  IO#foreach
-#  10.47    67.40     12.52    20605     0.61     0.89  Object#methodcall
-# real    2m20.308s
-# user    2m1.025s
-# sys     0m14.965s
-############################################################
-
