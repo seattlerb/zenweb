@@ -1,0 +1,55 @@
+# -*- outline -*-
+
+* ZenWeb 2.0 Planning:
+
+** Requirements:
+
+*** Major
+
+These items are needed for betatesting.
+
+**** Sitemap
+
+Reads simple sitemap description file, from there generates
+website. 
+
+All metadata will be in sitemap.
+
+Urls in sitemap must map to filesystem.
+
+Must deal with ~username urls correctly.
+
+**** HTML Generation &/or embedded ruby
+
+Simple plaintext to HTML conversion. Standard to ZenWeb or Wiki.
+
+Embedded HTML should be allowed. Should be smart enough to not 
+generate invalid HTML.
+
+Some type of macro stuff, but not a full eRuby.
+
+OR, all plaintext to HTML could be an extension to eRuby.
+
+*** Minor
+
+These items are not needed for betatesting, but should be implemented
+for final shipment.
+
+**** Tools
+
+System could use sitemap and metadata to simply generate a makefile
+and execute it.
+
+Whatever generates the HTML should know about the structure and
+generate the minimum set necessary. This includes building parents,
+children, and immediate siblings ONLY when we actually need them
+built. Something in the metadata should say something about this.
+
+Tool to find files not in sitemap.
+
+Tool to find files in sitemap, but not on filesystem. Generate
+template for quick prototyping of website.
+
+**** Extras
+
+Possibly design for live execution in server.
