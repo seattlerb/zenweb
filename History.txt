@@ -1,0 +1,125 @@
+###############################################################################
+2002-04-07 2.7.1				   00 major / 00 minor / 01 bug
+
+	Synced version to new revisionist history version number.
+
+######################################################################
+# NOTE: all versions below this line are essentially a revisionist
+#       history.
+######################################################################
+
+###############################################################################
+2002-03-31 2.7.0				   02 major / 00 minor / 00 bug
+
+	Fixed RubyCodeRenderer!!!! (sorta)
+	Added ZenWebpage.rb
+
+###############################################################################
+2002-01-19 2.6.1				   00 major / 00 minor / 01 bug
+
+	Allowed #\{ to prevent interpolation. Helps w/ Ruby quickref.
+
+###############################################################################
+2001-08-24 2.6.0				   01 major / 00 minor / 00 bug
+
+	Improved unit tests for incremental builds.
+	Extended to be able to do incremental builds.
+	Profiled to enhance small changesets in incremental builds.
+	Tool is damn cool now!
+
+###############################################################################
+2001-08-07 2.5.0				   00 major / 03 minor / 00 bug
+
+	Tests exit w/ test result count.
+	TestZenWeb.rb: Improved tests. started working on differential build 
+	  tests.
+	ZenWeb.rb: Stubbed newerThanTarget. Sorted some stuff for testing.
+
+###############################################################################
+2001-04-14 2.4.0                                   00 major / 03 minor / 01 bug
+
+	Added CompositeRenderer and StandardRenderer to make life easier.
+	Added test for navbar generation.
+	Added tilde test files.
+
+	Removed a redundant refactor tag by renaming to refactee.
+
+###############################################################################
+2001-03-30 2.3.0                                   01 major / 01 minor / 01 bug
+
+	Added tweak to make tilde sites work correctly.
+	Added test for tilde sites.
+
+	Added Makefile
+
+	Fixed some docs.
+
+###############################################################################
+2001-03-08 2.2.1                                   00 major / 00 minor / 02 bug
+
+	Fixed renderer list.
+	Added accessor for testing. Cleaned some html.
+	Wrote tests for generic renderer.
+
+###############################################################################
+2001-03-07 2.2.0                                   00 major / 03 minor / 01 bug
+
+	Added some refactored renderers to renderers list.
+	Fixed some tags. Refactored some renderers.
+	Added some tests for newly separated renderers.
+	Started cleaning up some of the little design things.
+	Knocked off several tags: cleanup, refactoring, and wrote tests.
+
+	Added a test for hash2html.
+	Fixed several failed tests.
+	Switched some accessors to only be defined during testing.
+	Switched TestZenWebsite to subclass ZenTest.
+	Added several tests. Fixed some.
+	Switched TestZenSiteMap to subclass TestZenDocument.
+
+	Added dictionary lists for testing.
+
+	Fixed Metadata#initialize.
+	Added tests for Metadata#initialize.
+
+###############################################################################
+2001-03-05 2.1.0                                   00 major / 05 minor / 01 bug
+
+	(originally 2.0.0 - first time version was added)
+
+	Added ZenDocument#createHash as an analog to createList.
+	Added HtmlRenderer#hash2html
+	Added Text2HtmlRenderer extensions for dictionary lists.
+
+	Added tests for all new features, and some old ones.
+	Added content setter if testing.
+	Added tests for footer and header renderers.
+	Moved TESTING declaration to be global
+	Added TESTING variable for verbose-ness only when actually running.
+	Added test for non-existant renderers.
+
+	Added doctype.
+	Modified how banner is used to make it look much better.
+	Modified TextToHTMLRenderer to re-split lines more properly.
+
+	Started to add RubyCodeRenderer, but am having problems w/ it.
+
+	Added tons 'o docs.
+
+	Corrected date
+
+###############################################################################
+2001-02-13 2.0.1                                   00 major / 01 minor / 00 bug
+
+	Added design docs
+	Added a test suite
+
+###############################################################################
+2001-02-13 2.0.0                                   01 major / 00 minor / 00 bug
+
+	First fully working version in Ruby.
+
+###############################################################################
+2001-01-29 2.0.0 alpha                             01 major / 00 minor / 00 bug
+
+	Started ruby project.
