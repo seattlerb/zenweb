@@ -1,0 +1,5 @@
+website.homeURL = 'XXX'
+
+glossary['Your Own Website'] = '<A HREF="YourOwnWebsite.html">Your Own Website</A>'
+glossary['QuickStart'] = '<A HREF="QuickStart.html">QuickStart</A>'
+glossary['support'] = '<A HREF="mailto:support@ZenSpider.com">support@ZenSpider.com</A>'
