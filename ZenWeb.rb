@@ -71,7 +71,8 @@ class ZenWebsite
   VERSION = '2.1.0'
 
   attr_reader :datadir, :htmldir, :sitemap
-  attr_reader :documents, :doc_order if $TESTING
+  attr_reader :documents if $TESTING
+  attr_reader :doc_order # FIX: should be if $TESTING
 
 =begin
 
@@ -173,14 +174,8 @@ class ZenDocument
 
   # These are done manually
   # attr_reader :datapath, :htmlpath
-
-  attr_reader :url, :metadata, :content
-
+  attr_reader :url, :metadata, :content, :subpages, :website
   attr_writer :content if $TESTING
-
-  # TODO: why should I allow this?
-  # attr_reader :subpages
-  # attr_reader :website
 
 =begin
 
@@ -417,7 +412,7 @@ class ZenDocument
 
   def createHash(data)
 
-    # FIX: this needs to be ordered
+    # WARN: this needs to be ordered
     result = {}
 
     if (data.is_a?(String)) then
@@ -432,7 +427,7 @@ class ZenDocument
 	val = $1
 
 	if (key) then
-	  # FIX: maybe do something if already defined?
+	  # WARN: maybe do something if already defined?
 	  result[key] = val
 	end
 
