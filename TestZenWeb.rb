@@ -20,7 +20,8 @@ class ZenTest < Test::Unit::TestCase
 
   def tear_down
     if (test(?d, @htmldir)) then
-#      `rm -rf #{@htmldir}` unless $DEBUG
+      `rm -rf #{@htmldir}` 
+      # unless $DEBUG
     end
   end
 
@@ -33,7 +34,8 @@ class TestZenWebsite < ZenTest
 
   def tear_down
     if (test(?d, @htmldir)) then
-#      `rm -rf #{@htmldir}` unless $DEBUG
+      `rm -rf #{@htmldir}`
+      # unless $DEBUG
     end
   end
 

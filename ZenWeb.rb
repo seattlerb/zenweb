@@ -99,7 +99,7 @@ process.
 
 class ZenWebsite
 
-  VERSION = '2.13.0'
+  VERSION = '2.13.1'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
@@ -305,6 +305,10 @@ class ZenDocument
 =end
 
   def renderContent()
+
+    # FIX this is mainly here to force the rendering of the metadata,
+    # which also forces the population of @content.
+    title = self['title']
 
     # contents already preparsed for metadata
     result = self.content
