@@ -10,40 +10,54 @@ These items are needed for betatesting.
 
 **** Sitemap
 
-Reads simple sitemap description file, from there generates
-website. 
-
-All metadata will be in sitemap.
+Reads simple sitemap description file, from there generates website. 
 
 Urls in sitemap must map to filesystem.
 
 Must deal with ~username urls correctly.
 
-**** HTML Generation &/or embedded ruby
+Sitemap must give each document the knowedge of it's relatives (parent, children, siblings)
 
-Simple plaintext to HTML conversion. Standard to ZenWeb or Wiki.
+**** Flexible metadata system
 
-Embedded HTML should be allowed. Should be smart enough to not 
-generate invalid HTML.
+Metadata must be available per directory, each child overlaying the parents.
 
-Some type of macro stuff, but not a full eRuby.
+Metadata must be available per file, overlaying the directory.
 
-OR, all plaintext to HTML could be an extension to eRuby.
+Metadata must be flexible, allowing for basically anything to be a value.
+
+Metadata will drive most of the process. 
+
+**** Rendering Engine(s)
+
+System must allow for multiple rendering engines to be applied to any given datafile.
+
+Engines are specified by metadata.
+
+Example engines must be supplied: 
+  Raw
+  text2html
+  embedded ruby
+  header/footer.
 
 *** Minor
 
 These items are not needed for betatesting, but should be implemented
 for final shipment.
 
-**** Tools
-
-System could use sitemap and metadata to simply generate a makefile
-and execute it.
+**** Differential Rendering
 
 Whatever generates the HTML should know about the structure and
 generate the minimum set necessary. This includes building parents,
 children, and immediate siblings ONLY when we actually need them
-built. Something in the metadata should say something about this.
+built.
+
+Important relationships should be specified by metadata.
+
+**** Tools
+
+System could use sitemap and metadata to simply generate a makefile
+and execute it.
 
 Tool to find files not in sitemap.
 
