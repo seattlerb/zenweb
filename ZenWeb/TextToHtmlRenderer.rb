@@ -70,11 +70,12 @@ class TextToHtmlRenderer < HtmlRenderer
 	if (hash) then
 	  push(self.hash2html(hash, order) + "\n")
 	end
-      elsif (p =~ /^\t*\+/) then
+      elsif (p =~ /^\t*([\+=])/) then
+        ordered = $1 == "="
 	list = self.createList(p)
 
 	if (list) then
-	  push(self.array2html(list))
+	  push(self.array2html(list, ordered))
 	end
       elsif (p =~ /^\ \ / and p !~ /^[^\ ]/) then
 	p.gsub!(/^\ \ /, '')
@@ -110,7 +111,7 @@ class TextToHtmlRenderer < HtmlRenderer
 
     if (data.is_a?(String)) then
       # TODO: at some time we'll want to support different types of lists
-      data = data.gsub(/^(\t*)\+\s*(.*)$/) { $1 + $2 }
+      data = data.gsub(/^(\t*)([\+=])\s*(.*)$/) { type=$2; $1 + $3 }
       data = data.split($/)
     end
 

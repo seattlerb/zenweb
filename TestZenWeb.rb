@@ -770,6 +770,16 @@ class TestHtmlRenderer < ZenRendererTest
 		 @renderer.array2html($array_list_data).uberstrip)
   end
 
+  def test_array2html_one_level_ordered
+    assert_equal("<OL>\n  <LI>line 1</LI>\n  <LI>line 2</LI>\n</OL>\n",
+		 @renderer.array2html(["line 1", "line 2"], true))
+  end
+
+  def test_array2html_multi_level_ordered
+    assert_equal($html_list_data.gsub("UL", "OL").uberstrip,
+		 @renderer.array2html($array_list_data, true).uberstrip)
+  end
+
   def test_hash2html
     assert_equal("<DL>\n  <DT>key3</DT>\n  <DD>val3</DD>\n\n  <DT>key2</DT>\n  <DD>val2</DD>\n\n  <DT>key1</DT>\n  <DD>val1</DD>\n\n</DL>\n",
 		 @renderer.hash2html({ 'key3' => 'val3',
@@ -876,7 +886,7 @@ class TestTextToHtmlRenderer < ZenRendererTest
 
   end
 
-  def test_render_list1
+  def test_render_ul1
 
     # TODO: test like this:
     # r = TextToHtmlRenderer.new(@doc)
@@ -886,8 +896,13 @@ class TestTextToHtmlRenderer < ZenRendererTest
 		       "Must render normal list from +")
   end
 
-  def test_render_list2
+  def test_render_ul2
     util_render(%r%<UL>\n  <LI>Another List \(should have a sub list\).</LI>\n  <UL>\n    <LI>With a sub-list</LI>\n    <LI>another item</LI>\n  </UL>\n</UL>%,
+		       "Must render compound list from indented +'s")
+  end
+
+  def test_render_ol1
+    util_render(%r%<OL>\n  <LI>Ordered lists</LI>\n  <LI>are cool</LI>\n  <OL>\n    <LI>Especially when you make ordered sublists</LI>\n  </OL>\n</OL>\n%,
 		       "Must render compound list from indented +'s")
   end
 

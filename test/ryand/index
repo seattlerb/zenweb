@@ -21,6 +21,10 @@ Everything is separated by paragraphs (two or more returns).
 	+ With a sub-list
 	+ another item
 
+= Ordered lists
+= are cool
+	= Especially when you make ordered sublists
+
 %- Term 1
 %= Def 1
 %- Term 2
