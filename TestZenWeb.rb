@@ -1,5 +1,7 @@
 #!/usr/local/bin/ruby -w
 
+$TESTING = TRUE
+
 require 'ZenWeb'
 require 'runit/testcase'
 
@@ -401,13 +403,27 @@ end
 
 class TestFooterRenderer < ZenTest
   def test_render
-    # TODO: def render(content)
+    @doc = ZenDocument.new("/index.html", @web)
+    @doc.content = [ "line 1\nline 2\nline 3\n" ]
+    @doc['footer'] = "footer 1\n";
+    @doc['renderers'] = [ 'FooterRenderer' ]
+
+    content = @doc.renderContent
+
+    assert_equals("line 1\nline 2\nline 3\nfooter 1\n", content)
   end
 end
 
 class TestHeaderRenderer < ZenTest
   def test_render
-    # TODO: def render(content)
+    @doc = ZenDocument.new("/index.html", @web)
+    @doc.content = [ "line 1\nline 2\nline 3\n" ]
+    @doc['header'] = "header 1\n";
+    @doc['renderers'] = [ 'HeaderRenderer' ]
+
+    content = @doc.renderContent
+
+    assert_equals("header 1\nline 1\nline 2\nline 3\n", content)
   end
 end
 
@@ -481,8 +497,6 @@ end
 
 if __FILE__ == $0
   require 'runit/cui/testrunner'
-
-  $TESTING = TRUE
 
   unless ($DEBUG) then
     suite = TestAll.suite
