@@ -92,7 +92,7 @@ class ZenWebsite
 
   include CGI::Html4Tr
 
-  VERSION = '2.1.1'
+  VERSION = '2.1.2'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
@@ -308,8 +308,8 @@ class ZenDocument
 	renderer = theClass.send("new", self)
 	# 4.2) Pass entire file contents to renderer and replace w/ result.
 	result = renderer.render(result)
-      rescue NameError
-	raise NotImplementedError, "Renderer #{rendererName} is not implemented or loaded"
+      rescue NameError => something
+	raise NotImplementedError, "Renderer #{rendererName} is not implemented or loaded (#{something})"
       end
     }
 
@@ -1552,28 +1552,44 @@ class RubyCodeRenderer < GenericRenderer
 
   def render(content)
 
-    # require "irb/xmp"
-    # text = content.join('')
-    # content = text.split(/#{$\/}#{$\/}+/)
-    # 
-    # content.each { | p |
-    # if (p =~ /^\s*\!$/) then
-    # p.gsub!(/^\s*\!/, '')
-    # 
-    # code = xmp p
-    # p.gsub!(/^/, '  ')
-    # push(p)
-    # else
-    # push(p)
-    # end
-    # }
-    # 
-    # # put it back into line-by-line format
-    # text = @result.join('')
-    # @result = text.split(/\n/)
-    # 
-    # return @result
-    return content
+    text = content.join('')
+    content = text.split(/#{$\/}#{$\/}+/)
+    
+    content.each { | p |
+
+      # BUG? I think ruby has a bug, can't test for m/^\s*\!/
+      if (p =~ /^[\ \t]*\!/m) then
+
+	p.gsub!(/^[\ \t]*\!/, '')
+	
+	begin
+	  cmd = "irb --prompt xmp --noreadline 2>/dev/null"
+	  puts "Running irb for code:"
+	  puts p
+	  IO.popen(cmd, "r+") { |xmp|
+	    p.split(/\n/).each { |line|
+	      push("  #{line}")
+	      if line !~ /^\s+\#/ then
+		xmp.puts(line)
+		s = xmp.gets.chomp!
+		s.sub!(/==>(.*)$/, '==\\><EM>\1</EM>')
+		push("    #{s}")
+	      end
+	    }
+	  }
+	rescue Exception => something
+	  $stderr.puts "xmp: #{something}\nTrace =\n#{$@.join(\"\n\")}\n"
+	end
+      else
+	push(p)
+      end
+      push("\n\n")
+    }
+    
+    # put it back into line-by-line format
+    @result = @result.join("\n").scan(/^.*[\n\r]+/)
+
+    return @result
   end
 end
 
