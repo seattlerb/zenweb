@@ -36,6 +36,8 @@ class HtmlTemplateRenderer < HtmlRenderer
     + style - CSS code directly (for smaller snippets)
     + subtitle
     + title (default: 'Unknown Title')
+    + icbm - longitude and latitude for geourl.org
+    + icbm_title - defaults to the page title
 
 =end
 
@@ -52,6 +54,8 @@ class HtmlTemplateRenderer < HtmlRenderer
     stylesheet  = @document['stylesheet']
     subtitle    = @document['subtitle']
     title       = @document['title'] || 'Unknown Title'
+    icbm        = @document['icbm']
+    icbm_title  = @document['icbm_title'] || @document['title']
     charset     = @document['charset']
     style       = @document['style']
 
@@ -73,6 +77,7 @@ class HtmlTemplateRenderer < HtmlRenderer
 	   keywords ? "<META NAME=\"keywords\" CONTENT=\"#{keywords}\">\n" : [],
 	   description ? "<META NAME=\"description\" CONTENT=\"#{description}\">\n" : [],
 	   charset ? "<META HTTP-EQUIV=\"content-type\" CONTENT=\"text/html; charset=#{charset}\">" : [],
+	   icbm ? "<meta name=\"ICBM\" content=\"#{icbm}\">\n<meta name=\"DC.title\" content=\"#{icbm_title}\">" : [],
 	   "</HEAD>\n",
 	   "<BODY" + (bgcolor ? " BGCOLOR=\"#{bgcolor}\"" : '') + ">\n",
 	 ])
