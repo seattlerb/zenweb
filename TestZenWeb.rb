@@ -3,11 +3,11 @@
 $TESTING = TRUE
 
 require 'ZenWeb'
-require 'runit/testcase'
+require 'test/unit'
 
-class ZenTest < RUNIT::TestCase
+class ZenTest < Test::Unit::TestCase
 
-  def setup
+  def set_up
     @datadir = "test"
     @htmldir = "testhtml"
     @sitemapUrl = "/SiteMap.html"
@@ -17,7 +17,7 @@ class ZenTest < RUNIT::TestCase
     @content = @doc.renderContent
   end
 
-  def teardown
+  def tear_down
     if (test(?d, @htmldir)) then
       #`rm -rf #{@htmldir}` unless $DEBUG
     end
@@ -30,7 +30,7 @@ end
 
 class TestZenWebsite < ZenTest
 
-  def teardown
+  def tear_down
     if (test(?d, @htmldir)) then
       #`rm -rf #{@htmldir}` unless $DEBUG
     end
@@ -40,7 +40,7 @@ class TestZenWebsite < ZenTest
     begin
       @web = ZenWebsite.new("/doesn't exist", @datadir, @htmldir)
     rescue
-      assert_equals("ArgumentError", $!.class.to_s)
+      assert_equal("ArgumentError", $!.class.to_s)
     else
       assert(FALSE, "Bad url should throw exception")
     end
@@ -50,7 +50,7 @@ class TestZenWebsite < ZenTest
     begin
       @web = ZenWebsite.new(@sitemapUrl, "/doesn't exist", @htmldir)
     rescue
-      assert_equals("ArgumentError", $!.class.to_s)
+      assert_equal("ArgumentError", $!.class.to_s)
     else
       assert(FALSE, "Bad datadir should throw exception")
     end
@@ -61,7 +61,7 @@ class TestZenWebsite < ZenTest
     begin
       @web = ZenWebsite.new("SiteMap.html", @datadir, @htmldir)
     rescue
-      assert_equals("ArgumentError", $!.class.to_s)
+      assert_equal("ArgumentError", $!.class.to_s)
     else
       assert(FALSE, "Bad url should throw exception")
     end
@@ -127,7 +127,7 @@ end
 
 class TestZenDocument < ZenTest
 
-  def setup
+  def set_up
     super
     @expected_datapath = "test/ryand/index"
     @expected_htmlpath = "testhtml/ryand/index.html"
@@ -199,7 +199,7 @@ class TestZenDocument < ZenTest
   def test_subpages
     @web.renderSite
     @doc = @web[@url]
-    assert_equals(@expected_subpages,
+    assert_equal(@expected_subpages,
 		  @doc.subpages.sort)
   end
 
@@ -221,7 +221,7 @@ class TestZenDocument < ZenTest
     begin
       @doc.renderContent
     rescue Exception
-      assert_equals("NotImplementedError", $!.class.name,
+      assert_equal("NotImplementedError", $!.class.name,
 		    "renderContent must throw a NotImplementError.")
     else
       assert(FALSE,
@@ -265,24 +265,24 @@ class TestZenDocument < ZenTest
   def test_parentURL
     # 1 level deep
     @doc = ZenDocument.new("/Something.html", @web)
-    assert_equals("/index.html", @doc.parentURL())
+    assert_equal("/index.html", @doc.parentURL())
 
     # 2 levels deep - index
     @doc = ZenDocument.new("/ryand/index.html", @web)
-    assert_equals("/index.html", @doc.parentURL())
+    assert_equal("/index.html", @doc.parentURL())
 
     # 2 levels deep
     # yes, using metadata.txt is cheating, but it is a valid file...
     @doc = ZenDocument.new("/ryand/metadata.txt", @web)
-    assert_equals("/ryand/index.html", @doc.parentURL())
+    assert_equal("/ryand/index.html", @doc.parentURL())
 
     # 1 levels deep with a tilde
     @doc = ZenDocument.new("/~ryand/index.html", @web)
-    assert_equals("/index.html", @doc.parentURL())
+    assert_equal("/index.html", @doc.parentURL())
 
     # 2 levels deep with a tilde
     @doc = ZenDocument.new("/~ryand/stuff/index.html", @web)
-    assert_equals("/~ryand/index.html", @doc.parentURL())
+    assert_equal("/~ryand/index.html", @doc.parentURL())
   end
 
   def test_createList1
@@ -293,7 +293,7 @@ class TestZenDocument < ZenTest
 
   def test_createList2
 
-    assert_equals([ "line 1", 
+    assert_equal([ "line 1", 
 		    [ "line 1.1", "line 1.2" ], 
 		    "line 2", 
 		    [ "line 2.1",
@@ -313,20 +313,20 @@ class TestZenDocument < ZenTest
     assert_not_nil(parent,
 		   "Parent must not be nil")
 
-    assert_equals("/index.html", parent.url,
+    assert_equal("/index.html", parent.url,
 		  "Parent url must be correct")
   end
 
   def test_dir
-    assert_equals(@expected_dir, @doc.dir)
+    assert_equal(@expected_dir, @doc.dir)
   end
 
   def test_datapath
-    assert_equals(@expected_datapath, @doc.datapath)
+    assert_equal(@expected_datapath, @doc.datapath)
   end
 
   def test_htmlpath
-    assert_equals(@expected_htmlpath, @doc.htmlpath)
+    assert_equal(@expected_htmlpath, @doc.htmlpath)
   end
 
 end
@@ -336,7 +336,7 @@ end
 
 class TestZenSitemap < TestZenDocument
 
-  def setup
+  def set_up
     super
     @url = @sitemapUrl
     @web = ZenWebsite.new(@url, "test", "testhtml")
@@ -385,7 +385,7 @@ end
 
 class TestGenericRenderer < ZenTest
 
-  def setup
+  def set_up
     super
     @renderer = GenericRenderer.new(@doc)
   end
@@ -415,7 +415,7 @@ end
 
 class TestHtmlRenderer < ZenTest
 
-  def setup
+  def set_up
     super
     @renderer = HtmlRenderer.new(@doc)
   end
@@ -479,7 +479,7 @@ end
 
 class TestSubpageRenderer < ZenTest
 
-  def setup
+  def set_up
     super
     @renderer = SubpageRenderer.new(@doc)
   end
@@ -592,14 +592,18 @@ end
 
 class TestFooterRenderer < ZenTest
   def test_render
-    @doc = ZenDocument.new("/index.html", @web)
+    # must create own web so we don't attach to a pregenerated index.html
+    web = ZenWebsite.new(@sitemapUrl, "test", "testhtml")
+    @doc = ZenDocument.new("/index.html", web)
+
+    @doc.content = nil
     @doc.content = [ "line 1\nline 2\nline 3\n" ]
     @doc['footer'] = "footer 1\n";
     @doc['renderers'] = [ 'FooterRenderer' ]
 
     content = @doc.renderContent
 
-    assert_equals("line 1\nline 2\nline 3\nfooter 1\n", content)
+    assert_equal("line 1\nline 2\nline 3\nfooter 1\n", content)
   end
 end
 
@@ -612,21 +616,21 @@ class TestHeaderRenderer < ZenTest
 
     content = @doc.renderContent
 
-    assert_equals("header 1\nline 1\nline 2\nline 3\n", content)
+    assert_equal("header 1\nline 1\nline 2\nline 3\n", content)
   end
 end
 
 ############################################################
 # Metadata
 
-class TestMetadata < RUNIT::TestCase
+class TestMetadata < Test::Unit::TestCase
 
-  def setup
+  def set_up
     @file = "hash." + $$.to_s
     @hash = Metadata.new("test/ryand")
   end
 
-  def teardown
+  def tear_down
     if (test(?f, @file)) then
       File.unlink(@file)
     end
@@ -643,19 +647,19 @@ class TestMetadata < RUNIT::TestCase
   end
 
   def test_initialize2
-    assert_exception(ArgumentError, "bad path shall throw an ArgumentError") {
+    assert_raises(ArgumentError, "bad path shall throw an ArgumentError") {
       @hash = Metadata.new("bad_path", "/")
     }
   end
 
   def test_initialize3
-    assert_exception(ArgumentError, "bad top shall throw an ArgumentError") {
+    assert_raises(ArgumentError, "bad top shall throw an ArgumentError") {
       @hash = Metadata.new("test/ryand", "somewhereelse")
     }
   end
 
   def test_initialize4
-    assert_exception(ArgumentError, "deeper top shall throw an ArgumentError") {
+    assert_raises(ArgumentError, "deeper top shall throw an ArgumentError") {
       @hash = Metadata.new("test/ryand", "test/ryand/stuff")
     }
   end
@@ -695,19 +699,19 @@ end
 
 class TestAll 
   def TestAll.suite
-    suite = RUNIT::TestSuite.new
+    suite = Test::Unit::TestSuite.new
 
-    suite.add_test(TestZenWebsite.suite)
-    suite.add_test(TestZenDocument.suite)
-    suite.add_test(TestZenSitemap.suite)
-    suite.add_test(TestGenericRenderer.suite)
-    suite.add_test(TestHtmlRenderer.suite)
-    suite.add_test(TestHtmlTemplateRenderer.suite)
-    suite.add_test(TestTextToHtmlRenderer.suite)
-    suite.add_test(TestFooterRenderer.suite)
-    suite.add_test(TestHeaderRenderer.suite)
-    suite.add_test(TestMetadata.suite)
-    suite.add_test(TestSubpageRenderer.suite)
+    suite.add(TestZenWebsite.suite)
+    suite.add(TestZenDocument.suite)
+    suite.add(TestZenSitemap.suite)
+    suite.add(TestGenericRenderer.suite)
+    suite.add(TestHtmlRenderer.suite)
+    suite.add(TestHtmlTemplateRenderer.suite)
+    suite.add(TestTextToHtmlRenderer.suite)
+    suite.add(TestFooterRenderer.suite)
+    suite.add(TestHeaderRenderer.suite)
+    suite.add(TestMetadata.suite)
+    suite.add(TestSubpageRenderer.suite)
 
     return suite
   end
@@ -717,15 +721,15 @@ end
 # Main:
 
 if __FILE__ == $0
-  require 'runit/cui/testrunner'
+  require 'test/unit/ui/console/testrunner'
 
   unless ($DEBUG) then
     suite = TestAll.suite
   else
-    suite = RUNIT::TestSuite.new
-    suite.add_test(TestZenDocument.new("ZZZ", "TestZenDocument"))
+    suite = Test::Unit::TestSuite.new
+    suite.add(TestZenDocument.new("ZZZ", "TestZenDocument"))
   end
 
-  exit RUNIT::CUI::TestRunner.run(suite).succeed? ? 0 : 1
+  exit Test::Unit::UI::Console::TestRunner.run(suite).passed? ? 0 : 1
 end
 

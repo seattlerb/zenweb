@@ -200,8 +200,8 @@ document could create several HTML pages).
 class ZenDocument
 
   # These are done manually:
-  # attr_reader :datapath, :htmlpath
-  attr_reader :url, :metadata, :content, :subpages, :website
+  # attr_reader :datapath, :htmlpath, :metadata
+  attr_reader :url, :subpages, :website, :content
   attr_writer :content if $TESTING
 
 =begin
@@ -228,12 +228,7 @@ class ZenDocument
       raise ArgumentError, "url #{url} doesn't exist in #{self.datadir}"
     end
 
-    # TODO: make this a lazy initializer
-#    @metadata = {}
     @metadata = nil
-#    @metadata = Metadata.new(self.dir, self.datadir)
-
-#    self.parseMetadata
 
   end
 
@@ -588,14 +583,7 @@ class ZenDocument
 =end
 
   def [](key)
-    # TODO: make this a lazy initializer
-
-    if @metadata.nil? then
-      @metadata = Metadata.new(self.dir, self.datadir)
-      self.parseMetadata
-    end
-
-    return @metadata[key] || nil
+    return self.metadata[key] || nil
   end
 
 =begin
@@ -607,8 +595,17 @@ class ZenDocument
 =end
 
   def []=(key, val)
-    @metadata[key] = val
+    self.metadata[key] = val
   end
+
+def metadata
+  if @metadata.nil? then
+    @metadata = Metadata.new(self.dir, self.datadir)
+    self.parseMetadata
+  end
+
+  return @metadata
+end
 
 =begin
 

@@ -8,6 +8,6 @@ syntax:
 	ruby -wc TestZenWeb.rb
 
 test:
-	-TestZenWeb.rb
+	ruby -w TestZenWeb.rb
 
 .PHONY: test syntax
