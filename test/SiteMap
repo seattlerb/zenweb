@@ -1,0 +1,14 @@
+#
+# Test Website v. 1.0.0
+#
+# 'title' = 'Sitemap'
+# 'renderers' = [ 'SitemapRenderer', 'TextToHtmlRenderer', 'HtmlTemplateRenderer' ]
+
+/index.html
+/SiteMap.html
+/Something.html
+/~ryand/index.html
+/~ryand/blah.html
+/~ryand/stuff/index.html
+
+

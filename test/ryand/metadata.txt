@@ -1,0 +1,2 @@
+"key1" = 42
+"key2" = "some string"

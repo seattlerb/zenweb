@@ -1,0 +1,10 @@
+"key3" = "another string"
+
+"key1" = 24
+
+"renderers" = [ 'TextToHtmlRenderer', 'HtmlTemplateRenderer' ]
+
+'author'      = 'Ryan Davis'
+# 'banner'      = 'some sort of link to a banner image'
+'copyright'   = '1996-2001, Zen Spider Software'
+'email'       = 'ryand-web@zenspider.com'

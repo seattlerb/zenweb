@@ -1,0 +1,44 @@
+# 'title' = "Ryan's Homepage"
+# 'subtitle' = "Version 2.0"
+# 'footer' = 'This is my footer, jive turkey'
+# 'renderers' = [ 'FooterRenderer', 'TextToHtmlRenderer', 'HtmlTemplateRenderer' ]
+
+Everything is separated by paragraphs (two or more returns).
+
+** Head 2
+
+*** Head 3
+
+**** Head 4
+
+***** Head 5
+
+****** Head 6
+
++ Lists (should have two items).
++ Continuted Lists.
+
++ Another List (should have a sub list).
+	+ With a sub-list
+	+ another item
+
+Glossary lookups for #{key1} and #{key2} (see metadata.txt for a hint).
+#{key99} should not look up.
+
+---
+
+Paragraphs can contain http://www.ZenSpider.com/ZSS/ZenWeb/ and mailto:zss@ZenSpider.com and they will automatically be converted. Don't forget less-than "\<" \& greater-than "\>", but only if backslashed.
+
+Supports <A HREF="http://www.yahoo.com">Unaltered urls</A> as well.
+
+Likewise, two lines side by side
+are considered one paragraph. Supports <I>Embedded HTML</I>.
+
+===
+
+  PRE blocks are paragraphs that are indented two spaces on each line.
+  The two spaces will be stripped, and all other indentation will be left
+  alone.
+     this allows me to put things like code examples in and retain
+         their formatting.
+
