@@ -8,7 +8,7 @@ syntax:
 	ruby -wc TestZenWeb.rb
 
 test: syntax
-	ruby -w TestZenWeb.rb $(TEST)
+	ruby -w -I. TestZenWeb.rb $(TEST)
 
 install:
 	@where=`ruby -rrbconfig -e 'include Config; print CONFIG["sitelibdir"]'`; echo installing in $$where; cp -f ZenWeb.rb $$where

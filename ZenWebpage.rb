@@ -12,5 +12,5 @@ file.puts "# 'description' = 'Basic desc for search engines.'"
 file.puts ""
 file.puts "** Section Header"
 file.puts ""
-file.puts "TODO: write this page"
+file.puts "TO" + "DO: write this page" # to avoid my source TAG scanner
 file.close

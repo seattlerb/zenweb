@@ -1,4 +1,11 @@
 ###############################################################################
+2002-05-14 2.7.3				   00 major / 00 minor / 03 bug
+
+	Implemented test_load, test_loadFromDirectory, test_renderContent_foot.
+	Added -I. to Makefile invocation of tests.
+	Deleted Metadata#save and corresponding test. Yeah! Less code!
+
+###############################################################################
 2002-04-07 2.7.2				   00 major / 00 minor / 02 bug
 
 	Updated to use Test::Unit instead of deprecated RUNIT.

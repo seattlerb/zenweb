@@ -20,7 +20,7 @@ class ZenTest < Test::Unit::TestCase
 
   def tear_down
     if (test(?d, @htmldir)) then
-      #`rm -rf #{@htmldir}` unless $DEBUG
+      `rm -rf #{@htmldir}` unless $DEBUG
     end
   end
 
@@ -33,7 +33,7 @@ class TestZenWebsite < ZenTest
 
   def tear_down
     if (test(?d, @htmldir)) then
-      #`rm -rf #{@htmldir}` unless $DEBUG
+      `rm -rf #{@htmldir}` unless $DEBUG
     end
   end
 
@@ -236,7 +236,7 @@ class TestZenDocument < ZenTest
   end
 
   def util_newerThanTarget(is_newer)
-    # FIX: find a less costly way of passing these tests
+
     @web.renderSite
     
     assert(test(?f, @doc.htmlpath),
@@ -246,12 +246,12 @@ class TestZenDocument < ZenTest
 
     if (is_newer) then
       `touch #{@doc.htmlpath}`
-      sleep 1
+      sleep .51
       `touch #{@doc.datapath}`
       assert(@doc.newerThanTarget, "doc must be newer")
     else
       `touch #{@doc.datapath}`
-      sleep 1
+      sleep .51
       `touch #{@doc.htmlpath}`
       assert(! @doc.newerThanTarget, "doc must not be newer")
     end
@@ -470,15 +470,13 @@ class TestHtmlTemplateRenderer < ZenTest
 <H1>Ryan\'s Homepage</H1>
 <H2>Version 2.0</H2>
 <HR SIZE=\"3\" NOSHADE>"),
-	   "Must render the HTML header and all appropriate metadata")
+		   "Must render the HTML header and all appropriate metadata")
   end
 
   def test_renderContent_foot
 
-    # TODO: expand this to test for navbar and other footerish stuff
-    assert(@content =~ %r,"<P>\n<A HREF=\"/SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"/index.html\">My Homepage</A>\n / Ryan\'s Homepage</P>"
-\n\n</BODY>\n</HTML>\n,,
-	   "Must render HTML footer")
+    assert_not_nil(@content.index("<P>This is my footer, jive turkey</P>\n\n<HR SIZE=\"3\" NOSHADE>\n\n<P>\n<A HREF=\"/SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"/index.html\">My Homepage</A>\n / Ryan's Homepage</P>\n\n</BODY>\n</HTML>\n"),
+		   "Must render the HTML footer")
   end
 
 end
@@ -632,14 +630,10 @@ end
 class TestMetadata < Test::Unit::TestCase
 
   def set_up
-    @file = "hash." + $$.to_s
     @hash = Metadata.new("test/ryand")
   end
 
   def tear_down
-    if (test(?f, @file)) then
-      File.unlink(@file)
-    end
   end
 
   def test_initialize1
@@ -670,16 +664,19 @@ class TestMetadata < Test::Unit::TestCase
     }
   end
 
-  def test_save
-    # TODO: def save(file)
-  end
-
   def test_loadFromDirectory
-    # TODO: def loadFromDirectory(directory, toplevel, count = 1)
+    @hash = Metadata.new("test")
+    assert_equal(24, @hash["key1"])
+    @hash.loadFromDirectory("test/ryand", '.')
+    assert_equal(42, @hash["key1"])
   end
 
   def test_load
-    # TODO: def load(file)
+    # initial load should be 
+    @hash = Metadata.new("test")
+    assert_equal(24, @hash["key1"])
+    @hash.load("test/ryand/metadata.txt")
+    assert_equal(42, @hash["key1"])
   end
 
   def test_core

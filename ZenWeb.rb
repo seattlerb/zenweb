@@ -94,7 +94,7 @@ class ZenWebsite
 
   include CGI::Html4Tr
 
-  VERSION = '2.7.2'
+  VERSION = '2.7.3'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
@@ -762,22 +762,6 @@ class Metadata < Hash
 
 =begin
 
---- Metadata#save(file)
-
-    Saves the current structure to file ((|file|)).
-
-=end
-
-  def save(file)
-    out = File.open(file, "w")
-    self.each_key { | key |
-      out.printf("%s = %s\n", key.inspect, self[key].inspect)
-    }
-    out.close
-  end
-
-=begin
-
 --- Metadata#loadFromDirectory(directory, toplevel, count=1)
 
     Loads a series of metadata files from the directory ((|toplevel|))
@@ -791,6 +775,7 @@ class Metadata < Hash
     raise "too many recursions" if (count > 20)
 
     if (directory != toplevel && directory != "/" && directory != ".") then
+      # Recurse to parent directory. Increment count for basic loop protection.
       self.loadFromDirectory(File.dirname(directory), toplevel, count + 1)
     end
 
