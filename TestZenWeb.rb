@@ -552,7 +552,8 @@ alone.
   end
 
   def test_navbar
-    # TODO: def navbar
+    assert_not_nil(@content.index("<A HREF=\"/SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"/index.html\">My Homepage</A>\n / Ryan's Homepage</P>\n"),
+		   "Must render navbar correctly")
   end
 end
 

@@ -749,7 +749,7 @@ class Metadata < Hash
       count += 1
       if (line =~ /^\s*(\"(?:\\.|[^\"]+)\"|[^=]+)\s*=\s*(.*?)\s*$/) then
 
-	# REFACTOR: this is duplicated from above
+	# REFACTEE: this is duplicated from above
 	begin
 	  key = $1
 	  val = $2
@@ -859,6 +859,85 @@ class GenericRenderer
   end
 
 end
+
+=begin
+
+= Class CompositeRenderer
+
+Allows multiple renderers to be plugged into a single renderer.
+
+=== Methods
+
+=end
+
+class CompositeRenderer < GenericRenderer
+
+=begin
+
+--- CompositeRenderer#new(document)
+
+    Creates a new CompositeRenderer.
+
+=end
+
+  def initialize(document)
+    super(document)
+    @renderers = []
+  end
+
+  def addRenderer(renderer)
+    @renderers.push(renderer)
+  end
+
+=begin
+
+--- CompositeRenderer#render(content)
+
+    Renders by running all of the renderers in sequence.
+
+=end
+
+  def render(content)
+    @renderers.each { | renderer |
+      content = renderer.render(content)
+    }
+    return content
+  end
+
+end
+
+=begin
+
+= Class StandardRenderer
+
+Creates a fairly standard webpage using several different renderers.
+
+=== Methods
+
+=end
+
+class StandardRenderer < CompositeRenderer
+
+=begin
+
+--- StandardRenderer#new(document)
+
+    Creates a new StandardRenderer.
+
+=end
+
+  def initialize(document)
+    super(document)
+
+    self.addRenderer(SubpageRenderer.new(document))
+    self.addRenderer(MetadataRenderer.new(document))
+    self.addRenderer(TextToHtmlRenderer.new(document))
+    self.addRenderer(HtmlTemplateRenderer.new(document))
+    self.addRenderer(FooterRenderer.new(document))
+  end
+
+end
+
 
 =begin
 
