@@ -67,7 +67,7 @@ process.
 
 class ZenWebsite
 
-  VERSION = '2.15.2'
+  VERSION = '2.16.0'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
