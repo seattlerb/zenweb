@@ -1,5 +1,5 @@
-# "title" = "ZenWeb Quickstart"
-# "description" = "Quick guide to setting up ZenWeb"
+# "title" = "Installation Quickstart"
+# "subtitle" = "Quick guide to setting up ZenWeb"
 # "keywords" = "ZenWeb, instructions, Quick Start"
 
 ** Requirements:
@@ -25,7 +25,7 @@
 	+ If you have apache you can quickly serve these pages (on unix):
 		+ <code>sudo httpd -c "DocumentRoot $PWD/demohtml"</code>
 	+ Check it out in your browser.
-	+ It contains some docs to get your site up and running.
+	+ Read all the pages, but start with #{Your Own Website}.
 
 Any questions, flames, requests, whatever should be sent to
 #{support}. Thank you.

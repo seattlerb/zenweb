@@ -133,7 +133,7 @@ class ZenWebsite
 
   include CGI::Html4Tr
 
-  VERSION = '2.9.1 beta'
+  VERSION = '2.10.0'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
@@ -223,7 +223,7 @@ class ZenWebsite
 =end
   
   def ZenWebsite.banner()
-    return "ZenWeb v. #{ZenWebsite::VERSION}"
+    return "ZenWeb v. #{ZenWebsite::VERSION} http://www.zenspider.com/ZSS/Products/ZenWeb/"
   end
 
 end

@@ -1,8 +1,10 @@
-# "title" = "Features"
-# "noindex" = "true"
-# "description" = "Demonstrates the various paragraph-to-HTML embellishments in ZenWeb."
+# 'title' = 'Features'
+# 'subtitle' = 'Markup and Variables'
+# "description" = "Demonstrates the various text-to-HTML embellishments in ZenWeb."
 
 This document will attempt to show you how many of the html markup features work. 
+
+** Markup:
 
 The only Head 1 is the title.
 
@@ -82,4 +84,39 @@ creates:
 
 ===
 
-That's pretty much the meat of it.
+** Metadata Variables:
+
+Metadata variables can be defined in the page itself, or in any
+metadata.txt file in the directory tree. Scoping is from top down, so
+the lowest definition wins.
+
+Here is a list of the variables in use by HtmlTemplateRenderer:
+
+%- author
+%= added as a META tag if it exists, I suggest NOT putting your email in here.
+%- banner
+%= graphic at the top of the page, usually a logo
+%- bgcolor
+%= defaults to not being defined
+%- copyright
+%= added as a META tag if it exists.
+%- description
+%= added as a META tag if it exists
+%- dtd
+%= Doctype declaration of the document. (default: 'DTD HTML 4.0 Transitional')
+%- email
+%= used in a mailto in metadata
+%- keywords
+%= added as a META tag for search engines.
+%- rating
+%= added as a meta tag for filter services (default: 'general')
+%- stylesheet
+%= CSS stylesheet
+%- subtitle
+%= Subtitle of document.
+%- title
+%= Title of document. (default: 'Unknown Title')
+
+Additionally, HeaderRenderer and FooterRenderer use entries called
+'header' and 'footer' respectively.
+

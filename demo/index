@@ -1,14 +1,10 @@
-# "title" = "ZenWeb Demo"
+# "title" = "ZenWeb"
+# "subtitle" = "Demo and Instructions"
 # "description" = "Demo of ZenWeb"
 # "keywords" = "ZenWeb, Stuff"
 
-Not much for now. I will add more instructions later. I am SURE that
-as is, you won't like the site exactly, but you can get started on the
-content and structure. I haven't done the best job of extracting MY
-website stuff from ZenWebsite/ZenDocument but I will work on it.
-
-Instructions for getting started with ruby and ZenWeb exist on the
-#{QuickStart} page.
-
-Instructions exist for creating a new or converting an existing
-website on the #{Your Own Website} page.
+Welcome to ZenWeb. If you are viewing the plain-text version of this
+document, I urge you to run 'make' and view the HTML version
+instead. Visit all of the subpages below to learn how to use
+ZenWeb. If I am missing anything or you'd like to make suggestions,
+email #{support}.

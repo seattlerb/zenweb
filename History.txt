@@ -1,4 +1,17 @@
 ###############################################################################
+2002-08-13 2.10.0				   00 major / 04 minor / 04 bug
+
+	+ Overhauled demo pages. Documented special variables and much more.
+	+ Extended ZenWebpage.rb to deal w/ metadata.txt and SiteMap files.
+	+ Added demo/Presentation.
+	+ Added heirarchy.png and .tgif.
+	- Deleted design.obj and objectmodel.obj in favor of heirarchy.tgif.
+	- Fixed version number, I had kept and released a mislabeled
+	  beta by accident.
+	- Improved banner to point to zenspider.com.
+	- Updated Manifest.txt, no more stale stuff.
+
+###############################################################################
 2002-08-11 2.9.1				   00 major / 00 minor / 02 bug
 
 	+ Fixed REQUIREMENTS.txt (minor).

@@ -1,26 +1,33 @@
-# "title" = "ZenWeb: Your Own Website"
+# "title" = "Your Own Website"
+# "subtitle" = "How to use ZenWeb"
 # "description" = "Quick guide to converting an existing website or creating a new one."
 # "keywords" = "ZenWeb, instructions, website creation"
 
-ZenWeb is supposed to be rather easy to use. This demo site is intended to be a demonstration that it is easy. If this takes me more than 10 minutes to do (including typing these pages), then I have failed my job.
+ZenWeb is supposed to be rather easy to use. This demo site is
+intended to be a demonstration that it is easy. If this takes me more
+than 10 minutes to do (including typing these pages), then I have
+failed my job.
 
-** How I made this demo site:
+** How to make a site from scratch:
 
-+ I created a directory called demo.
-+ I created a file in demo called SiteMap.
-	+ In that file I gave it a title, description and keywords.
-	+ I then created a list of URLs (minus the base part of the URL) for the pages in the site.
-+ I then created a file for each URL in the sitemap and put them in demo. NOTE: The file names do not have ".html" in them because they aren't HTML files.
-+ I then ran '<CODE>ZenWeb.rb demo</CODE>' in order to render it to HTML.
++ Run the following commands:
+	+ <CODE>mkdir mysite</CODE>
+	+ <CODE>ZenWebpage.rb mysite/index</CODE>
+	+ <CODE>ZenWebpage.rb mysite/SiteMap</CODE>
+	+ <CODE>ZenWebpage.rb mysite/metadata.txt</CODE>
+	+ <CODE>ZenWeb.rb mysite</CODE>
++ Edit as you see fit.
++ See the #{TextToHTML} page for markup hints and tips.
 
-** How you make YOUR new site:
+** How to add a page to your site:
 
-+ Copy demo's SiteMap and metadata.txt to a new directory (e.g. "mysite").
-+ Modify the SiteMap to contain the pages of your site.
-+ Use '<CODE>ZenWebpage.rb filename title subtitle</CODE>' to create new template pages. The subtitle is optional.
-+ Run demo.py
++ Modify mysite/SiteMap and add the url to the page, including .html, excluding the domain of the url (ex: "/blah.html").
++ Run the following commands:
+	+ <CODE>ZenWebpage.rb mysite/blah.html</CODE>
+	+ <CODE>touch mysite/SiteMap</CODE>
+	+ <CODE>ZenWeb.rb mysite</CODE>
 
-** How to convert your OLD site:
+** How to convert an old site:
 
 + Do the same as the new site instructions, except:
 	+ For each file, remove your HTML header and footer code.

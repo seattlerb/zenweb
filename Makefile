@@ -20,4 +20,7 @@ install:
 clean:
 	rm -rf *~ testhtml demohtml
 
+apache:
+	httpd -X -d $$PWD -c "PidFile $$PWD/httpd.pid" -c "DocumentRoot $$PWD/demohtml" -c "Port 8080" -c "ErrorLog $$PWD/httpd-error.log"
+
 .PHONY: test syntax

@@ -1,0 +1,97 @@
+# "title" = "Presentation"
+# "subtitle" = "For Talks on ZenWeb"
+# "keywords" = "ZenWeb, Presentation"
+
+** Major Topics:
+
++ Philosophy
++ Class Heirarchy
++ Basic Design
++ Metadata scoping
++ Renderers
++ Iterative Builds
+
+** Philosophy:
+
+The primary focus of ZenWeb is to improve the signal-to-noise ratio so
+that you can get work done and published quickly and easily. This
+means when I want to make a new mostly empty webpage, I should be able
+to do so and have it out on the web in about 30 seconds. Putting
+actual content out there shouldn't be much harder than typing in your
+favorite text editor and saving.
+
+A secondary focus of ZenWeb is that everything revolves around the
+sitemap. The sitemap determines the structure of the entire website
+and is used to determine what pages to render.
+
+** Class Heirarchy:
+
+[see heirarchy.png]
+
+The class hierarchy is as simple as possible, with only 5 top level
+classes and 10 concrete renderers.
+
+** Basic Design:
+
+[see heirarchy.png]
+
+Simple run:
+
+  Website#new
+    ZenSitemap#new
+      parse sitemap
+      foreach page listed
+        ZenDocument#new
+    foreach document in sitemap
+      parent = doc.parenturl
+      parent.addSubpage(doc)
+  Website#renderSite
+    foreach document in sitemap
+      doc.render
+
+** Metadata scoping:
+
+A Metadata instance is essentially just a multi-directory file-based
+hash. Child directories can have additional metadata that can override
+parent directory entries. In addition, files in a website can also
+define their own metadata. 
+
+Metadata is used for a number of purposes from defining simple urls to
+make the text cleaner, to defining what renderers get triggered for a
+given page or sub-directory.
+
+** Renderers:
+
+Renderers are basic filters, much like unix pipes. Each one should do
+one simple task taking an array of strings and returning an array of
+strings. Supplied renderers include:
+
++ GenericRenderer
+	+ CompositeRenderer
+		+ StandardRenderer
+	+ SitemapRenderer
+	+ HtmlRenderer
+		+ HtmlTemplateRenderer
+		+ TextToHtmlRenderer
+	+ SubpageRenderer
+	+ MetadataRenderer
+	+ HeaderRenderer
+	+ FooterRenderer
+	+ RubyCodeRenderer
+
+Future renderers could be much more powerful and do things like render
+themes based on the user prefs, render PDF instead of HTML,
+or... whatever... 
+
+** Iterative Builds:
+
+Last but not least, with large websites it becomes increasingly
+important not to waste time rendering pages that don't change. ZenWeb
+has basic 'make' like functionality and will not render pages that
+don't need it.
+
+Right now it's an incredibly simple mechanism. It doesn't understand
+the relationships between pages. It currently only renders pages who's
+source pages have changed, but not pages that link that page. This
+isn't very important as it only really has impact if the title or
+subtitle changes.
