@@ -762,7 +762,6 @@ class TestHtmlTemplateRenderer < ZenRendererTest
 
   def test_render_html_and_head
 
-    $stderr.puts @content
     assert_not_nil(@content.index("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">
 <HTML>
 <HEAD>
