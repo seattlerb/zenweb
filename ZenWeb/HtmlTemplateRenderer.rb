@@ -32,7 +32,8 @@ class HtmlTemplateRenderer < HtmlRenderer
     + email - used in a mailto in metadata
     + keywords
     + rating (default: 'general')
-    + stylesheet
+    + stylesheet - reference to a CSS file
+    + style - CSS code directly (for smaller snippets)
     + subtitle
     + title (default: 'Unknown Title')
 
@@ -52,6 +53,7 @@ class HtmlTemplateRenderer < HtmlRenderer
     subtitle    = @document['subtitle']
     title       = @document['title'] || 'Unknown Title'
     charset     = @document['charset']
+    style       = @document['style']
 
     titletext   = @document.fulltitle
 
@@ -65,6 +67,7 @@ class HtmlTemplateRenderer < HtmlRenderer
 	   stylesheet ? "<LINK REL=\"STYLESHEET\" HREF=\"#{stylesheet}\" type=text/css title=\"#{stylesheet}\">\n" : [],
 	   "<META NAME=\"rating\" CONTENT=\"#{rating}\">\n",
 	   "<META NAME=\"GENERATOR\" CONTENT=\"#{ZenWebsite.banner}\">\n",
+	   style ? "<STYLE>\n#{style}\n</STYLE>" : [],
 	   author ? "<META NAME=\"author\" CONTENT=\"#{author}\">\n" : [],
 	   copyright ? "<META NAME=\"copyright\" CONTENT=\"#{copyright}\">\n" : [],
 	   keywords ? "<META NAME=\"keywords\" CONTENT=\"#{keywords}\">\n" : [],

@@ -4,6 +4,7 @@
 # Copyright:: Copyright (c) 2000-2002 Nathaniel Talbott. All rights reserved.
 # License:: Ruby license.
 
+require 'test/unit/testcase'
 require 'test/unit/testresult'
 require 'test/unit/ui/testrunnermediator'
 require 'test/unit/ui/testrunnerutilities'
@@ -14,11 +15,30 @@ module Test
       alias :add :<<
     end
     class TestCase
-      alias :new_run :run
-      def run(result)
-	set_up
-	new_run(result)
-	tear_down
+      if instance_methods.include?('setup') then
+	$stderr.puts "You are using a newer Test::Unit. Adding a compatibility layer..."
+
+	alias :old_run :run
+	def run(result)
+	  set_up
+	  old_run(result)
+	  tear_down
+	end
+
+	def set_up; end
+	alias :old_setup :setup
+	def setup
+	  set_up
+	end
+
+	def tear_down; end
+	alias :old_teardown :teardown
+	def teardown
+	  
+	  tear_down
+	end
+      else
+	$stderr.puts "You are using an older version of Test::Unit"
       end
     end
   end
