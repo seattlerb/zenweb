@@ -1,4 +1,12 @@
 ###############################################################################
+2002-08-29 2.12.1				   00 major / 00 minor / 01 bug
+
+	- Added StupidRenderer, which is so stupid that I thought I'd
+	list it as a bug instead of a minor enhancement. :) The cool
+	thing is that this was written at a Seattle.rb meeting as a
+	demo and it only took 20 seconds for the first iteration!
+
+###############################################################################
 2002-08-19 2.12.0				   00 major / 02 minor / 03 bug
 
 	+ Added TocRenderer code and tests. Using it in the demo as well...
