@@ -79,7 +79,7 @@ end
 
   def convert(u)
 
-    if $Uri_Implemented then
+    if $Uri_Implemented and (u[0].chr != '#') then
       oldurl = URI.parse(u)
 
       if oldurl.relative? then

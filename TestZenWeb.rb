@@ -295,8 +295,8 @@ class TestZenDocument < ZenTestCase
     assert(test(?f, doc_datapath),
 	   "datapath must exist at #{doc_datapath}")
 
-    time_old = '200101010000'
-    time_new = '200101020000'
+    time_old = '01010000'
+    time_new = '01020000'
 
     # unify times
     `touch -t #{time_old} #{doc_datapath} #{doc_htmlpath}`
@@ -1036,14 +1036,24 @@ class TestRelativeRenderer < ZenTestCase
       '<A HREF="http://www.yahoo.com/blah/blah.html">stuff</A>',
       '<a href="/something.html">something</A>',
       '<a href="/subdir/">other dir</A>',
-      '<a href="/~ryand/blah.html">same dir</A>'
+      '<a href="/~ryand/blah.html">same dir</A>',
+      '<a href="#location">same page</A>',
+      '<A HREF="http://www.yahoo.com/blah/blah.html#location">stuff</A>',
+      '<a href="/something.html#location">something</A>',
+      '<a href="/subdir/#location">other dir</A>',
+      '<a href="/~ryand/blah.html#location">same dir</A>',
     ].join('')
 
     expect  = [
       '<A HREF="http://www.yahoo.com/blah/blah.html">stuff</A>',
       '<a href="../something.html">something</A>',
       '<a href="../subdir/">other dir</A>',
-      '<a href="blah.html">same dir</A>'
+      '<a href="blah.html">same dir</A>',
+      '<a href="#location">same page</A>',
+      '<A HREF="http://www.yahoo.com/blah/blah.html#location">stuff</A>',
+      '<a href="../something.html#location">something</A>',
+      '<a href="../subdir/#location">other dir</A>',
+      '<a href="blah.html#location">same dir</A>',
     ].join('')
 
     result = @renderer.render(content)
