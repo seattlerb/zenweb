@@ -64,7 +64,7 @@ class HtmlTemplateRenderer < HtmlRenderer
 	   "<HEAD>\n",
 	   "<TITLE>#{titletext}</TITLE>\n",
 	   email ? "<LINK REV=\"MADE\" HREF=\"#{email}\">\n" : [],
-	   stylesheet ? "<LINK REL=\"STYLESHEET\" HREF=\"#{stylesheet}\" type=text/css title=\"#{stylesheet}\">\n" : [],
+	   stylesheet ? "<LINK REL=\"STYLESHEET\" HREF=\"#{stylesheet}\" type=\"text/css\" title=\"#{stylesheet}\">\n" : [],
 	   "<META NAME=\"rating\" CONTENT=\"#{rating}\">\n",
 	   "<META NAME=\"GENERATOR\" CONTENT=\"#{ZenWebsite.banner}\">\n",
 	   style ? "<STYLE>\n#{style}\n</STYLE>" : [],
