@@ -92,6 +92,37 @@ class ZenTestRunner
   end
 end
 
+def run_all_tests_with(runnerclass)
+  if (!Test::Unit::UI::TestRunnerMediator.run?)
+    suite_name = $0.sub(/\.rb$/, '')
+    suite = Test::Unit::TestSuite.new(suite_name)
+    test_classes = []
+    ObjectSpace.each_object(Class) {
+      | klass |
+      test_classes << klass if (Test::Unit::TestCase > klass)
+    }
+
+    if ARGV.empty?
+      test_classes.each {|klass| suite.add(klass.suite)}
+    else
+      tests = test_classes.map { |klass| klass.suite.tests }.flatten
+      criteria = ARGV.map { |arg| (arg =~ %r{^/(.*)/$}) ? Regexp.new($1) : arg}
+      criteria.each {
+	| criterion |
+	if (criterion.instance_of?(Regexp))
+	  tests.each { |test| suite.add(test) if (criterion =~ test.name) }
+	elsif (/^A-Z/ =~ criterion)
+	  tests.each { |test| suite.add(test) if (criterion == test.type.name) }
+	else
+	  tests.each { |test| suite.add(test) if (criterion == test.method_name) }
+	end
+      }
+    end
+    runnerclass.run(suite)
+  end
+end
+public :run_all_tests_with
+
 if __FILE__ == $0
   ZenTestRunner.start_command_line_test
 end

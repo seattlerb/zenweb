@@ -11,6 +11,17 @@ require 'test/unit/testresult'
 require 'test/unit/testcase'
 require 'zentestrunner'
 
+# this is used across different classes for html list tests
+$text_list_data = "+ a\n\t+ a1\n\t\t+ a1a\n+ b\n\t+ b1\n\t\t+ b1a\n\t\t+ b1b\n+ c\n\t+ c1\n\t\t+ c1a\n\t+ c2\n\t\t+ c2a\n\t\t+ c2b\n\t\t+ c2c\n\t\t+ c2d"
+$array_list_data = ['a', ['a1', ['a1a']], 'b', ['b1', ['b1a', 'b1b' ]], 'c', ['c1', ['c1a'], 'c2', ['c2a', 'c2b', 'c2c', 'c2d']]]
+$html_list_data = "<UL>\n<LI>a</LI>\n<UL>\n<LI>a1</LI>\n<UL>\n<LI>a1a</LI>\n</UL>\n</UL>\n<LI>b</LI>\n<UL>\n<LI>b1</LI>\n<UL>\n<LI>b1a</LI>\n<LI>b1b</LI>\n</UL>\n</UL>\n<LI>c</LI>\n<UL>\n<LI>c1</LI>\n<UL>\n<LI>c1a</LI>\n</UL>\n<LI>c2</LI>\n<UL>\n<LI>c2a</LI>\n<LI>c2b</LI>\n<LI>c2c</LI>\n<LI>c2d</LI>\n</UL>\n</UL>\n</UL>\n"
+
+class String
+  def uberstrip
+    (self.split($/).map {|x| x.strip}).join($/)
+  end
+end
+
 def shutupwhile
   $dead = File.open("/dev/null", "w")
 
@@ -114,7 +125,6 @@ class TestZenWebsite < ZenTestCase
   end
 
   def test_renderSite
-
     @web.renderSite
 
     assert(test(?d, @htmldir),
@@ -720,20 +730,16 @@ class TestHtmlRenderer < ZenTestCase
   end
 
   def test_array2html_multi_level
-
-    assert_equal("<UL>\n  <LI>line 1</LI>\n  <UL>\n    <LI>line 1.1</LI>\n    <LI>line 1.2</LI>\n  </UL>\n  <LI>line 2</LI>\n  <UL>\n    <LI>line 2.1</LI>\n    <UL>\n      <LI>line 2.1.1</LI>\n    </UL>\n  </UL>\n</UL>\n",
-		 @renderer.array2html([ "line 1", 
-					[ "line 1.1", "line 1.2" ], 
-					"line 2", 
-					[ "line 2.1",
-					  [ "line 2.1.1" ] ] ]))
+    assert_equal($html_list_data.uberstrip,
+		 @renderer.array2html($array_list_data).uberstrip)
   end
 
   def test_hash2html
-    assert_equal("<DL>\n  <DT>key1</DT>\n  <DD>val1</DD>\n\n  <DT>key2</DT>\n  <DD>val2</DD>\n\n  <DT>key3</DT>\n  <DD>val3</DD>\n\n</DL>\n",
-		 @renderer.hash2html({ 'key1' => 'val1',
+    assert_equal("<DL>\n  <DT>key3</DT>\n  <DD>val3</DD>\n\n  <DT>key2</DT>\n  <DD>val2</DD>\n\n  <DT>key1</DT>\n  <DD>val1</DD>\n\n</DL>\n",
+		 @renderer.hash2html({ 'key3' => 'val3',
 				       'key2' => 'val2',
-				       'key3' => 'val3' }))
+				       'key1' => 'val1' },
+				     [ 'key3', 'key2', 'key1' ]))
   end
 
   def test_render
@@ -917,20 +923,16 @@ class TestTextToHtmlRenderer < ZenTestCase
   def test_createList_deep
     r = TextToHtmlRenderer.new(@doc)
 
-    assert_equal([ "line 1", 
-		   [ "line 1.1", "line 1.2" ], 
-		   "line 2", 
-		   [ "line 2.1",
-		     [ "line 2.1.1" ] ] ],
-		 r.createList("line 1\n\tline 1.1\n\tline 1.2\n" +
-			      "line 2\n\tline 2.1\n\t\tline 2.1.1"))
+    assert_equal($array_list_data, r.createList($text_list_data),
+		 "createList must create the correct array from the text")
   end
 
   def test_createHash_simple
     r = TextToHtmlRenderer.new(@doc)
+    hash, order = r.createHash("%- term 2\n%= def 2\n%-term 1\n%=def 1")
 
-    assert_equal({"term 1" => "def 1", "term 2" => "def 2"},
-		 r.createHash("%- term 1\n%= def 1\n%-term 2\n%=def 2"))
+    assert_equal({"term 2" => "def 2", "term 1" => "def 1"}, hash)
+    assert_equal(["term 2", "term 1"], order)
   end
 end
 
@@ -969,6 +971,22 @@ class TestMetadataRenderer < ZenTestCase
   def test_render
     @doc['nothing'] = 'you'
     assert_equal('I hate you', @renderer.render('I hate #{nothing}'))
+  end
+
+  def test_include
+    r = MetadataRenderer.new(@doc)
+    result = r.render("TEXT\n\#{include 'test/include.txt'}\nTEXT")
+    expected = "TEXT\n\#metadata = false\nThis is some 42\ncommon text.\nTEXT"
+    assert_equal(expected, result,
+		 "Include should inject text from files")
+  end
+
+  def test_include_strip
+    r = MetadataRenderer.new(@doc)
+    result = r.render("TEXT\n\#{include 'test/include.txt', true}\nTEXT")
+    expected = "TEXT\n\This is some 42\ncommon text.\nTEXT"
+    assert_equal(expected, result,
+		 "Include should inject text from files")
   end
 end
 
@@ -1192,36 +1210,6 @@ class TestStupidRenderer < ZenTestCase
   def test_strip
     result = @renderer.strip("This is some text")
     assert_equal("Ths s sm txt", result)
-  end
-end
-
-def run_all_tests_with(runnerclass)
-  if (!Test::Unit::UI::TestRunnerMediator.run?)
-    suite_name = $0.sub(/\.rb$/, '')
-    suite = Test::Unit::TestSuite.new(suite_name)
-    test_classes = []
-    ObjectSpace.each_object(Class) {
-      | klass |
-      test_classes << klass if (Test::Unit::TestCase > klass)
-    }
-
-    if ARGV.empty?
-      test_classes.each {|klass| suite.add(klass.suite)}
-    else
-      tests = test_classes.map { |klass| klass.suite.tests }.flatten
-      criteria = ARGV.map { |arg| (arg =~ %r{^/(.*)/$}) ? Regexp.new($1) : arg}
-      criteria.each {
-	| criterion |
-	if (criterion.instance_of?(Regexp))
-	  tests.each { |test| suite.add(test) if (criterion =~ test.name) }
-	elsif (/^A-Z/ =~ criterion)
-	  tests.each { |test| suite.add(test) if (criterion == test.type.name) }
-	else
-	  tests.each { |test| suite.add(test) if (criterion == test.method_name) }
-	end
-      }
-    end
-    runnerclass.run(suite)
   end
 end
 

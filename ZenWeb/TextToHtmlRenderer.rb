@@ -65,14 +65,12 @@ class TextToHtmlRenderer < HtmlRenderer
       elsif (p =~ /^===+$/) then
 	push("<HR SIZE=\"2\" NOSHADE>\n\n")
       elsif (p =~ /^%[=-]/) then # FIX: needs to maintain order
-	hash = self.createHash(p)
+	hash, order = self.createHash(p)
 
 	if (hash) then
-	  push(self.hash2html(hash) + "\n")
+	  push(self.hash2html(hash, order) + "\n")
 	end
       elsif (p =~ /^\t*\+/) then
-	p.gsub!(/^(\t*)\+\s*(.*)$/) { $1 + $2 }
-
 	list = self.createList(p)
 
 	if (list) then
@@ -111,6 +109,8 @@ class TextToHtmlRenderer < HtmlRenderer
   def createList(data)
 
     if (data.is_a?(String)) then
+      # TODO: at some time we'll want to support different types of lists
+      data = data.gsub(/^(\t*)\+\s*(.*)$/) { $1 + $2 }
       data = data.split($/)
     end
 
@@ -166,8 +166,8 @@ class TextToHtmlRenderer < HtmlRenderer
 
   def createHash(data)
 
-    # FIX: this needs to be ordered!
     result = {}
+    order = []
 
     if (data.is_a?(String)) then
       data = data.split($/)
@@ -183,6 +183,7 @@ class TextToHtmlRenderer < HtmlRenderer
 	if (key) then
 	  # WARN: maybe do something if already defined?
 	  result[key] = val
+	  order << key
 	end
 
       else
@@ -190,7 +191,7 @@ class TextToHtmlRenderer < HtmlRenderer
       end
     }
 
-    return result
+    return result, order
   end
 
 end

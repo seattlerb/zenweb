@@ -99,7 +99,7 @@ process.
 
 class ZenWebsite
 
-  VERSION = '2.14.0'
+  VERSION = '2.15.0'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
@@ -357,7 +357,7 @@ class ZenDocument
 =end
 
   def render(force=false)
-    if force or self.newerThanTarget then
+    if force or self['force'] or self.newerThanTarget then
       path = self.htmlpath
       dir = File.dirname(path)
       

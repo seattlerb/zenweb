@@ -64,7 +64,7 @@ creates:
 Likewise, two lines side by side
 are considered one paragraph.
 
-  More Paragraphs with <I>Embedded HTML</I>.
+  More Paragraphs with \<I\>Embedded HTML\</I\>.
   Same as More Paragraphs.
 
 creates:
@@ -118,6 +118,8 @@ Here is a list of the variables in use by HtmlTemplateRenderer:
 %= Title of document. (default: 'Unknown Title')
 %- charset
 %= Character encoding for the page.
+%- force
+%= Set to true (no quotes necessary) to force page to render every time.
 
 Additionally, HeaderRenderer and FooterRenderer use entries called
 'header' and 'footer' respectively.

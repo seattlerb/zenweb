@@ -19,7 +19,7 @@ HTML header and footer (ie, html, head, and body tags), as well as
 some extra structure to the page like presenting the title and
 subtitle as an H1 and creating a top and bottom navbar. There are a
 lot of metadata variables available for customizing this renderer, see
-#{Features} for more details.
+<!--hack-->#{Features} for more details.
 
 ** MetadataRenderer
 
@@ -54,7 +54,7 @@ heirarchy).
 ** TextToHtmlRenderer
 
 Does a bizillion conversions from plain text to HTML. See
-#{TextToHtml} for a full description.
+<!--hack-->#{TextToHtml} for a full description.
 
 ** TocRenderer
 

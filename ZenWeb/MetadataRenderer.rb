@@ -46,5 +46,15 @@ class MetadataRenderer < GenericRenderer
     return content
   end
 
+  def include(path, remove_metadata=false)
+    content = File.new(path).readlines
+
+    if remove_metadata then
+      content = content.reject { |line| line =~ /^\s*\#/ }
+    end
+
+    return self.render(content.join(''))
+  end
+
 end
 

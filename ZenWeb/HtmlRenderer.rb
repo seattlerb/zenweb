@@ -53,13 +53,13 @@ class HtmlRenderer < GenericRenderer
     return result
   end
 
-  def hash2html(hash)
+  def hash2html(hash, order)
     result = ""
 
     if (hash) then
       result += "<DL>\n"
-      hash.keys.sort.each { | key |
-	val = hash[key]
+      order.each { | key |
+	val = hash[key] or raise "Key '#{key}' is missing!"
 	result += "  <DT>#{key}</DT>\n"
 	result += "  <DD>#{val}</DD>\n\n"
       }
