@@ -47,6 +47,7 @@ class MetadataRenderer < GenericRenderer
   end
 
   def include(path, remove_metadata=false)
+    path = File.expand_path(File.join(File.dirname(@document.datapath), path))
     content = File.new(path).readlines
 
     if remove_metadata then

@@ -8,6 +8,22 @@ require 'test/unit/testresult'
 require 'test/unit/ui/testrunnermediator'
 require 'test/unit/ui/testrunnerutilities'
 
+module Test
+  module Unit
+    class TestSuite
+      alias :add :<<
+    end
+    class TestCase
+      alias :new_run :run
+      def run(result)
+	set_up
+	new_run(result)
+	tear_down
+      end
+    end
+  end
+end
+
 # Runs a Test::Unit::TestSuite on the console.
 class ZenTestRunner
   extend Test::Unit::UI::TestRunnerUtilities

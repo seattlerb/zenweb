@@ -975,7 +975,7 @@ class TestMetadataRenderer < ZenTestCase
 
   def test_include
     r = MetadataRenderer.new(@doc)
-    result = r.render("TEXT\n\#{include 'test/include.txt'}\nTEXT")
+    result = r.render("TEXT\n\#{include '../include.txt'}\nTEXT")
     expected = "TEXT\n\#metadata = false\nThis is some 42\ncommon text.\nTEXT"
     assert_equal(expected, result,
 		 "Include should inject text from files")
@@ -983,7 +983,7 @@ class TestMetadataRenderer < ZenTestCase
 
   def test_include_strip
     r = MetadataRenderer.new(@doc)
-    result = r.render("TEXT\n\#{include 'test/include.txt', true}\nTEXT")
+    result = r.render("TEXT\n\#{include '../include.txt', true}\nTEXT")
     expected = "TEXT\n\This is some 42\ncommon text.\nTEXT"
     assert_equal(expected, result,
 		 "Include should inject text from files")

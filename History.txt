@@ -1,3 +1,10 @@
+*** 2.15.1 / 2003-03-05
+
++ 1 minor enhancement
+	+ Added a compatibility layer for dealing with Test::Unit version breakage.
++ 1 bug fix
+	+ MetadataRenderer.include properly deals with relative paths (relative to the document being renderered).
+
 *** 2.15.0 / 2003-02-04
 
 + 2 minor enhancements
