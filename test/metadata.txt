@@ -2,7 +2,7 @@
 
 "key1" = 24
 
-"renderers" = [ 'TextToHtmlRenderer', 'HtmlTemplateRenderer' ]
+"renderers" = [ 'SubpageRenderer', 'MetadataRenderer', 'TextToHtmlRenderer', 'HtmlTemplateRenderer' ]
 
 'author'      = 'Ryan Davis'
 # 'banner'      = 'some sort of link to a banner image'
