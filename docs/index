@@ -5,6 +5,10 @@
 
 Welcome to ZenWeb. If you are viewing the plain-text version of this
 document, I urge you to run 'make' and view the HTML version
-instead. Visit all of the subpages below to learn how to use
+instead. It at the very least helps demonstrate some of the
+capabilities of ZenWeb. After that, you might want to start with
+#{QuickStart}.
+
+Eventually, visit all of the subpages below to learn how to use
 ZenWeb. If I am missing anything or you'd like to make suggestions,
 email #{support}.

@@ -70,7 +70,7 @@ heirarchy).
 ** TextToHtmlRenderer
 
 Does a bizillion conversions from plain text to HTML. See
-<!--hack-->#{TextToHtml} for a full description.
+<!--hack-->#{TextToHTML} for a full description.
 
 ** TocRenderer
 

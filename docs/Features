@@ -111,7 +111,9 @@ Here is a list of the variables in use by HtmlTemplateRenderer:
 %- rating
 %= added as a meta tag for filter services (default: 'general')
 %- stylesheet
-%= CSS stylesheet
+%= CSS stylesheet URL.
+%- style
+%= CSS code applied directly to the page. style and stylesheet are not mutually exclusive.
 %- subtitle
 %= Subtitle of document.
 %- title

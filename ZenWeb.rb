@@ -138,11 +138,10 @@ class ZenWebsite
     @doc_order.each { | url |
       doc = @documents[url]
 
-      if doc.render(force) then
-	puts url unless $TESTING
-      end
+      doc.render(force)
     }
 
+    self
   end
 
   ############################################################
@@ -326,6 +325,9 @@ class ZenDocument
 
   def render(force=false)
     if force or self['force'] or self.newerThanTarget then
+
+      puts url unless $TESTING
+
       path = self.htmlpath
       dir = File.dirname(path)
       
@@ -631,7 +633,53 @@ directories, up to a specified directory, or "/" by default.
 
 class Metadata < Hash
 
+  RESERVED_WORDS=Regexp.union "\`", *%w(author banner bgcolor copyright description dtd email
+         keywords rating stylesheet subtitle title charset force
+         header footer style include)
+
   @@metadata = {}
+  @@count = {}
+  @@count.default = 0
+
+=begin
+
+--- Metadata#displayBadMetadata
+
+    Reports both unused metadata (only really good if you render the
+    entire site) and metadata accessed but not defined (sometimes gets
+    confused by legit ruby code).
+
+=end
+
+  def self.displayBadMetadata
+
+    good_key = {}
+
+    puts
+    puts "Unused metadata entries:"
+    puts
+    @@metadata.each do |file, metadata|
+      puts "File = #{file}"
+      metadata.each_key do |key|
+	count = @@count[key]
+	good_key[key] = true
+	puts "  #{key}" unless count > 0
+      end
+    end
+
+    puts
+    puts "Bad accesses:"
+    puts
+    @@count.each do |key, count|
+      puts "  #{key}: #{count}" unless good_key[key] or key =~ RESERVED_WORDS
+    end
+  end
+
+  def [](key)
+    @@count[key] += 1
+    $stderr.puts "  WARNING: metadata '#{key}' does not exist" unless $TESTING or key?(key) or key =~ RESERVED_WORDS
+    super
+  end
 
 =begin
 
@@ -710,6 +758,7 @@ class Metadata < Hash
 
     unless (@@metadata[file]) then
       hash = {}
+
       IO.foreach(file) { | line |
 	count += 1
 	if (line =~ /^\s*(\"(?:\\.|[^\"]+)\"|[^=]+)\s*=\s*(.*?)\s*$/) then
@@ -793,7 +842,10 @@ if __FILE__ == $0
     dest = path + "html"
   end
 
-  ZenWebsite.new(url, path, dest).renderSite()
+  dirty = test ?d, dest
+
+  ZenWebsite.new(url, path, dest).renderSite
+  Metadata.displayBadMetadata unless dirty
 
 end
 
