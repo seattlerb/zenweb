@@ -3,6 +3,8 @@
 $TESTING = TRUE
 
 require 'ZenWeb'
+require 'ZenWeb/SitemapRenderer'
+require 'ZenWeb/TocRenderer'
 require 'test/unit'
 require 'test/unit/ui/console/testrunner'
 
@@ -644,6 +646,12 @@ class TestHtmlTemplateRenderer < ZenTest
 		   "Must render the HTML footer")
   end
 
+  def test_navbar
+    @content = @doc.renderContent
+    assert(@content =~ "<A HREF=\"../SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan\'s Homepage</P>\n",
+	   "Must render navbar correctly")
+  end
+
 end
 
 class TestSubpageRenderer < ZenTest
@@ -766,11 +774,6 @@ class TestTextToHtmlRenderer < ZenTest
 		       "Must render PRE blocks from indented paragraphs")
   end
 
-  def test_navbar
-    util_render("<A HREF=\"../SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan\'s Homepage</P>\n",
-		       "Must render navbar correctly")
-  end
-
   def test_createList_flat
     r = TextToHtmlRenderer.new(@doc)
 
@@ -829,8 +832,13 @@ class TestHeaderRenderer < ZenTest
   end
 end
 
-require 'ZenWeb/SitemapRenderer'
-class TestSiteMapRenderer < ZenTest
+class TestMetadataRenderer < Test::Unit::TestCase
+  def test_render
+    assert(false, 'Need to write test_render tests')
+  end
+end
+
+class TestSitemapRenderer < ZenTest
 
   def set_up
     super
@@ -934,7 +942,6 @@ class TestRubyCodeRenderer < Test::Unit::TestCase
   end
 end
 
-require 'ZenWeb/TocRenderer'
 class TestTocRenderer < ZenTest
 
   def set_up
