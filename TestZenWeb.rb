@@ -149,6 +149,21 @@ class TestZenDocument < ZenTest
     # TODO: test_render
   end
 
+  def test_renderContent_bad
+    @doc = @web[@sitemapUrl]
+    @doc['renderers'] = [ 'NonExistantRenderer' ]
+
+    begin
+      @doc.renderContent
+    rescue Exception
+      assert_equals("NotImplementedError", $!.class.name,
+		    "renderContent must throw a NotImplementError.")
+    else
+      assert(FALSE,
+	     "renderContent must throw an exception if renderer doesn't exist")
+    end
+  end
+
   def test_parentURL
     # 1 level deep
     @doc = ZenDocument.new("/Something.html", @web)
@@ -240,7 +255,9 @@ class TestZenSitemap < RUNIT::TestCase
   def test_sitemap_content
     content = @doc.renderContent
 
-    assert_not_nil(content.index("<HTML>"), "Must render some form of HTML")
+    # FIX: this should properly test the content.
+    assert_not_nil(content.index("<HTML>"),
+		   "Must render some form of HTML")
   end
 end
 
@@ -464,6 +481,8 @@ end
 
 if __FILE__ == $0
   require 'runit/cui/testrunner'
+
+  $TESTING = TRUE
 
   unless ($DEBUG) then
     suite = TestAll.suite
