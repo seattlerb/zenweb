@@ -1,4 +1,10 @@
 ###############################################################################
+2002-08-16 2.11.1				   00 major / 00 minor / 01 bug
+
+	- Wrote Customizing document for those who want to really
+	  tweak their site.
+
+###############################################################################
 2002-08-15 2.11.0				   00 major / 01 minor / 03 bug
 
 	+ ZenWeb.rb: Split out all renderers into separate files and
