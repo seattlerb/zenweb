@@ -12,7 +12,10 @@ require 'test/unit/ui/testrunnerutilities'
 module Test
   module Unit
     class TestSuite
-      alias :add :<<
+      unless instance_methods.include?('<<') then
+	$stderr.puts "Adding << alias"
+	alias :<< :add
+      end
     end
     class TestCase
       if instance_methods.include?('setup') then
