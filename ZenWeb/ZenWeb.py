@@ -59,9 +59,9 @@ class ZenWebsite:
 		if not self.__dict__.has_key("defaultType"):
 			self.defaultType	= "ZenDocument"
 
-		self.siteMapInput = mpath(posixpath.join(self.datadir, sitemap))
-		self.siteMapOutput = mpath(posixpath.join(self.htmldir, sitemap + ".html"))
-		self.siteMapIsModified = fileIsNewerThan(self.siteMapInput, self.siteMapOutput)
+		self.siteMapInput = posixpath.join(self.datadir, sitemap)
+		self.siteMapOutput = posixpath.join(self.htmldir, sitemap + ".html")
+		self.siteMapIsModified = fileIsNewerThan(mpath(self.siteMapInput), mpath(self.siteMapOutput))
 
 		self.pages = {}
 		self.sitemap = []
@@ -132,15 +132,16 @@ class ZenWebsite:
 
 			if (input[0] == "/"):
 				input = input[1:]
-			input = mpath(posixpath.join(self.datadir, input))
+			input = posixpath.join(self.datadir, input)
 
 			output = url
 			if (output[0] == "/"):
 				output = output[1:]
-			output = mpath(posixpath.join(self.htmldir, output))
+			output = posixpath.join(self.htmldir, output)
 
-			if self.siteMapIsModified or not fileIsNewerThan(output, input):
-				print "%s" % output
+			if self.siteMapIsModified or not fileIsNewerThan(mpath(output), mpath(input)):
+#				print "%s from %s" % (output, input)
+				print "%s" % (output)
 				doc	= self.pages[url]
 				doc.read(input)
 				doc.write(output)
@@ -157,7 +158,7 @@ class ZenWebsite:
 			input = regsub.sub("\.html$", "", regsub.sub("^/", "", url))
 			if (input[0] == "/"):
 				input = input[1:]
-			input = mpath(posixpath.join(self.datadir, input))
+			input = posixpath.join(self.datadir, input)
 			if (input <> ""):
 				doc	= self.pages[url]
 				doc.read(input)
@@ -277,15 +278,20 @@ class ZenDocument(SimpleDocument):
 	def loadRCs(self, filename="HTML.rc", path):
 		" to be called by read "
 		
+#		print "1 loadRCs('%s', '%s')" % (filename, path)
+		
 		assert path <> "", "path argument shall not be empty"
 
-		if (os.path.isfile(path)):
-			path = os.path.dirname(path)
+		if (os.path.isfile(mpath(path))):
+			path = posixpath.dirname(path)
+			
+#		print "2 loadRCs(%s, %s)" % (filename, path)
+#		print "Looking for '%s'" % self.website.datadir
 		
 		if (path <> self.website.datadir):
 			#recurse until st top, then unwind.
-			self.loadRCs(filename, os.path.dirname(path))
-		target = mpath(os.path.join(path, filename))
+			self.loadRCs(filename, posixpath.dirname(path))
+		target = mpath(posixpath.join(path, filename))
 		if (os.path.exists(target)):
 			execfile(target, self.__dict__)
 
