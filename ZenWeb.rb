@@ -99,7 +99,7 @@ process.
 
 class ZenWebsite
 
-  VERSION = '2.15.1'
+  VERSION = '2.15.2'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
@@ -792,7 +792,13 @@ if __FILE__ == $0
     raise(ArgumentError, "Usage: #{$0} datadir [sitemapurl]")
   end
 
-  ZenWebsite.new(url, path, path + "html").renderSite()
+  if path == "data" then
+    dest = "html"
+  else
+    dest = path + "html"
+  end
+
+  ZenWebsite.new(url, path, dest).renderSite()
 
 end
 

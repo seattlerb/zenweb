@@ -17,6 +17,26 @@ file = File.new(path, "w")
 
 if filename == 'metadata.txt' then
   file.puts "'renderers' = [ 'StandardRenderer' ]"
+elsif filename == 'Makefile' then
+  file.puts "# use this to override"
+  file.puts "RUBYPATH="
+  file.puts "DEBUG="
+  file.puts "ZENWEB=/usr/local/bin/zenweb"
+  file.puts "INSTALLDIR=/usr/local/www"
+  file.puts ""
+  file.puts "all: html"
+  file.puts ""
+  file.puts "html:"
+  file.puts "	RUBYPATH=$(RUBYPATH) ruby $(DEBUG) $(ZENWEB) data"
+  file.puts ""
+  file.puts "clean:"
+  file.puts "	-rm -rf html *~"
+  file.puts "	-find data -name \*.html -print0 | xargs -0 rm -f"
+  file.puts ""
+  file.puts "copy:"
+  file.puts "	rsync -r html/ $(INSTALLDIR)"
+  file.puts ""
+  file.puts ".PHONY: all html clean copy"
 else
   file.puts "# 'title' = '#{title}'"
   file.puts "# 'subtitle' = '#{subtitle}'"
