@@ -44,13 +44,13 @@ class ZSSDocument(ZenDocument):
 		self.author		= 'Ryan Davis'
 		self.email		= 'zss@ZenSpider.com'
 		self.sitename	= 'Zen Spider Software'
-		self.background	= "/image/backgrounds/normal.gif"
+#		self.background	= "/image/backgrounds/normal.gif"
 
-	def html_body_tag(self):
-		return ZenDocument.html_body_tag(self) + '<BLOCKQUOTE>\n'
-
-	def html_foot(self):
-		return '</BLOCKQUOTE>\n' + ZenDocument.html_foot(self)
+#	def html_body_tag(self):
+#		return ZenDocument.html_body_tag(self) + '<BLOCKQUOTE>\n'
+#
+#	def html_foot(self):
+#		return '</BLOCKQUOTE>\n' + ZenDocument.html_foot(self)
 		
 	def nav_buttons(self):
 		"""Generate hyperlinked navigation buttons.
