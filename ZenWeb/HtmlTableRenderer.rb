@@ -8,7 +8,7 @@ class Hash
       if self.has_key?(key) then
 	result = $1 ? sprintf("%*s", $1.to_i, self[key]) : self[key]
       else
-	$stderr.puts "  WARNING: missing data for '#{key}'"
+	$stderr.puts "  WARNING: missing data for '#{key}' in #{self.inspect}" unless $TESTING
       end
       result
     end

@@ -1543,8 +1543,7 @@ end
 # this is more here to shut up ZenTest than anything else.
 class TestXXXRenderer < ZenRendererTest
   def test_render
-    # TODO: convert
-    assert_equal("This is a test", @renderer.render("This is a test"))
+    util_render("This is a test", "This is a test", "shouldn't do anything...")
   end
 end
 
