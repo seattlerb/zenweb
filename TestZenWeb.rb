@@ -1265,7 +1265,7 @@ d\te\tf
 "
 
     expected = "<table border=\"0\">
-<tr><td>a</td><td>b</td><td>c</td></tr>
+<tr><th>a</th><th>b</th><th>c</th></tr>
 <tr><td>d</td><td>e</td><td>f</td></tr>
 </table>
 "
@@ -1281,7 +1281,7 @@ d\t\t\te\tf
 "
 
     expected = "<table border=\"0\">
-<tr><td>a</td><td>b</td><td>c</td></tr>
+<tr><th>a</th><th>b</th><th>c</th></tr>
 <tr><td>d</td><td>e</td><td>f</td></tr>
 </table>
 "

@@ -29,6 +29,7 @@ class HtmlTableRenderer < GenericRenderer
     
     text.each do | p |
       if (p =~ /^<tabs>/i) then
+	first=true
 	p.each_line do |line|
 	  line.chomp!
 	  case line
@@ -37,7 +38,16 @@ class HtmlTableRenderer < GenericRenderer
 	  when /^<\/tabs>/ then
 	    line = "</table>\n"
 	  else
-	    line = "<tr><td>" + line.split(/\t+/).join("</td><td>") + "</td></tr>\n"
+	    type = "td"
+
+	    if first then
+	      first = false
+	      type = "th"
+	    end
+
+	    line = ("<tr><#{type}>" +
+		    line.split(/\t+/).join("</#{type}><#{type}>") +
+		    "</#{type}></tr>\n")
 	  end
 	  push line
 	end
