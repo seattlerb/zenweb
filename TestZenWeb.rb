@@ -343,24 +343,31 @@ end
 
 class TestGenericRenderer < ZenTest
 
-  def test_initialize
-    # WARN: is there anything to really test?
+  def setup
+    super
+    @renderer = GenericRenderer.new(@doc)
   end
 
   def test_push
-    # TODO: def push(obj)
+    assert_equal([], @renderer.result)
+    @renderer.push("something")
+    assert_equal(["something"], @renderer.result)
+    @renderer.push(["completely", "different"])
+    assert_equal(["something", "completely", "different"], @renderer.result)
   end
 
   def test_unshift
-    # TODO: def unshift(obj)
+    assert_equal([], @renderer.result)
+    @renderer.unshift("something")
+    assert_equal(["something"], @renderer.result)
+    @renderer.unshift(["completely", "different"])
+    assert_equal(["completely", "different", "something"], @renderer.result)
   end
 
   def test_render
-    # TODO: def render(content)
-  end
-
-  def test_access
-    # TODO: def [](key)
+    assert_equal([], @renderer.result)
+    assert_equal(["something"], @renderer.render(["something"]))
+    assert_equal([], @renderer.result)
   end
 end
 
@@ -419,8 +426,10 @@ class TestHtmlTemplateRenderer < ZenTest
   end
 
   def test_renderContent_foot
+
     # TODO: expand this to test for navbar and other footerish stuff
-    assert(@content =~ %r,</BODY>\n</HTML>\n,,
+    assert(@content =~ %r,"<P>\n<A HREF=\"/SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"/index.html\">My Homepage</A>\n / Ryan's Homepage</P>"
+\n\n</BODY>\n</HTML>\n,,
 	   "Must render HTML footer")
   end
 
