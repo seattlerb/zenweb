@@ -30,8 +30,6 @@ class CalendarRenderer < GenericRenderer
 =end
 
   def render(content)
-
-    puts "calendarrenderer"
     events = Hash.new { |h,k| h[k] = [] }
     reverse = false
     self.scan_region(content, /<cal/i, /<\/cal>/i) do |line, context|
@@ -61,9 +59,9 @@ class CalendarRenderer < GenericRenderer
     date_end   = Date.civil(year, month, DAYS_IN_MONTH[which_year][month])
     dow_start = date_start.wday
 
-    push "<table width=\"100%\">"
+    push "<table>"
     push "<tr>"
-    push "<td width=\"50%\" valign=\"top\">" # calendar
+    push "<td valign=\"top\">" # calendar
 
     push "<table id=\"calendar\">\n"
 
@@ -90,7 +88,9 @@ class CalendarRenderer < GenericRenderer
 
       event=""
       if events.has_key? day then
-        current_events << "#{day}: #{events[day]}"
+        events[day].each do |description|
+          current_events << "#{day}: #{description}"
+        end
         event=" event"
       end
 
@@ -119,7 +119,7 @@ class CalendarRenderer < GenericRenderer
     push "</tr>\n"
     push "</table>\n"
     push "</td>\n" # /calendar
-    push "<td width=\"50%\" valign=\"top\">\n" # events
+    push "<td valign=\"top\">\n" # events
     push current_events.join("<br>\n")
     push "</td>\n" # /events
     push "</tr>\n"
