@@ -207,6 +207,11 @@ class TestZenDocument < ZenTest
 				  "line 2\n\tline 2.1\n\t\tline 2.1.1"))
   end
 
+  def test_createHash1
+    assert_equal({"term 1" => "def 1", "term 2" => "def 2"},
+		 @doc.createHash("%- term 1\n%= def 1\n%-term 2\n%=def 2"))
+  end
+
   def test_parent
     parent = @doc.parent
 
@@ -286,15 +291,44 @@ class TestGenericRenderer < ZenTest
   end
 end
 
+class TestHtmlRenderer < ZenTest
+
+  def setup
+    super
+    @renderer = HtmlRenderer.new(@doc)
+  end
+
+  def test_array2html1
+    assert_equal("<UL>\n  <LI>line 1</LI>\n  <LI>line 2</LI>\n</UL>\n",
+		 @renderer.array2html(["line 1", "line 2"]))
+  end
+
+  def test_array2html2
+
+    assert_equal("<UL>\n  <LI>line 1</LI>\n  <UL>\n    <LI>line 1.1</LI>\n    <LI>line 1.2</LI>\n  </UL>\n  <LI>line 2</LI>\n  <UL>\n    <LI>line 2.1</LI>\n    <UL>\n      <LI>line 2.1.1</LI>\n    </UL>\n  </UL>\n</UL>\n",
+		 @renderer.array2html([ "line 1", 
+					[ "line 1.1", "line 1.2" ], 
+					"line 2", 
+					[ "line 2.1",
+					  [ "line 2.1.1" ] ] ]))
+  end
+
+  def test_hash2html
+    # FIX: needs a test
+  end
+
+end
+
 class TestHtmlTemplateRenderer < ZenTest
 
   def test_renderContent_html_and_head
-    assert_not_nil(@content.index("<HTML>
+    assert_not_nil(@content.index("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">
+<HTML>
 <HEAD>
 <TITLE>Ryan's Homepage: Version 2.0</TITLE>
 <LINK REV=\"MADE\" HREF=\"mailto:ryand-web@zenspider.com\">
 <META NAME=\"rating\" CONTENT=\"general\">
-<META NAME=\"GENERATOR\" CONTENT=\"ZenWeb 2.0.0\">
+<META NAME=\"GENERATOR\" CONTENT=\"ZenWeb 2.1.0\">
 <META NAME=\"author\" CONTENT=\"Ryan Davis\">
 <META NAME=\"copyright\" CONTENT=\"1996-2001, Zen Spider Software\">
 </HEAD>
@@ -344,6 +378,11 @@ class TestTextToHtmlRenderer < ZenTest
   def test_renderContent_list2
     assert_not_nil(@content.index("<UL>\n  <LI>Another List (should have a sub list).</LI>\n  <UL>\n    <LI>With a sub-list</LI>\n    <LI>another item</LI>\n  </UL>\n</UL>"),
 	   "Must render compound list from indented +'s")
+  end
+
+  def test_renderContent_dict1
+    assert_not_nil(@content.index("<DL>\n  <DT>Term 1</DT>\n  <DD>Def 1</DD>\n\n  <DT>Term 2</DT>\n  <DD>Def 2</DD>\n\n</DL>\n\n"),
+		   "Must render simple dictionary list")
   end
 
   def test_renderContent_metadata
@@ -482,6 +521,7 @@ class TestAll
     suite.add_test(TestZenDocument.suite)
     suite.add_test(TestZenSitemap.suite)
     suite.add_test(TestGenericRenderer.suite)
+    suite.add_test(TestHtmlRenderer.suite)
     suite.add_test(TestHtmlTemplateRenderer.suite)
     suite.add_test(TestTextToHtmlRenderer.suite)
     suite.add_test(TestFooterRenderer.suite)
