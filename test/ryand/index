@@ -22,6 +22,11 @@ Everything is separated by paragraphs (two or more returns).
 	+ With a sub-list
 	+ another item
 
+%- Term 1
+%= Def 1
+%- Term 2
+%= Def 2
+
 Glossary lookups for #{key1} and #{key2} (see metadata.txt for a hint).
 #{key99} should not look up.
 
