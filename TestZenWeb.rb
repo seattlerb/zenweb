@@ -232,28 +232,34 @@ class TestZenDocument < ZenTest
   def test_newerThanTarget_missing
     # setup, delete target file, call function. Must return true
 
-    puts @doc.newerThanTarget
+    if not test ?f, @doc.datapath then
+      puts "datafile does not exist"
+    end
+
+    if test ?f, @doc.htmlpath then
+      File.delete(@doc.htmlpath)
+    end
 
     assert(@doc.newerThanTarget, 
 	   "doc must be newer because target is missing")
-	   
   end
 
   def test_newerThanTarget_yes
     # setup, touch source file, call function. Must return true
 
-    puts @doc.newerThanTarget
-
+    `touch #{@doc.htmlpath}`
+    sleep 1
+    `touch #{@doc.datapath}`
     assert(@doc.newerThanTarget, "doc must be newer")
   end
 
   def test_newerThanTarget_no
     # setup, touch target file, call function. Must return false
 
-    puts ! @doc.newerThanTarget
-
+    `touch #{@doc.datapath}`
+    sleep 1
+    `touch #{@doc.htmlpath}`
     assert(! @doc.newerThanTarget, "doc must not be newer")
-    assert(false)
   end
 
   def test_parentURL
@@ -717,9 +723,9 @@ if __FILE__ == $0
     suite = TestAll.suite
   else
     suite = RUNIT::TestSuite.new
-    suite.add_test(TestZenDocument.new("test_parent", "TestZenDocument"))
+    suite.add_test(TestZenDocument.new("ZZZ", "TestZenDocument"))
   end
 
-  exit RUNIT::CUI::TestRunner.run(suite).succeed?
+  exit RUNIT::CUI::TestRunner.run(suite).succeed? ? 0 : 1
 end
 

@@ -5,8 +5,32 @@
 # xmp runtime         :  55.5 sec
 # xmp + resplitting   : 113.2 sec
 
+# require "profile"
 require 'cgi'
 $TESTING = FALSE unless defined? $TESTING
+
+$methodcalls = {}
+$methodcalls.default= 0
+
+at_exit {
+  $methodcalls.each { | key, val |
+    printf "%5d %s\n", val, key
+  }
+}
+
+def methodcall(meth)
+
+  $methodcalls[meth] += 1
+
+  if $DEBUG then
+    $stderr.puts meth
+
+    for c in caller(1)
+      print "  ", c, "\n"
+    end
+  end
+
+end
 
 =begin
 = ZenWeb
@@ -137,9 +161,11 @@ class ZenWebsite
     end
 
     @doc_order.each { | url |
-      puts url unless $TESTING
       doc = @documents[url]
-      doc.render()
+
+      if doc.render() then
+	puts url unless $TESTING
+      end
     }
 
   end
@@ -202,9 +228,12 @@ class ZenDocument
       raise ArgumentError, "url #{url} doesn't exist in #{self.datadir}"
     end
 
-    @metadata = Metadata.new(self.dir, self.datadir)
+    # TODO: make this a lazy initializer
+#    @metadata = {}
+    @metadata = nil
+#    @metadata = Metadata.new(self.dir, self.datadir)
 
-    self.parseMetadata
+#    self.parseMetadata
 
   end
 
@@ -224,6 +253,9 @@ class ZenDocument
     # 1) Open file
     # 2) Parse w/ generic parser for metadata, stripping it out.
     count = 0
+
+    methodcall("ZenDocument.parseMetadata")
+
     IO.foreach(self.datapath) { | line |
       count += 1
       # REFACTOR: class Metadata also has this.
@@ -289,24 +321,27 @@ class ZenDocument
 --- ZenDocument#render
 
     Gets the rendered content from ((<ZenDocument#renderContent>)) and
-    writes it to disk.
+    writes it to disk. Returns true if it rendered the document.
 
 =end
 
   def render()
-
-    path = self.htmlpath
-    dir = File.dirname(path)
-
-    unless (test(?d, dir)) then
-      Dir.mkdir(dir)
+    if self.newerThanTarget then
+      path = self.htmlpath
+      dir = File.dirname(path)
+      
+      unless (test(?d, dir)) then
+	Dir.mkdir(dir)
+      end
+      
+      content = self.renderContent
+      out = File.new(self.htmlpath, "w")
+      out.print(content)
+      out.close
+      return true
+    else
+      return false
     end
-
-    content = self.renderContent
-    out = File.new(self.htmlpath, "w")
-    out.print(content)
-    out.close
-
   end
 
 =begin
@@ -314,11 +349,19 @@ class ZenDocument
 --- ZenDocument#newerThanTarget
 
     Returns true if the sourcefile is newer than the targetfile.
+    TODO: make it return true if the sitemap is newer
 
 =end
 
   def newerThanTarget()
-    return true
+    data = self.datapath
+    html = self.htmlpath
+
+    if test(?f, html) then
+      return test(?>, data, html)
+    else
+      return true
+    end
   end
 
 =begin
@@ -545,6 +588,13 @@ class ZenDocument
 =end
 
   def [](key)
+    # TODO: make this a lazy initializer
+
+    if @metadata.nil? then
+      @metadata = Metadata.new(self.dir, self.datadir)
+      self.parseMetadata
+    end
+
     return @metadata[key] || nil
   end
 
@@ -620,6 +670,8 @@ class ZenSitemap < ZenDocument
   def initialize(url, website)
     super(url, website)
 
+    methodcall("ZenSitemap.initialize")
+
     @documents = {}
     @doc_order = []
 
@@ -628,6 +680,7 @@ class ZenSitemap < ZenDocument
     self['keywords']    ||= "sitemap, website"
 
     count = 0
+
     IO.foreach(self.datapath) { |f|
       count += 1
       f.chomp!
@@ -756,7 +809,10 @@ class Metadata < Hash
 
   def load(file)
 
+    methodcall("Metadata.load")
+
     count = 0
+
     IO.foreach(file) { | line |
       count += 1
       if (line =~ /^\s*(\"(?:\\.|[^\"]+)\"|[^=]+)\s*=\s*(.*?)\s*$/) then
