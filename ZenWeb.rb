@@ -76,10 +76,10 @@ class ZenWebsite
 
 =begin
 
---- ZenWeb.new(sitemapURL, datadir, htmldir)
+--- ZenWebsite.new(sitemapURL, datadir, htmldir)
 
-    Creates a new ZenWeb instance and preprocesses the sitemap and all
-    referenced documents.
+    Creates a new ZenWebsite instance and preprocesses the sitemap and
+    all referenced documents.
 
 =end
 
@@ -113,9 +113,10 @@ class ZenWebsite
 
 =begin
 
---- ZenWeb#renderSite
+--- ZenWebsite#renderSite
 
-    Iterates over all of the documents and asks them to ((<render|ZenDocument#render>)).
+    Iterates over all of the documents and asks them to
+    ((<render|ZenDocument#render>)).
 
 =end
 
@@ -172,7 +173,7 @@ document could create several HTML pages).
 
 class ZenDocument
 
-  # These are done manually
+  # These are done manually:
   # attr_reader :datapath, :htmlpath
   attr_reader :url, :metadata, :content, :subpages, :website
   attr_writer :content if $TESTING
@@ -479,6 +480,7 @@ class ZenDocument
   def datapath()
 
     if (@datapath.nil?) then
+
       datapath = "#{self.datadir}#{@url}"
       datapath.sub!(/\.html$/, "")
       datapath.sub!(/~/, "")
@@ -692,7 +694,7 @@ class Metadata < Hash
 
 =begin
 
---- ZenSitemap#save(file)
+--- Metadata#save(file)
 
     Saves the current structure to file ((|file|)).
 
@@ -708,7 +710,7 @@ class Metadata < Hash
 
 =begin
 
---- ZenSitemap#loadFromDirectory(directory, toplevel, count=1)
+--- Metadata#loadFromDirectory(directory, toplevel, count=1)
 
     Loads a series of metadata files from the directory ((|toplevel|))
     down to ((|directory|)). Each load in turn may override previous
@@ -733,7 +735,7 @@ class Metadata < Hash
 
 =begin
 
---- ZenSitemap#load(file)
+--- Metadata#load(file)
 
     Loads a specific file ((|file|)). If any keys already exist that
     are specifed in the file, then they are overridden.
@@ -1430,8 +1432,19 @@ end
 # Main:
 
 if __FILE__ == $0
-  path = ARGV.shift || raise(ArgumentError, "Need a sitemap path to load.")
-  ZenWebsite.new("/SiteMap.html", path, path + "html").renderSite()
+
+  if (ARGV.size == 2) then
+    path = ARGV.shift
+    url  = ARGV.shift
+  elsif (ARGV.size == 1) then
+    path = ARGV.shift || raise(ArgumentError, "Need a sitemap path to load.")
+    url  = "/SiteMap.html"
+  else
+    raise(ArgumentError, "Usage: #{$0} datadir [sitemapurl]")
+  end
+
+  ZenWebsite.new(url, path, path + "html").renderSite()
+
 end
 
 
