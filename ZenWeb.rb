@@ -1,6 +1,7 @@
 #!/usr/local/bin/ruby -w
 
 require 'cgi'
+$TESTING = FALSE unless defined? $TESTING
 
 =begin
 = ZenWeb
@@ -1240,7 +1241,6 @@ end
 # Main:
 
 if __FILE__ == $0
-  $TESTING = FALSE unless defined? $TESTING
   path = ARGV.shift || raise(ArgumentError, "Need a sitemap path to load.")
   ZenWebsite.new("/SiteMap.html", path, path + "html").renderSite()
 end
