@@ -72,7 +72,7 @@ class ZenWebsite
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
-  attr_reader :doc_order # FIX: should be if $TESTING
+  attr_reader :doc_order if $TESTING
 
 =begin
 
@@ -135,7 +135,7 @@ class ZenWebsite
       Dir.mkdir(self.htmldir)
     end
 
-    self.doc_order.each { | url |
+    @doc_order.each { | url |
       puts url unless $TESTING
       doc = @documents[url]
       doc.render()
@@ -583,7 +583,7 @@ of lines of urls. Each of those urls will correspond to a file in the
 A ZenSitemap is a ZenDocument that knows about the order and hierarchy
 of all of the other pages in the website.
 
-TODO: how much difference is there between a website and a sitemap?
+WARN: how much difference is there between a website and a sitemap?
 
 === Methods
 
@@ -976,6 +976,49 @@ end
 
 =begin
 
+= Class SubpageRenderer
+
+Generates a list of known subpages in a format compatible with
+TextToHtmlRenderer.
+
+=== Methods
+
+=end
+
+class SubpageRenderer < GenericRenderer
+
+=begin
+
+     --- SubpageRenderer#render(content)
+
+     Renders a list of known subpages in a format compatible with
+     TextToHtmlRenderer. Adds the list to the end of the content.
+
+=end
+
+  def render(content)
+    @result = content
+
+    subpages = @document.subpages.clone
+    if (subpages.length > 0) then
+      push("\n\n")
+      push("** Subpages:\n\n")
+      subpages.each_index { | index |
+	url      = subpages[index]
+	doc      = @website[url]
+	title    = doc.fulltitle
+
+	push("+ <A HREF=\"#{url}\">#{title}</A>\n")
+      }
+      push("\n")
+    end
+
+    return @result
+  end
+end
+
+=begin
+
 = Class HtmlTemplateRenderer
 
 Generates a consistant HTML page header and footer, including a
@@ -996,7 +1039,6 @@ class HtmlTemplateRenderer < HtmlRenderer
     probably be broken out to their own renderers soon.
 
 =end
-
 
   def render(content)
     author      = @document['author']
@@ -1047,22 +1089,6 @@ class HtmlTemplateRenderer < HtmlRenderer
     push("<HR SIZE=\"3\" NOSHADE>\n\n")
 
     push(content)
-
-    # TODO: break into own renderer
-    subpages = @document.subpages.clone
-    if (subpages.length > 0) then
-      push("<H2>Subpages:</H2>\n\n")
-      subpages.each_index { | index |
-	url      = subpages[index]
-	doc      = @website[url]
-	title    = doc.fulltitle
-
-	subpages[index] = ("<A HREF=\"#{url}\">" +
-			   title +
-			   "</A>")
-      }
-      push(self.array2html(subpages) + "\n")
-    end
 
     push("<HR SIZE=\"3\" NOSHADE>\n\n")
 
@@ -1127,6 +1153,45 @@ end
 
 =begin
 
+= Class MetadataRenderer
+
+Converts all metadata references into their values.
+
+=== Methods
+
+=end
+
+class MetadataRenderer < GenericRenderer
+
+=begin
+
+     --- MetadataRenderer#render(content)
+
+     Converts all metadata references into their values.
+
+=end
+
+  def render(content)
+
+    content.each { | p |
+      p.gsub!(/\#\{([^\}]+)\}/) {
+	key = $1
+	val = @document[key] || nil
+	
+	# WARN: should we allow embedded ruby?
+	
+	val = key unless val
+	val
+      }
+    }
+
+    return content
+  end
+
+end
+
+=begin
+
 = Class TextToHtmlRenderer
 
 Converts a fairly plain text format into styled HTML.
@@ -1158,18 +1223,6 @@ class TextToHtmlRenderer < HtmlRenderer
       # massage a little
       p.sub!(/^#{$\/}+/, '')
       p.chomp!
-
-      # TODO: break into own renderer
-      # metadata substitutions:
-      p.gsub!(/\#\{([^\}]+)\}/) {
-	key = $1
-	val = @document[key] || nil
-
-	# TODO: should we allow embedded ruby?
-
-	val = key unless val
-	val
-      }
 
       # TODO: break into own renderer
       # url substitutions
@@ -1377,4 +1430,32 @@ end
 if __FILE__ == $0
   path = ARGV.shift || raise(ArgumentError, "Need a sitemap path to load.")
   ZenWebsite.new("/SiteMap.html", path, path + "html").renderSite()
+end
+
+
+=begin
+
+= Class XXXRenderer
+
+YYY
+
+=== Methods
+
+=end
+
+class XXXRenderer < GenericRenderer
+
+=begin
+
+     --- XXXRenderer#render(content)
+
+     YYY
+
+=end
+
+  def render(content)
+    # YYY
+    return @result
+  end
+
 end
