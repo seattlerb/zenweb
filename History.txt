@@ -1,17 +1,33 @@
-*** 2.16.0 / ????-??-??
+*** 2.16.0 / 2004-02-26
 
-+ ?? minor enhancements
-	+ TODO: add more
-	+ Added two helper methods link and img, to clean up metadata files.
-	+ Lots of cleanup and (minor) optimization in the renderers.
++ 11 minor enhancements
+	+ Added HtmlTableRenderer and tests.
+	+ Added ZenWebsite, creates Makefile, and data dir with minimal site.
+	+ Added better debugging output for undefined metadata variable access.
+	+ Added caching of eval'd strings in MetadataRenderer.
+	+ Added displayBadMetadata method that reports bad metadata access and stale definitions.
+	+ Added the apache rule to Makefile and ZenWebpage.rb.
 	+ Added the start of a FAQ to the demo pages.
-
-*** 2.15.1 / 2003-03-05
-
-+ 1 minor enhancement
-	+ Added a compatibility layer for dealing with Test::Unit version breakage.
-+ 1 bug fix
-	+ MetadataRenderer.include properly deals with relative paths (relative to the document being renderered).
+	+ Added two helper methods link and img, to clean up metadata files.
+	+ Extended ZenWebpage to include creating generic Makefiles.
+	+ Lots of cleanup and (minor) optimization in the renderers.
+	+ MetadataRenderer.include now properly does relative paths.
++ 15 bug fixes
+	+ Added RUBYFLAGS to Makefile.
+	+ Added a new metatag 'style' to ZenWeb for short CSS snippets.
+	+ Added geourl metadata
+	+ Changes for 1.8 version of Test::Unit
+	+ Clarified some documentation, esp in quickstart.
+	+ Cleaned the documentation quite a bit using new metadata debugging.
+	+ Fixed shutupwhile for ruby 1.8.0 with Matz's help.
+	+ Fixed stupid Test::Unit breakage.
+	+ Minor test refactoring.
+	+ Renamed demo to docs to clear up user confusion.
+	+ Retired zentestrunner.
+	+ RubyCodeRenderer updated for changes to xmp. Less fragile now.
+	+ Updated version.
+	+ ZenWeb.rb will use "html" if source dir is "data".
+	+ make install now sets permissions on scripts.
 
 *** 2.15.0 / 2003-02-04
 

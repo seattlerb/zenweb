@@ -20,7 +20,7 @@ class String
   end
 end
 
-def shutupwhile
+def shutupwhile_18
   $dead = File.open("/dev/null", "w")
 
   $stdout.flush
@@ -41,9 +41,41 @@ def shutupwhile
   $stderr = oldstderr
 end
 
+def shutupwhile_16
+  $dead = File.open("/dev/null", "w")
+
+  $stdout.flush
+  $stderr.flush
+  $defout.flush
+
+  oldstdout = $stdout.dup
+  oldstderr = $stderr.dup
+
+  $stdout.reopen($dead)
+  $stderr.reopen($dead)
+  $defout.reopen($dead)
+
+  yield
+
+  $stdout.flush
+  $stderr.flush
+  $defout.flush
+
+  $stdout = oldstdout
+  $stderr = oldstderr
+  $defout.reopen($stdout)
+end
+
+if RUBY_VERSION.sub(/(\d+)\.(\d+).*/, '\1\2').to_i <= 16 then
+  alias :shutupwhile :shutupwhile_16
+else
+  alias :shutupwhile :shutupwhile_18
+end
+
 class ZenTestCase < Test::Unit::TestCase # ZenTest SKIP
 
   def setup
+    $stderr.puts name if $DEBUG
     @datadir = "test"
     @htmldir = "testhtml"
     @sitemapUrl = "/SiteMap.html"
@@ -53,16 +85,15 @@ class ZenTestCase < Test::Unit::TestCase # ZenTest SKIP
     @content = @doc.renderContent
   end
 
-  def test_null
-    # shuts up test::unit's stupid logic
-  end
-
   def teardown
     if (test(?d, @htmldir)) then
       `rm -rf #{@htmldir}` 
     end
   end
 
+  def test_null
+    # shuts up test::unit's stupid logic
+  end
 end
 
 ############################################################

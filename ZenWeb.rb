@@ -633,9 +633,7 @@ directories, up to a specified directory, or "/" by default.
 
 class Metadata < Hash
 
-  RESERVED_WORDS=Regexp.union "\`", *%w(author banner bgcolor copyright description dtd email
-         keywords rating stylesheet subtitle title charset force
-         header footer style include)
+  RESERVED_WORDS=Regexp.new("\`|" + %w(author banner bgcolor copyright description dtd email keywords rating stylesheet subtitle title charset force header footer style include).join("|"))
 
   @@metadata = {}
   @@count = {}
