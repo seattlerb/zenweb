@@ -100,7 +100,7 @@ class TestZenWebsite < ZenTest
 		      "this is the url: /~ryand/blah.html")
 
     util_checkContent(@htmldir + "/ryand/stuff/index.html",
-		      "this is the url: /~ryand/stuff/index.html")
+ 		      "this is the url: /~ryand/stuff/index.html")
 
   end
 
@@ -331,6 +331,13 @@ class TestZenDocument < ZenTest
 
   def test_htmlpath
     assert_equal(@expected_htmlpath, @doc.htmlpath)
+  end
+
+  def test_metadata_lookup
+    assert_nil(@doc['nothing'])
+
+    @doc = ZenDocument.new("/Something.html", @web)
+    assert_equal(['StandardRenderer'], @doc['renderers'])
   end
 
 end
@@ -694,11 +701,7 @@ class TestMetadata < Test::Unit::TestCase
 
   def test_parenthood
     # this is defined in the parent, but not the child
-    assert_equal([ 'SubpageRenderer',
-		   'MetadataRenderer',
-		   'TextToHtmlRenderer',
-		   'HtmlTemplateRenderer' ],
-		 @hash["renderers"])
+    assert_equal([ 'StandardRenderer' ], @hash["renderers"])
   end
 
 end

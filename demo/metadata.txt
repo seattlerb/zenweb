@@ -1,4 +1,6 @@
 
+'renderers' = ['StandardRenderer']
+
 'Your Own Website' = '<A HREF="YourOwnWebsite.html">Your Own Website</A>'
 'QuickStart' = '<A HREF="QuickStart.html">QuickStart</A>'
 'support' = '<A HREF="mailto:support@ZenSpider.com">support@ZenSpider.com</A>'

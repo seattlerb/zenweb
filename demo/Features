@@ -1,29 +1,85 @@
-#title Directives
-#noindex true
-#description Demonstrates the various paragraph-to-HTML embellishments in ZenWeb.
+# "title" = "Features"
+# "noindex" = "true"
+# "description" = "Demonstrates the various paragraph-to-HTML embellishments in ZenWeb."
+
+This document will attempt to show you how many of the html markup features work. 
+
+The only Head 1 is the title.
+
+  ** Head 2
+  
+  *** Head 3
+  
+  **** Head 4
+  
+  ***** Head 5
+  
+  ****** Head 6
+
+creates:
 
 ** Head 2
+
 *** Head 3
+
 **** Head 4
+
 ***** Head 5
+
 ****** Head 6
+
+  + Lists (should have two items).
+  + Continuted Lists.
+
+creates:
 
 + Lists (should have two items).
 + Continuted Lists.
 
+  + Another List (should have a sub list).
+  	+ With a sub-list
+  	+ http\://www.ZenSpider.com/ and mailto\:support@ZenSpider.com.
+  + A glossary entry to #{Your Own Website} and #{support} (see metadata.txt for a hint).
+
+creates:
+
 + Another List (should have a sub list).
 	+ With a sub-list
-	+ http://www.ZenSpider.com/ and zss@ZenSpider.com.
-+ A glossary entry to {Your Own Website} and {support} (see HTML.rc for a hint).
+	+ http://www.ZenSpider.com/ and mailto:support@ZenSpider.com.
++ A glossary entry to #{Your Own Website} and #{support} (see metadata.txt for a hint).
 
----
+  Paragraphs can contain http://www.ZenSpider.com/ and mailto:support@ZenSpider.com and they will automatically be converted. Rules are automatically converted as well...
 
-Paragraphs can contain http://www.ZenSpider.com/ and ryand-web@ZenSpider.com and they will automatically be converted. Rules are automatically converted as well...
+creates:
+
+Paragraphs can contain http://www.ZenSpider.com/ and mailto:support@ZenSpider.com and they will automatically be converted. Rules are automatically converted as well...
+
+  Likewise, two lines side by side
+  are considered one paragraph.
+
+creates:
 
 Likewise, two lines side by side
 are considered one paragraph.
 
-===
+  More Paragraphs with <I>Embedded HTML</I>.
+  Same as More Paragraphs.
+
+creates:
 
 More Paragraphs with <I>Embedded HTML</I>.
 Same as More Paragraphs.
+
+  ---
+
+creates:
+
+---
+
+  ===
+
+creates:
+
+===
+
+That's pretty much the meat of it.

@@ -1441,6 +1441,8 @@ class TextToHtmlRenderer < HtmlRenderer
       p.sub!(/^#{$\/}+/, '')
       p.chomp!
 
+      p.gsub!(/\\:/, "&#58;")
+
       # TODO: break into own renderer
       # url substitutions
       p.gsub!(/([^=\"])((http|ftp|mailto):(\S+))/) {
@@ -1455,6 +1457,7 @@ class TextToHtmlRenderer < HtmlRenderer
 	"#{pre}<A HREF=\"#{url}\">#{text}</A>"
       }
 
+      # TODO: improve this list...
       p.gsub!(/\\&/, "&amp;")
       p.gsub!(/\\</, "&lt;")
       p.gsub!(/\\>/, "&gt;")
