@@ -387,7 +387,10 @@ class TestHtmlRenderer < ZenTest
   end
 
   def test_hash2html
-    # FIX: needs a test
+    assert_equal("<DL>\n  <DT>key1</DT>\n  <DD>val1</DD>\n\n  <DT>key2</DT>\n  <DD>val2</DD>\n\n  <DT>key3</DT>\n  <DD>val3</DD>\n\n</DL>\n",
+		 @renderer.hash2html({ 'key1' => 'val1',
+				       'key2' => 'val2',
+				       'key3' => 'val3' }))
   end
 
 end
