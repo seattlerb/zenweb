@@ -1,7 +1,7 @@
 RUBY?=ruby
 RUBYFLAGS?=
 
-all: demo
+all: docs
 
 test: requirements syntax 
 	$(RUBY) $(RUBYFLAGS) -w -I. TestZenWeb.rb $(TEST)
@@ -22,8 +22,8 @@ requirements:
 	       false)
 
 force:
-demo: force
-	$(RUBY) $(RUBYFLAGS) -w -I. ZenWeb.rb demo
+docs: force
+	$(RUBY) $(RUBYFLAGS) -w -I. ZenWeb.rb docs
 
 PREFIX=/usr/local
 install:
@@ -50,12 +50,10 @@ install:
 
 clean:
 	find . -name \*~ -exec rm {} \;
-	rm -rf testhtml demohtml
+	rm -rf testhtml docshtml httpd.conf httpd.pid error.log access.log
 
-apache:
-	sudo httpd -c "DocumentRoot $$PWD/demohtml"
-# this doesn't quite work yet... argh... I want a private httpd to test with
-#	httpd -X -d $$PWD -c "PidFile $$PWD/httpd.pid" -c "DocumentRoot $$PWD/demohtml" -c "Port 8080" -c "ErrorLog $$PWD/httpd-error.log"
+apache: docs
+	grep -v CustomLog $$(httpd -V | grep SERVER_CONFIG_FILE | cut -f 2 -d= | cut -f 2 -d\") > httpd.conf; httpd -X -d $$PWD/docshtml -f $$PWD/httpd.conf  -c "PidFile $$PWD/httpd.pid" -c "Port 8080" -c "ErrorLog $$PWD/error.log" -c "TransferLog $$PWD/access.log" -c "DocumentRoot $$PWD/docshtml"
 
 .PHONY: test syntax
 

@@ -12,6 +12,22 @@ comes first.
 HeaderRenderer inserts the contents of the metadata variable 'header'
 at the end of the document OR following an open-HTML tag.
 
+** HtmlTableRenderer
+
+An add-on that converts blocks delimited with \<tabs\>\</tabs\> and separated with tabs into an html table. Example:
+
+  \<tabs\>
+  a  b                  c
+  d  bigger table cell  f
+  \</tabs\>
+
+becomes:
+
+<tabs>
+a	b			c
+d	bigger table cell	f
+</tabs>
+
 ** HtmlTemplateRenderer
 
 Is responsible for the overall structure of a page. It has a standard

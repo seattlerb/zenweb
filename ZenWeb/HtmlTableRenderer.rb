@@ -36,7 +36,7 @@ class HtmlTableRenderer < GenericRenderer
 	  when /^<tabs>/ then
 	    line = "<table border=\"0\">\n"
 	  when /^<\/tabs>/ then
-	    line = "</table>\n"
+	    line = "</table>"
 	  else
 	    type = "td"
 
@@ -54,6 +54,7 @@ class HtmlTableRenderer < GenericRenderer
       else
 	push p
       end
+      push("\n\n")
     end
 
     return self.result

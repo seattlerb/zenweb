@@ -30,9 +30,9 @@ system("#{base}/ZenWebpage.rb Makefile") or error("Failed: #{$?}")
 Dir.mkdir("data")
 Dir.chdir("data")
 
-system("#{base}/ZenWebpage.rb SiteMap") or error("Failed: #{$?}")
+system("#{base}/ZenWebpage.rb SiteMap SiteMap") or error("Failed: #{$?}")
 system("#{base}/ZenWebpage.rb metadata.txt") or error("Failed: #{$?}")
-system("#{base}/ZenWebpage.rb index") or error("Failed: #{$?}")
+system("#{base}/ZenWebpage.rb index Welcome") or error("Failed: #{$?}")
 
 Dir.chdir("..")
 

@@ -1268,6 +1268,7 @@ d\te\tf
 <tr><th>a</th><th>b</th><th>c</th></tr>
 <tr><td>d</td><td>e</td><td>f</td></tr>
 </table>
+
 "
 
     assert_equal(expected, @renderer.render(input))
@@ -1284,6 +1285,34 @@ d\t\t\te\tf
 <tr><th>a</th><th>b</th><th>c</th></tr>
 <tr><td>d</td><td>e</td><td>f</td></tr>
 </table>
+
+"
+
+    assert_equal(expected, @renderer.render(input))
+  end
+
+
+  def test_render_paragraphs
+    input = "something
+
+<tabs>
+a\tb\t\t\tc
+d\t\t\te\tf
+</tabs>
+
+something else
+"
+
+    expected = "something
+
+<table border=\"0\">
+<tr><th>a</th><th>b</th><th>c</th></tr>
+<tr><td>d</td><td>e</td><td>f</td></tr>
+</table>
+
+something else
+
+
 "
 
     assert_equal(expected, @renderer.render(input))

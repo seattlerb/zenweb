@@ -10,9 +10,15 @@ most rendering tools. It is content oriented, rather than style
 oriented, unlike most rendering tools. It provides a plugin system of
 renderers and filters to provide a very flexible, and powerful system.
 
-Documentation is available in the demo directory. See QuickStart and
+Documentation is available in the docs directory, and can be generated
+into html (in docshtml) simply by running make. See QuickStart and
 YourOwnWebsite for setup and starting to build a website.
   
+(EXPERIMENTAL) If you are running apache, you might try 'make apache'
+which will run a private version of apache that points to the
+generated documenation. Point your browser to port 8080 of localhost
+or whatever machine you are running on.
+
 FEATURES:
   
 + SiteMap oriented for a comprehensive website.

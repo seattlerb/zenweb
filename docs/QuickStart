@@ -19,12 +19,13 @@
 + Run 'make test'. 
 	+ If all is well, you should have zero errors listed after running all of the tests. 
 	+ If not, email #{support}. I respond quickly to problems.
-+ Run 'make demo'.
-	+ A new directory demohtml should now exist.
-+ View demohtml in your browser.
++ Run 'make docs'.
+	+ A new directory docshtml should now exist.
++ View docshtml in your browser.
 	+ If you have apache you can quickly serve these pages (on unix):
-		+ <code>sudo httpd -c "DocumentRoot $PWD/demohtml"</code>
-	+ Check it out in your browser.
+		+ Run 'make apache'
+		+ a private httpd will fire up running on port 8080.
+	+ Otherwise, open the file directly in your browser
 	+ Read all the pages, but start with #{Your Own Website}.
 
 Any questions, flames, requests, whatever should be sent to
