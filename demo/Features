@@ -116,6 +116,8 @@ Here is a list of the variables in use by HtmlTemplateRenderer:
 %= Subtitle of document.
 %- title
 %= Title of document. (default: 'Unknown Title')
+%- charset
+%= Character encoding for the page.
 
 Additionally, HeaderRenderer and FooterRenderer use entries called
 'header' and 'footer' respectively.

@@ -51,6 +51,7 @@ class HtmlTemplateRenderer < HtmlRenderer
     stylesheet  = @document['stylesheet']
     subtitle    = @document['subtitle']
     title       = @document['title'] || 'Unknown Title'
+    charset     = @document['charset']
 
     titletext   = @document.fulltitle
 
@@ -69,6 +70,7 @@ class HtmlTemplateRenderer < HtmlRenderer
     push("<META NAME=\"copyright\" CONTENT=\"#{copyright}\">\n") if copyright
     push("<META NAME=\"keywords\" CONTENT=\"#{keywords}\">\n") if keywords
     push("<META NAME=\"description\" CONTENT=\"#{description}\">\n") if description
+    push("<META HTTP-EQUIV=\"content-type\" CONTENT=\"text/html; charset=#{charset}\">") if charset
 
     push("</HEAD>\n")
     push("<BODY" + (bgcolor ? " BGCOLOR=\"#{bgcolor}\"" : '') + ">\n")
