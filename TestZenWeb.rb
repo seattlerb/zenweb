@@ -13,7 +13,7 @@ class ZenTest < RUNIT::TestCase
     @sitemapUrl = "/SiteMap.html"
     @url = "/~ryand/index.html"
     @web = ZenWebsite.new(@sitemapUrl, @datadir, @htmldir)
-    @doc = ZenDocument.new(@url, @web)
+    @doc = @web[@url]
     @content = @doc.renderContent
   end
 
@@ -344,7 +344,7 @@ end
 class TestGenericRenderer < ZenTest
 
   def test_initialize
-    # TODO: def initialize(document)
+    # WARN: is there anything to really test?
   end
 
   def test_push
@@ -419,8 +419,30 @@ class TestHtmlTemplateRenderer < ZenTest
   end
 
   def test_renderContent_foot
+    # TODO: expand this to test for navbar and other footerish stuff
     assert(@content =~ %r,</BODY>\n</HTML>\n,,
 	   "Must render HTML footer")
+  end
+
+end
+
+class TestSubpageRenderer < ZenTest
+
+  def setup
+    super
+    @renderer = SubpageRenderer.new(@doc)
+  end
+
+  def test_render
+
+    result = @renderer.render([])
+
+    assert_equal([ "\n\n",
+		   "** Subpages:\n\n",
+		   "+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
+		   "+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n",
+		   "\n" ],
+		 result)
   end
 
 end
@@ -607,7 +629,10 @@ class TestMetadata < RUNIT::TestCase
 
   def test_parenthood
     # this is defined in the parent, but not the child
-    assert_equal([ 'TextToHtmlRenderer', 'HtmlTemplateRenderer' ],
+    assert_equal([ 'SubpageRenderer',
+		   'MetadataRenderer',
+		   'TextToHtmlRenderer',
+		   'HtmlTemplateRenderer' ],
 		 @hash["renderers"])
   end
 
@@ -630,6 +655,7 @@ class TestAll
     suite.add_test(TestFooterRenderer.suite)
     suite.add_test(TestHeaderRenderer.suite)
     suite.add_test(TestMetadata.suite)
+    suite.add_test(TestSubpageRenderer.suite)
 
     return suite
   end
