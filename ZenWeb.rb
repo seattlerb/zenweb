@@ -784,6 +784,8 @@ nothing itself.
 
 class GenericRenderer
 
+  attr_reader :result if $TESTING
+
 =begin
 
 --- GenericRenderer.new(document)
@@ -1094,7 +1096,7 @@ class HtmlTemplateRenderer < HtmlRenderer
 
     self.navbar
 
-    push("\n\n</BODY>\n</HTML>\n")
+    push("\n</BODY>\n</HTML>\n")
 
     return @result
   end
