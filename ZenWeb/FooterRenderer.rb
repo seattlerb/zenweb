@@ -27,7 +27,6 @@ class FooterRenderer < GenericRenderer
     footer = @document['footer'] || nil
 
     if footer then
-      # TODO: DIV class="footer", but only if HTML?
       content.sub!(/(<\/BODY>|\z)/i) {
 	footer + $1
       }

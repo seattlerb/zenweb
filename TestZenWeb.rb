@@ -6,7 +6,6 @@ require 'ZenWeb'
 require 'ZenWeb/SitemapRenderer'
 require 'ZenWeb/TocRenderer'
 require 'ZenWeb/StupidRenderer'
-require 'ZenWeb/HtmlTableRenderer'
 
 require 'test/unit'
 
@@ -80,16 +79,9 @@ class ZenTestCase < Test::Unit::TestCase # ZenTest SKIP
     @datadir = "test"
     @htmldir = "testhtml"
     @sitemapUrl = "/SiteMap.html"
-
-    if self.class == TestSitemapRenderer then
-      @url = @sitemapUrl
-    else
-      @url = "/~ryand/index.html"
-    end
-
+    @url = "/~ryand/index.html"
     @web = ZenWebsite.new(@sitemapUrl, @datadir, @htmldir)
     @doc = @web[@url]
-
     @content = @doc.renderContent
   end
 
@@ -142,9 +134,9 @@ class TestZenWebsite < ZenTestCase
   def util_checkContent(path, expected)
     assert(test(?f, path),
 	   "File '#{path}' must exist")
-    file = File.new(path).read
-    assert_match(/#{expected}/, file, 
-		 "File '#{path}' must have correct content")
+    file = IO.readlines(path).join('')
+    assert_not_nil(file.index(expected),
+	   "File '#{path}' must have correct content")
   end
 
   def test_renderSite
@@ -227,11 +219,7 @@ class TestZenDocument < ZenTestCase
     @expected_datapath = "test/ryand/index"
     @expected_htmlpath = "testhtml/ryand/index.html"
     @expected_dir = "test/ryand"
-    @expected_subpages = [
-      '/~ryand/blah.html',
-      '/~ryand/blah-blah.html',
-      '/~ryand/stuff/index.html'
-    ]
+    @expected_subpages = [ '/~ryand/blah.html', '/~ryand/stuff/index.html' ]
   end
 
   def test_initialize_good_url
@@ -268,7 +256,7 @@ class TestZenDocument < ZenTestCase
     @web.renderSite
     @doc = @web[@url]
     assert_equal(@expected_subpages,
-		 @doc.subpages)
+		 @doc.subpages.sort)
   end
 
   def test_render
@@ -400,8 +388,8 @@ class TestZenDocument < ZenTestCase
     assert_nil(@doc['nothing'])
 
     @doc = ZenDocument.new("/Something.html", @web)
-    assert_equal(['StandardRenderer'],
- 		 @doc['renderers'])
+    assert_equal(['StandardRenderer', 'RelativeRenderer'],
+		 @doc['renderers'])
   end
 
   def test_addSubpage_bad
@@ -548,7 +536,6 @@ class TestZenSitemap < TestZenDocument
 			"/Something.html",
 			"/~ryand/index.html",
 			"/~ryand/blah.html",
-			"/~ryand/blah-blah.html",
 			"/~ryand/stuff/index.html"])
   end
 
@@ -571,6 +558,13 @@ class TestZenSitemap < TestZenDocument
 		 "Sitemap's document order must be correct")
   end
 
+# HACK: relocate to SitemapRenderer
+#  def test_renderContent
+#    expected = "<H2>There are 6 pages in this website.</H2>\n<HR SIZE=\"3\" NOSHADE>\n\n<UL>\n  <LI><A HREF=\"/index.html\">My Website: Subtitle</A></LI>\n  <LI><A HREF=\"/SiteMap.html\">Sitemap: There are 6 pages in this website.</A></LI>\n  <LI><A HREF=\"/Something.html\">Something</A></LI>\n  <LI><A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A></LI>\n  <UL>\n    <LI><A HREF=\"/~ryand/blah.html\">blah</A></LI>\n    <LI><A HREF=\"/~ryand/stuff/index.html\">my stuff</A></LI>\n  </UL>\n</UL>"
+#
+#    assert_not_nil(@content.index(expected) > 0,
+#		   "Must render some form of HTML")
+#  end
 end
 
 ############################################################
@@ -637,7 +631,8 @@ class TestMetadata < ZenTestCase
 
   def test_index_parent
     # this is defined in the parent, but not the child
-    assert_equal('Ryan Davis', @hash['author'])
+    assert_equal([ 'StandardRenderer', 'RelativeRenderer' ],
+		 @hash["renderers"])
   end
 
 end
@@ -654,33 +649,12 @@ class ZenRendererTest < ZenTestCase
       rendererclass = $1
       require "ZenWeb/#{rendererclass}"
       theClass = Module.const_get(rendererclass)
-      @renderer = theClass.send("new", @doc)
+      @renderer = theClass.send("new", @doc) # TODO: move everyone over to this
     end
   end
 
   def util_render(expected, input, message)
     assert_equal(expected, @renderer.render(input), message)
-  end
-
-  def util_virgin_render(expected, input, message)
-    @doc = ZenDocument.new("/bogus.html", @web, $TESTING)
-    @doc.metadata = {} # HACK: for now just use a plain ole hash
-    @doc.content = ""
-
-    # let the user tweak as needed...
-    yield
-
-    # make a new renderer of the same type
-    @renderer = @renderer.class.new(@doc)
-
-    assert_equal(expected, @renderer.render(input), message)
-  end
-
-  def test_nothing
-    if self.class.name !~ /Compact|TextToHtml|Standard|Sitemap|HtmlTemplate|TestHtmlRenderer|ZenRendererTest/ then
-      s = "blah blah\n\nblah blah\nblah blah\n\nblah blah"
-      util_virgin_render(s, s, "#{self.class} shouldn't modify non-interesting text") {} # nothing to do
-    end
   end
 
 end
@@ -690,7 +664,7 @@ class TestGenericRenderer < ZenRendererTest
   def test_push
     assert_equal('', @renderer.result)
     @renderer.push("something")
-    assert_equal('something', @renderer.result(false))
+    assert_equal('something', @renderer.result)
     @renderer.push(["completely", "different"])
     assert_equal('somethingcompletelydifferent', @renderer.result)
   end
@@ -698,14 +672,14 @@ class TestGenericRenderer < ZenRendererTest
   def test_unshift
     assert_equal('', @renderer.result)
     @renderer.unshift("something")
-    assert_equal('something', @renderer.result(false))
+    assert_equal('something', @renderer.result)
     @renderer.unshift(["completely", "different"])
     assert_equal('completelydifferentsomething', @renderer.result)
   end
 
   def test_render
     assert_equal('', @renderer.result)
-    util_render('something', 'something', "blah")
+    assert_equal('something', @renderer.render('something'))
     assert_equal('', @renderer.result)
   end
 
@@ -729,36 +703,20 @@ class TestGenericRenderer < ZenRendererTest
   def test_scan_region_one_line
     s = 'text <start>region<end> text'
 
-    util_scan_region('', s) do |region, context|
+    util_scan_region('', s) do |region|
       assert_equal s, region, "Region must match entire line"
     end
   end
 
   def test_scan_region_single
     s = "text\n<start>\nregion\n<end>\ntext"
-    e = "text\nfound\ntext"
-    util_scan_region(e, s) do |region, context|
+    e = "text\nfound\ntext\n"
+    util_scan_region(e, s) do |region|
       @renderer.push "found\n" unless region =~ /^</
     end
   end
 
-  def test_scan_region_single_broken
-    s = "text\n<start>\nregion\n\nregion\n<end>\ntext"
-    e = "text\nfound\n\nfound\ntext"
-    util_scan_region(e, s) do |region, context|
-      unless region =~ /^</ then
-	region = "found\n" if region.size > 1
-	@renderer.push region
-      end
-    end
-  end
-
-  def test_scan_region_multiple
-    s = "text\n<start>\nregion\n<end>\ntext\ntext\n<start>\nregion\n<end>\ntext"
-    e = "text\nfound\ntext\ntext\nfound\ntext"
-    util_scan_region(e, s) do |region, context|
-      @renderer.push "found\n" unless region =~ /^</
-    end
+  def ztest_scan_region_multiple
   end
 
 end
@@ -791,11 +749,16 @@ class TestCompositeRenderer < ZenRendererTest
 		"Renderer must be in array")
   end
 
+  def test_render_empty
+    text = "this is some text"
+    assert_equal(text, @renderer.render(text))
+  end
+
   def test_render_one
     @doc['stupidmethod'] = 'strip'
     @renderer.addRenderer(StupidRenderer.new(@doc))
     text = "this is some text"
-    util_render('ths s sm txt', text, "stupid should like... work")
+    assert_equal('ths s sm txt', @renderer.render(text))
   end
 
   def test_render_many
@@ -804,23 +767,20 @@ class TestCompositeRenderer < ZenRendererTest
     @renderer.addRenderer(StupidRenderer.new(@doc))
     @renderer.addRenderer(FooterRenderer.new(@doc))
     text = "this is some text"
-    util_render('ths s sm txtfooter', text, "stupid + footer should like... work")
+    assert_equal('ths s sm txtfooter', @renderer.render(text))
   end
 end
 
 class TestStandardRenderer < ZenRendererTest
   def test_initialize
-    renderer_classes = @renderer.renderers.map { |r| r.class }
-    expected_classes = [
-      SubpageRenderer,
-      MetadataRenderer,
-      TextToHtmlRenderer,
-      HtmlTemplateRenderer,
-      FooterRenderer,
-    ]
-
-    assert_equal(expected_classes, renderer_classes,
-		 "Standard renderer must be set up with the proper classes")
+    renderers = @renderer.renderers
+    assert_equal(5, renderers.size)
+    # TODO: AAAAAAHHHHHHHH!
+    assert_instance_of(SubpageRenderer, renderers[0])
+    assert_instance_of(MetadataRenderer, renderers[1])
+    assert_instance_of(TextToHtmlRenderer, renderers[2])
+    assert_instance_of(HtmlTemplateRenderer, renderers[3])
+    assert_instance_of(FooterRenderer, renderers[4])
   end
 end
 
@@ -836,26 +796,31 @@ class TestFileAttachmentRenderer < ZenRendererTest
     end
   end
 
+  # TODO: push this as far up as possible
+  def test_nothing
+    s = "blah blah\n\nblah blah\n\nblah blah\n\nblah blah"
+    util_render s, s, "FAR must not modify text that doesn't contain file tags"
+  end
+
   # TODO: refactor
-  def test_render_simple
-    f = "line 1\nline 2\nline 3\n"
+  def test_simple
+    f = "line 1\nline 2\nline 3"
     f2 = "  line 1\n  line 2\n  line 3"
-    s = "blah blah\n\n<file name=\"something.txt\">\n#{f}</file>\n\nblah blah"
+    s = "blah blah\n\n<file name=\"something.txt\">\n#{f}\n</file>\n\nblah blah"
     e = "blah blah\n\n#{f2}\n<A HREF=\"something.txt\">Download something.txt</A>\n\nblah blah"
     util_render e, s, "FAR must render the content correctly"
     assert test(?f, 'testhtml/ryand/something.txt'), "File must exist or you suck"
     assert_equal f, File.new('testhtml/ryand/something.txt').read
   end
 
-  def test_render_emptyish_line
-    f = "line 1\n\nline 2\nline 3\n"
-    s = "blah blah\n\n<file name=\"something.txt\">\n#{f}</file>\n\nblah blah"
-    e = "blah blah\n\n  line 1\n  \n  line 2\n  line 3\n<A HREF=\"something.txt\">Download something.txt</A>\n\nblah blah"
-
-    util_render e, s, "FAR must render the content correctly"
+  def test_eric_is_a_fucktard
+    f = "line 1\n\nline 2\nline 3"
+    f2 = "  line 1\n  \n  line 2\n  line 3"
+    s = "blah blah\n\n<file name=\"something.txt\">\n#{f}\n</file>\n\nblah blah"
+    e = "blah blah\n\n#{f2}\n<A HREF=\"something.txt\">Download something.txt</A>\n\nblah blah"
+    util_render e, s, "FAR must render the content correctly, even if eric is a fucktard"
     assert test(?f, 'testhtml/ryand/something.txt'), "File must exist or you suck"
-    assert_equal(f, File.new('testhtml/ryand/something.txt').read,
-		 "File must have the correct contents")
+    assert_equal f, File.new('testhtml/ryand/something.txt').read
   end
 
 end
@@ -892,7 +857,7 @@ class TestHtmlRenderer < ZenRendererTest
 
   def test_render
     assert_raises(RuntimeError, "should raise a subclass responsibity error") {
-      util_render('', '', '')
+      @renderer.render("anything")
     }
   end
 
@@ -900,175 +865,168 @@ end
 
 class TestHtmlTemplateRenderer < ZenRendererTest
 
-  def setup
-    super
-    @html_head = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n<HTML>\n<HEAD>\n<TITLE>Unknown</TITLE>\n<META NAME=\"rating\" CONTENT=\"general\">\n<META NAME=\"GENERATOR\" CONTENT=\"#{ZenWebsite.banner}\">\n<link rel=\"up\" href=\"/index.html\" title=\"My Website\">\n<link rel=\"contents\" href=\"/SiteMap.html\" title=\"Sitemap\">\n<link rel=\"top\" href=\"/index.html\" title=\"My Website\">\n</HEAD>\n<BODY>\n"
-    @head = "<P class=\"navbar\">\n<A HREF=\"/SiteMap.html\">Sitemap</A> || <A HREF=\"/index.html\">My Website</A>\n / </P>\n<H1>Unknown</H1>\n<HR SIZE=\"3\" NOSHADE>\n"
-    @body = "\n"
-    @foot = "<HR SIZE=\"3\" NOSHADE>\n\n<P class=\"navbar\">\n<A HREF=\"/SiteMap.html\">Sitemap</A> || <A HREF=\"/index.html\">My Website</A>\n / </P>\n\n</BODY>\n</HTML>\n"
+  # TODO: need to test the following: html element conversions, url
+  # conversions, headers, rules, pre blocks, paragraphs
+
+  def test_render_html_and_head
+
+    assert_not_nil(@content.index("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">
+<HTML>
+<HEAD>
+<TITLE>Ryan\'s Homepage: Version 2.0</TITLE>
+<LINK REV=\"MADE\" HREF=\"mailto:ryand-web@zenspider.com\">
+<META NAME=\"rating\" CONTENT=\"general\">
+<META NAME=\"GENERATOR\" CONTENT=\"#{ZenWebsite.banner}\">
+<META NAME=\"author\" CONTENT=\"Ryan Davis\">
+<META NAME=\"copyright\" CONTENT=\"1996-2001, Zen Spider Software\">
+<link rel=\"up\" href=\"../index.html\" title=\"My Website\">
+<link rel=\"contents\" href=\"../SiteMap.html\" title=\"Sitemap\">
+<link rel=\"top\" href=\"../index.html\" title=\"My Website\">
+</HEAD>
+<BODY>
+<P class=\"navbar\">
+<A HREF=\"../SiteMap.html\">Sitemap</A> || <A HREF=\"../index.html\">My Website</A>
+ / Ryan\'s Homepage</P>
+<H1>Ryan\'s Homepage</H1>
+<H2>Version 2.0</H2>
+<HR SIZE=\"3\" NOSHADE>"),
+		   "Must render the HTML header and all appropriate metadata")
   end
 
-  def util_page
-    @html_head + @head + @body + @foot
+  def test_render_foot
+    @content = @doc.renderContent
+    expected = "\n<HR SIZE=\"3\" NOSHADE>\n\n<P class=\"navbar\">\n<A HREF=\"../SiteMap.html\">Sitemap</A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan's Homepage</P>\n\n<P>This is my footer, jive turkey</P></BODY>\n</HTML>\n"
+
+    assert_not_nil(@content.index(expected),
+		   "Must render the HTML footer")
   end
 
-  def test_render_naked
-    # this gets the basic HTML headers, navbar, and footer...
-    # there are probably other edge cases that I need to test for navbar.
-    util_virgin_render(self.util_page, '',
-		       "Basic skeleton must render correctly") do
-      # nothing to do ... 
-    end
-  end
-
-  # TODO: test deeper page for navbar
-  # TODO: need to test other tweakable variables used by the template
-
-  def test_icbm
-    lat_long = "<meta name=\"ICBM\" content=\"lat, lon\">\n<meta name=\"DC.title\" content=\"Unknown\">\n"
-    @html_head.sub!(/<link rel/) { |m| lat_long + m }
-
-    util_virgin_render(self.util_page, '',
-		       "Basic skeleton + icbm must render lat/long data correctly") do
-      @doc['icbm'] = 'lat, lon'
-    end
-
+  def test_navbar
+    @content = @doc.renderContent
+    assert(@content =~ %r%<A HREF=\"../SiteMap.html\">Sitemap</A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan\'s Homepage</P>\n%,
+	   "Must render navbar correctly")
   end
 
 end
 
 class TestSubpageRenderer < ZenRendererTest
+
   def test_render
-    expected = (["\n\n",
-		  "** Subpages:\n\n",
-		  "+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
-		  "+ <A HREF=\"/~ryand/blah-blah.html\">blah</A>\n",
-		  "+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n",
-		  "\n" ].join(''))
-    util_render(expected, '', "Subpages should be properly added to the end")
+
+    result = @renderer.render('')
+
+    assert_equal([ "\n\n",
+		   "** Subpages:\n\n",
+		   "+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
+		   "+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n",
+		   "\n" ].join(''),
+		 result)
   end
+
 end
 
 class TestTextToHtmlRenderer < ZenRendererTest
 
-  # TODO: need to test the following: html element conversions, url
-  # conversions, rules, pre blocks, paragraphs
-
-  # HACK
-  def util_match(regex, msg)
-    flunk("not anymore you don't")
-    assert_match(regex, @doc.renderContent, msg)
-  end
-
-  def test_render_nothing
-    util_render('', '', 'Nothing in... nothing out...')
-  end
-
-  def util_render_header(level)
-    util_render("<H#{level}>something</H#{level}>\n\n",
-		"#{"*" * level} something",
-		"Must parse H#{level} correctly")
+  def util_render(regex, msg)
+    # FIX: just render from the renderer directly
+    @content = @doc.renderContent
+    assert(@content =~ regex, msg)
   end
 
   def test_render_headers
-    util_render_header(2)
-    util_render_header(3)
-    util_render_header(4)
-    util_render_header(5)
-    util_render_header(6)
-  end
+    util_render(%r,<H2>Head 2</H2>,,
+		       "Must render H2 from **")
 
-  def test_embedded_html_vs_paragraphs
-    input = "<table>\n<tr><td>blah</td></tr>\n</table>"
-    util_render(input, input, "Renderer should not wrap blocks in p tags")
+    util_render(%r,<H3>Head 3</H3>,,
+		       "Must render H3 from ***")
+
+    util_render(%r,<H4>Head 4</H4>,,
+		       "Must render H4 from ****")
+
+    util_render(%r,<H5>Head 5</H5>,,
+		       "Must render H5 from *****")
+
+    util_render(%r,<H6>Head 6</H6>,,
+		       "Must render H6 from ******")
+
   end
 
   def test_render_ul1
-    util_render("<UL>\n  <LI>blah1</LI>\n  <LI>blah2</LI>\n</UL>\n",
-		"+ blah1\n+ blah2",
-		"Flat unordered list must render")
+
+    # TODO: test like this:
+    # r = TextToHtmlRenderer.new(@doc)
+    # result = r.render("+ blah1\n+ blah2")
+
+    util_render(%r%<UL>\n  <LI>Lists \(should have two items\).</LI>\n  <LI>Continuted Lists.</LI>\n</UL>%,
+		       "Must render normal list from +")
   end
 
   def test_render_ul2
-    util_render("<UL>\n  <LI>blah1</LI>\n  <UL>\n    <LI>blah2</LI>\n    <LI>blah3</LI>\n  </UL>\n  <LI>blah4</LI>\n</UL>\n",
-		"+ blah1\n\t+ blah2\n\t+ blah3\n+ blah4",
-		"Nested unordered list must render")
+    util_render(%r%<UL>\n  <LI>Another List \(should have a sub list\).</LI>\n  <UL>\n    <LI>With a sub-list</LI>\n    <LI>another item</LI>\n  </UL>\n</UL>%,
+		       "Must render compound list from indented +'s")
   end
 
   def test_render_ol1
-    util_render("<OL>\n  <LI>blah1</LI>\n  <LI>blah2</LI>\n</OL>\n",
-		"= blah1\n= blah2",
-		"Flat ordered list must render")
-  end
-
-  def test_render_ol2
-    util_render("<OL>\n  <LI>blah1</LI>\n  <OL>\n    <LI>blah2</LI>\n    <LI>blah3</LI>\n  </OL>\n  <LI>blah4</LI>\n</OL>\n",
-		"= blah1\n\t= blah2\n\t= blah3\n= blah4",
-		"Nested ordered list must render")
+    util_render(%r%<OL>\n  <LI>Ordered lists</LI>\n  <LI>are cool</LI>\n  <OL>\n    <LI>Especially when you make ordered sublists</LI>\n  </OL>\n</OL>\n%,
+		       "Must render compound list from indented +'s")
   end
 
   def test_render_dict1
-    util_render("<DL>\n  <DT>Term 1</DT>\n  <DD>Def 1</DD>\n\n  <DT>Term 2</DT>\n  <DD>Def 2</DD>\n\n</DL>\n\n",
-		"%- Term 1\n%= Def 1\n%- Term 2\n%= Def 2\n",
-		"Dictionary list must render")
+    util_render(%r%<DL>\n  <DT>Term 1</DT>\n  <DD>Def 1</DD>\n\n  <DT>Term 2</DT>\n  <DD>Def 2</DD>\n\n</DL>\n\n%,
+		       "Must render simple dictionary list")
+  end
+
+  def test_render_metadata
+    util_render(%r,Glossary lookups for 42 and some string \(see metadata.txt for a hint\)\.\s+key99 should not look up\.,,
+		       "Must render metadata lookups from \#\{key\}")
+  end
+
+  def test_render_metadata_eval
+    r = MetadataRenderer.new(@doc)
+    result = r.render("blah #\{1+1\} blah")
+    assert_equal("blah 2 blah", result,
+		 "MetadataRenderer must evaluate ruby expressions")
   end
 
   def test_render_small_rule
-    util_render("<HR SIZE=\"1\" NOSHADE>\n\n",
-		"-" * 3,
-		"Must render small rule from ---")
-    # larger...
-    util_render("<HR SIZE=\"1\" NOSHADE>\n\n",
-		"-" * 10,
-		"Must render small rule from ---+")
+    util_render(%r,^<HR SIZE="1" NOSHADE>$,,
+		       "Must render small rule from ---")
   end
 
   def test_render_big_rule
-    util_render("<HR SIZE=\"2\" NOSHADE>\n\n",
-		"=" * 3,
-		"Must render big rule from ===")
-    util_render("<HR SIZE=\"2\" NOSHADE>\n\n",
-		"=" * 10,
-		"Must render big rule from ===+")
+    util_render(%r,^<HR SIZE="2" NOSHADE>$,,
+		       "Must render big rule from ===")
   end
 
-  def test_render_paragraph_single
-    util_render("<P>this is a line</P>\n\n",
-		"this is a line\n",
-		"Must render paragraph from a single line")
+  def test_render_paragraph1
+    util_render(%r,^<P>Paragraphs can contain <A HREF="http://www\.ZenSpider\.com/ZSS/ZenWeb/">www\.ZenSpider\.com /ZSS /ZenWeb</A> and <A HREF="mailto:zss@ZenSpider\.com">zss@ZenSpider\.com</A> and they will automatically be converted\..*?</P>$,,
+		       "Must render paragraph from a single line")
   end
 
-  def test_render_paragraph_multiple
-    util_render("<P>this is line 1.\nthis is line 2.</P>\n\n",
-		"this is line 1.\nthis is line 2.\n",
-		"Must render paragraph from multiple lines")
+  def test_render_paragraph2
+    util_render(%r;^<P>Likewise, two lines side by side\s+are considered one paragraph\..*?</P>$;,
+		       "Must render paragraph from multiple lines")
   end
 
-  def test_render_entities
-    util_render("<P>less-than is &lt; and is &amp; greater-than is &gt;</P>\n\n",
-		"less-than is \\< and is \\& greater-than is \\>",
-		"Must convert special entities")
+  def test_render_paragraph3
+    util_render(%r@Don\'t forget less-than "&lt;" &amp; greater-than "&gt;", but only if backslashed.</P>$@,
+		       "Must convert special entities")
   end
 
-  def test_render_embedded_html
-    util_render("<P>Supports <I>Embedded HTML</I>.</P>\n\n",
-		"Supports <I>Embedded HTML</I>.",
-		"Must not modify embedded HTML tags")
+  def test_render_paragraph4
+    util_render(%r;Supports <I>Embedded HTML</I>\.</P>$;,
+		       "Must render paragraph from multiple lines")
   end
 
-  def test_render_full_urls
-    util_render("<P>Supports <A HREF=\"http://www.yahoo.com\">Unaltered urls</A> as well.</P>\n\n",
-		"Supports <A HREF=\"http://www.yahoo.com\">Unaltered urls</A> as well.",
-		"Must render full urls without conversion")
+  def test_render_paragraph5
+    util_render(%r;Supports <A HREF=\"http://www.yahoo.com\">Unaltered urls</A> as well\.</P>$;,
+		       "Must render full urls without conversion")
   end
 
   def test_render_pre
-    util_render("<PRE>pre line 1\npre line 2</PRE>\n\n",
-		"  pre line 1\n  pre line 2\n",
-		"Must render PRE blocks from indented paragraphs")
-    util_render("<PRE>  pre line 1\n  pre line 2</PRE>\n\n",
-		"    pre line 1\n    pre line 2\n",
-		"Extra spaces in pre blocks must be honored")
+
+    util_render(%r%<PRE>PRE blocks are paragraphs that are indented two spaces on each line.\nThe two spaces will be stripped, and all other indentation will be left\nalone.\n   this allows me to put things like code examples in and retain\n       their formatting.</PRE>%,
+		       "Must render PRE blocks from indented paragraphs")
   end
 
   def test_createList_flat
@@ -1123,21 +1081,9 @@ end
 
 class TestMetadataRenderer < ZenRendererTest
   
-  def test_render_hit
+  def test_render
     @doc['nothing'] = 'you'
     util_render 'I hate you', 'I hate #{nothing}', 'metadata must be accessed from @doc'
-  end
-
-  def test_render_miss
-    util_render("missing",
-		'#{missing}',
-		"Metadata lookup that matches must render value in dictionary")
-  end
-
-  def test_render_eval
-    util_render("blah 2 blah",
-		"blah #\{1+1\} blah",
-		"MetadataRenderer must evaluate ruby expressions")
   end
 
   def test_include
@@ -1163,26 +1109,32 @@ class TestMetadataRenderer < ZenRendererTest
                 "TEXT\n\#{img '/goaway.png', 'Go Away'}\nTEXT",
                 "img should create appropriate img")
   end
+
 end
 
 class TestSitemapRenderer < ZenRendererTest
 
+  def setup
+    super
+  end
+
   def test_render_normal
+    @doc = @web.sitemap
+    @content = @doc.content
+    @renderer = SitemapRenderer.new(@doc)
+
+    result = @renderer.render(@content)
 
     expected = [
       "+ <A HREF=\"/index.html\">My Website: Subtitle</A>\n",
-      "+ <A HREF=\"/SiteMap.html\">Sitemap: There are 7 pages in this website.</A>\n", 
+      "+ <A HREF=\"/SiteMap.html\">Sitemap: There are 6 pages in this website.</A>\n", 
       "+ <A HREF=\"/Something.html\">Something</A>\n",
       "+ <A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A>\n",
       "\t+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
-      "\t+ <A HREF=\"/~ryand/blah-blah.html\">blah</A>\n",
       "\t+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n"
     ].join('')
 
-    input = "/index.html\n/SiteMap.html\n/Something.html\n/~ryand/index.html\n/~ryand/blah.html\n/~ryand/blah-blah.html\n/~ryand/stuff/index.html"
-
-    util_render(expected, input,
-		"Must properly convert the urls to a list")
+    assert_equal(expected, result, "Must properly convert the urls to a list")
   end
 
   def test_render_subsite
@@ -1193,9 +1145,11 @@ class TestSitemapRenderer < ZenRendererTest
 
     @web = ZenWebsite.new('/~ryand/SiteMap.html', "test", "testhtml")
     @doc = @web['/~ryand/SiteMap.html']
+    @content = @doc.content
     @renderer = SitemapRenderer.new(@doc)
 
-    # FIX: need a sub-sub-page to test indention at that level
+    result = @renderer.render(@content)
+
     expected = [
       "+ <A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A>\n",
       "+ <A HREF=\"/~ryand/SiteMap.html\">Sitemap: There are 4 pages in this website.</A>\n",
@@ -1203,14 +1157,9 @@ class TestSitemapRenderer < ZenRendererTest
       "+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n"
     ].join('')
 
-    input = "/~ryand/index.html\n/~ryand/SiteMap.html\n/~ryand/blah.html\n/~ryand/stuff/index.html"
+    # FIX: need a sub-sub-page to test indention at that level
 
-    util_render(expected, input,
-		"Must properly convert the urls to a list")
-  end
-
-  def test_the_whole_thing
-    flunk("TODO: I need to be able to programatically generate/alter sitemaps.")
+    assert_equal(expected, result, "Must properly convert the urls to a list")
   end
 
 end
@@ -1243,7 +1192,9 @@ class TestRelativeRenderer < ZenRendererTest
       '<a href="blah.html#location">same dir</A>',
     ].join('')
 
-    util_render(expect, content, "Urls should be made relative... ugh")
+    result = @renderer.render(content)
+
+    assert_equal(expect, result)
   end
 
   def test_convert
@@ -1263,47 +1214,13 @@ class TestRelativeRenderer < ZenRendererTest
 end
 
 class TestRubyCodeRenderer < ZenRendererTest
-  # XMP is a POS, so this is as much as I'm willing to test right
-  # now until I can pinpoint the bug and go though xmp properly or
-  # bypass it altogether...
+  def test_render()
+    # XMP is a POS, so this is as much as I'm willing to test right
+    # now until I can pinpoint the bug and go though xmp properly or
+    # bypass it altogether...
 
-  def test_render
     shutupwhile {
-      input = "<ruby>\n2+2\n</ruby>"
-      expect = "  2+2\n    ==\\><EM>4</EM>"
-      util_render(expect, input, "2+2 = 4")
-    }
-  end
-  
-  def test_render2
-    shutupwhile {
-      input = "<ruby>\n2+2\n</ruby>\n"
-      expect = "  2+2\n    ==\\><EM>4</EM>\n"
-      util_render(expect, input, "2+2 = 4")
-    }
-  end
-  
-  def test_render_multiline
-    shutupwhile {
-      input = "<ruby>\nn=2\nn+n\n</ruby>"
-      expect = "  n=2\n  n+n\n    ==\\><EM>4</EM>"
-      util_render(expect, input, "2+2 = 4")
-    }
-  end
-
-  def test_render_paragraphs
-    shutupwhile {
-      input = "blah blah\n\n<ruby>\nn=2\nn+n\n</ruby>\n\nblah blah"
-      expect = "blah blah\n\n  n=2\n  n+n\n    ==\\><EM>4</EM>\n\nblah blah"
-      util_render(expect, input, "2+2 = 4")
-    }
-  end
-
-  def test_render_paragraphs2
-    shutupwhile {
-      input = "blah blah\n\n<ruby>\nn=2\nn+n\n</ruby>\n\nblah blah\n\n"
-      expect = "blah blah\n\n  n=2\n  n+n\n    ==\\><EM>4</EM>\n\nblah blah\n\n"
-      util_render(expect, input, "2+2 = 4")
+      assert_match(/<EM>4<\/EM>/, @renderer.render("! 2+2"))
     }
   end
 end
@@ -1354,32 +1271,36 @@ class TestTocRenderer < ZenRendererTest
       "\n",
     ].join('')
 
-    util_render(expected, content, "Must properly generate TOC")
+    result = @renderer.render(content)
+
+    assert_equal(expected, result, "Must properly generate TOC")
   end
 end
 
 class TestStupidRenderer < ZenRendererTest
+  def util_render(input, expected)
+    result = @renderer.render(input)
+    assert_equal(expected, result)
+  end
+
   def test_render_undefined
-    util_render("This is some text", "This is some text",
-		"undefined should not modify")
+    util_render("This is some text", "This is some text")
   end
 
   def test_render_leet
     @doc['stupidmethod'] = 'leet'
-    util_render('+]-[|$ |$ $0/\/\3 +3><+', "This is some text",
-		"leet is... 7337")
+    util_render("This is some text", '+]-[|$ |$ $0/\/\3 +3><+')
   end
 
   def test_render_strip
     @doc['stupidmethod'] = 'strip'
-    util_render("Ths s sm txt", "This is some text",
-		"ll vwls shld b strpd")
+    util_render("This is some text", "Ths s sm txt")
   end
 
   def test_render_unknown
     @doc['stupidmethod'] = 'dunno'
-    assert_raises(NameError, "bad renderer should puke") {
-      util_render("", "", "bad renderer should puke")
+    assert_raises(NameError) {
+      @renderer.render("anything")
     }
   end
 
@@ -1420,8 +1341,7 @@ line 3</pre>
 line 2
 line 3</pre></body></html>"
 
-    util_render(expected, input,
-		"Compact renderer must strip the correct newlines")
+    assert_equal(expected, @renderer.render(input))
   end
 end
 
@@ -1437,9 +1357,10 @@ d\te\tf
 <tr><th>a</th><th>b</th><th>c</th></tr>
 <tr><td>d</td><td>e</td><td>f</td></tr>
 </table>
+
 "
 
-    util_render(expected, input, "Plain tabs chunk should be converted to table")
+    assert_equal(expected, @renderer.render(input))
   end
 
   def test_render_multitabs
@@ -1453,10 +1374,12 @@ d\t\t\te\tf
 <tr><th>a</th><th>b</th><th>c</th></tr>
 <tr><td>d</td><td>e</td><td>f</td></tr>
 </table>
+
 "
 
-    util_render(expected, input, "Multiple tabs should collapse")
+    assert_equal(expected, @renderer.render(input))
   end
+
 
   def test_render_paragraphs
     input = "something
@@ -1477,96 +1400,17 @@ something else
 </table>
 
 something else
+
+
 "
 
-    util_render(expected, input,
-		"Multiple paragraphs should be properly split and parsed")
+    assert_equal(expected, @renderer.render(input))
   end
-
-  def test_render_styled
-
-    @doc['style_blah']      = "%(c1)|%(c2)|%(c3)\n"
-    @doc['style_blah_pre']  = "PRE\n"
-    @doc['style_blah_post'] = "POST"
-    @doc['style_blah_head'] = "c1/c2/c3\n"
-
-    input = "<tabs style=blah>
-c1\tc2\tc3
-d\te\tf
-</tabs>
-"
-
-    expected = "PRE
-c1/c2/c3
-d|e|f
-POST"
-
-    util_render(expected, input,
-		"something FIX")
-  end
-
-  def test_render_styled_mixed
-
-    @doc['style_blah']      = "%(c1)|%(c2)|%(c3)\n"
-    @doc['style_blah_pre']  = "PRE\n"
-    @doc['style_blah_post'] = "POST\n"
-    @doc['style_blah_head'] = "c1/c2/c3\n"
-
-    input = "<tabs style=blah>
-c1\tc2\tc3
-d\te\tf
-</tabs>
-
-<tabs>
-a\tb\tc
-d\te\tf
-</tabs>
-"
-
-    expected = "PRE
-c1/c2/c3
-d|e|f
-POST
-
-<table border=\"0\">
-<tr><th>a</th><th>b</th><th>c</th></tr>
-<tr><td>d</td><td>e</td><td>f</td></tr>
-</table>
-"
-
-    util_render(expected, input,
-		"something FIX")
-  end
-
 end
 
 # this is more here to shut up ZenTest than anything else.
 class TestXXXRenderer < ZenRendererTest
   def test_render
-    util_render("This is a test", "This is a test", "shouldn't do anything...")
-  end
-end
-
-# The hash extension code is located in the HtmlTableRenderer file
-class TestHashExtension < Test::Unit::TestCase
-  def setup
-    @data = { :col1 => "data1", :col2 => "data2", :col3 => "data3" }
-  end
-
-  def test_hash_simple
-    assert_equal "data1", @data % "%(col1)"
-  end
-
-  def test_hash_sized
-    assert_equal "data1     ", @data % "%-10(col1)"
-    assert_equal "     data1", @data % "%10(col1)"
-  end
-
-  def test_hash_multiple
-    assert_equal "data1|data2|data3", @data % "%(col1)|%(col2)|%(col3)"
-  end
-
-  def test_hash_missing
-    assert_equal "", @data % "%(col5)"
+    assert_equal("This is a test", @renderer.render("This is a test"))
   end
 end

@@ -80,10 +80,8 @@ class TextToHtmlRenderer < HtmlRenderer
       elsif (p =~ /^\ \ / and p !~ /^[^\ ]/) then
 	p.gsub!(/^\ \ /, '')
 	push("<PRE>" + p + "</PRE>\n\n")
-      elsif p =~ %r%^[^<]% or p =~ $INLINE_RE then
-	push("<P>" + p + "</P>\n\n")
       else
-	push p
+	push("<P>" + p + "</P>\n\n")
       end
     }
 

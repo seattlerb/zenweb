@@ -1,19 +1,7 @@
-require 'ZenWeb/GenericRenderer'
+# this is a simple template. Globally replace HtmlTable with the name of
+# your renderer and then go fill in YYY with the appropriate content.
 
-class Hash
-  def %(style)
-    style.gsub(/%([-\d]*)\(([^\)]+)\)/) do |match|
-      result = ''
-      key = $2.intern
-      if self.has_key?(key) then
-	result = $1 ? sprintf("%*s", $1.to_i, self[key]) : self[key]
-      else
-	$stderr.puts "  WARNING: missing data for '#{key}' in #{self.inspect}" unless $TESTING
-      end
-      result
-    end
-  end
-end
+require 'ZenWeb/GenericRenderer'
 
 =begin
 
@@ -37,55 +25,29 @@ class HtmlTableRenderer < GenericRenderer
 
   def render(content)
 
-    first=true
-    pre_style = post_style = head_style = body_style = column_titles = nil
-
-    self.scan_region(content, /^<tabs/i, /^<\/tabs>/i) do |line, context|
-      line.chomp!
-      case context
-      when :START then
-	first = true
-	if line =~ /style\s*=\s*\"?([\w\.-]+)\"?/i then
-	  pre_style  = @document["style_#{$1}_pre"]  || ''
-	  post_style = @document["style_#{$1}_post"] || ''
-	  head_style = @document["style_#{$1}_head"] || ''
-	  body_style = @document["style_#{$1}"] or
-	    raise "You must specify a metadata entry for 'style_#{$1}'"
-	else
-	  pre_style = "<table border=\"0\">\n"
-	  post_style = "</table>\n" 
-	  head_style = nil
-	  body_style = nil
-	  column_titles = nil
-	end
-	line = pre_style
-      when :END then
-	line = post_style
-      else
-	columns = line.split(/\t+/)
-	
-	if body_style then
-	  if first then
-	    line = head_style
-	    # map the first row of data to column title positions
-	    column_titles = columns.map {|x| x.intern}
+    self.each_paragraph_matching(content, /^<tabs>/i) do |p|
+	first=true
+	p.each_line do |line|
+	  line.chomp!
+	  case line
+	  when /^<tabs>/ then
+	    line = "<table border=\"0\">\n"
+	  when /^<\/tabs>/ then
+	    line = "</table>"
 	  else
-	    data = {}
-	    # use the column title positions to extract the data from the table
-	    column_titles.each_with_index do |title, index|
-	      data[title] = columns[index]
+	    type = "td"
+
+	    if first then
+	      first = false
+	      type = "th"
 	    end
-	    
-	    # use our extension to hash (see above) to format the data
-	    line = data % body_style
+
+	    line = ("<tr><#{type}>" +
+		    line.split(/\t+/).join("</#{type}><#{type}>") +
+		    "</#{type}></tr>\n")
 	  end
-	else
-	  type = first ? "th" : "td"
-	  line = "<tr><#{type}>#{columns.join "</#{type}><#{type}>"}</#{type}></tr>\n"
-	end
-	first = false if first
+        push line
       end
-      push line
     end
   
     return self.result

@@ -22,7 +22,6 @@ class GenericRenderer
 
 =end
 
-  # REFACTOR: do not take a document at all
   def initialize(document)
     @document = document
     @website = @document.website
@@ -73,10 +72,8 @@ class GenericRenderer
   end
 
   # DOC GenericRenderer#result
-  def result(clear=true)
-    result = @result.join('')
-    @result = [] if clear
-    return result
+  def result
+    return @result.join('')
   end
 
 =begin
@@ -91,50 +88,43 @@ class GenericRenderer
 
 =end
 
-  # REFACTOR: pass in content and document to render
   def render(content)
     return content
   end
 
   def each_paragraph(content)
-    content.scan(/.+?(?:#{$/}#{$/}+|\Z)/m) do |block|
-      $stderr.puts "BLOCK = #{block.inspect}" if $DEBUG
-      yield(block)
+    content.split($PARAGRAPH_RE).each do | p |
+      yield(p)
+      push("\n\n")
     end
   end
 
   def each_paragraph_matching(content, pattern)
-    $stderr.puts "CONTENT = #{content.inspect}" if $DEBUG
-    self.each_paragraph(content) do |block|
-      $stderr.puts "PARAGRAPH = #{block.inspect}" if $DEBUG
-      if block =~ pattern then
-        yield(block)
+    self.each_paragraph(content) do |p|
+      if p =~ pattern then
+        yield(p)
       else
-	push block
+	push p
       end
     end
   end
 
   def scan_region(content, region_start, region_end)
     matching = false
-    content.scan(/.*#{$/}?/) do |l|
+    content.split($/).each do |p|
       # TODO: detect region_end w/o start and freak
       # TODO: detect nesting and freak
-      if l =~ region_start then
+      if p =~ region_start then
         matching = true
-	$stderr.puts :START, l.inspect if $DEBUG
-        yield(l, :START)
-        matching = false if l =~ region_end
-      elsif l =~ region_end then
+        yield(p)
+        matching = false if p =~ region_end
+      elsif p =~ region_end then
         matching = false
-	$stderr.puts :END, l.inspect if $DEBUG
-        yield(l, :END)
+        yield(p)
       elsif matching then
-	$stderr.puts :MIDDLE, l.inspect if $DEBUG
-        yield(l, :MIDDLE)
+        yield(p)
       else
-	$stderr.puts :IGNORED, l.inspect if $DEBUG
-        push l
+        push p + "\n"
       end
     end
   end

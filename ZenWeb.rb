@@ -1,46 +1,5 @@
 #!/usr/local/bin/ruby -w
 
-# A set of classes for organizing and formating a collection of related
-# documents.
-# 
-# = SYNOPSIS
-# 
-#   ZenWeb.rb directory
-# 
-# = DESCRIPTION
-# 
-# A ZenWebsite is a collection of documents in one or more directories,
-# organized by a sitemap. The sitemap references every document in the
-# collection and maintains their order and hierarchy.
-# 
-# Each directory may contain a metadata file of key/value pairs that can
-# be used by ZenWeb and by the documents themselves. Each metadata file
-# can override values from the metadata file in the parent
-# directory. Each document can also define metadata, which will also
-# override any values from the metadata files.
-# 
-# ZenWeb processes the sitemap and in turn all related documents. ZenWeb
-# uses a series of renderers (determined by metadata) to process the
-# documents and writes the end result to disk.
-# 
-# There are 5 major classes:
-# 
-# * ((<Class ZenWebsite>))
-# * ((<Class ZenDocument>))
-# * ((<Class ZenSitemap>))
-# * ((<Class Metadata>))
-# * ((<Class GenericRenderer>))
-# 
-# And many renderer classes, now located separately in the ZenWeb
-# sub-directory. For example:
-# 
-# * ((<Class SitemapRenderer>))
-# * ((<Class HtmlRenderer>))
-# * ((<Class HtmlTemplateRenderer>))
-# * ((<Class TextToHtmlRenderer>))
-# * ((<Class HeaderRenderer>))
-# * ((<Class FooterRenderer>))
-
 require 'ftools' # for File::* below
 
 $TESTING = FALSE unless defined? $TESTING
@@ -48,14 +7,67 @@ $TESTING = FALSE unless defined? $TESTING
 # this is due to a stupid bug across 1.6.4, 1.6.7, and 1.7.2.
 $PARAGRAPH_RE = Regexp.new( $/ * 2 + "+")
 $PARAGRAPH_END_RE = Regexp.new( "^" + $/ + "+")
-$INLINE_RE = /<(?:A|ABBR|ACRONYM|B|BDO|BIG|BR|BUTTON|CITE|CODE|DFN|EM|I|IMG|INPUT|KBD|LABEL|MAP|OBJECT|Q|SAMP|SCRIPT|SELECT|SMALL|SPAN|STRONG|SUB|SUP|TEXTAREA|TT|VAR)/i
 
-# ZenWebsite is the top level class. It is responsible for driving the
-# process.
+=begin
+= ZenWeb
+
+A set of classes for organizing and formating a collection of related
+documents.
+
+= SYNOPSIS
+
+  ZenWeb.rb directory
+
+= DESCRIPTION
+
+A ZenWebsite is a collection of documents in one or more directories,
+organized by a sitemap. The sitemap references every document in the
+collection and maintains their order and hierarchy.
+
+Each directory may contain a metadata file of key/value pairs that can
+be used by ZenWeb and by the documents themselves. Each metadata file
+can override values from the metadata file in the parent
+directory. Each document can also define metadata, which will also
+override any values from the metadata files.
+
+ZenWeb processes the sitemap and in turn all related documents. ZenWeb
+uses a series of renderers (determined by metadata) to process the
+documents and writes the end result to disk.
+
+There are 5 major classes:
+
+* ((<Class ZenWebsite>))
+* ((<Class ZenDocument>))
+* ((<Class ZenSitemap>))
+* ((<Class Metadata>))
+* ((<Class GenericRenderer>))
+
+And many renderer classes, now located separately in the ZenWeb
+sub-directory. For example:
+
+* ((<Class SitemapRenderer>))
+* ((<Class HtmlRenderer>))
+* ((<Class HtmlTemplateRenderer>))
+* ((<Class TextToHtmlRenderer>))
+* ((<Class HeaderRenderer>))
+* ((<Class FooterRenderer>))
+
+=end
+
+=begin
+
+= Class ZenWebsite
+
+ZenWebsite is the top level class. It is responsible for driving the
+process.
+
+=== Methods
+
+=end
 
 class ZenWebsite
 
-  VERSION = '2.18.0'
+  VERSION = '2.17.0'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
@@ -165,10 +177,15 @@ class ZenWebsite
 
 end
 
-##
-# A ZenDocument is an object representing a unit of input data,
-# typically a file. It may correspond to multiple output data (one
-# document could create several HTML pages).
+=begin
+
+= Class ZenDocument
+A ZenDocument is an object representing a unit of input data,
+typically a file. It may correspond to multiple output data (one
+document could create several HTML pages).
+=== Methods
+
+=end
 
 class ZenDocument
 
@@ -189,7 +206,6 @@ class ZenDocument
   # attr_reader :datapath, :htmlpath, :metadata
   attr_reader :url, :subpages, :website, :content
   attr_writer :content if $TESTING
-  attr_writer :metadata if $TESTING
 
 =begin
 
@@ -199,7 +215,7 @@ class ZenDocument
 
 =end
 
-  def initialize(url, website, testing=false)
+  def initialize(url, website)
 
     raise ArgumentError, "url was nil" if url.nil?
     raise ArgumentError, "web was nil" if website.nil?
@@ -211,7 +227,7 @@ class ZenDocument
     @subpages = []
     @content  = ""
 
-    unless (testing or test(?f, self.datapath)) then
+    unless (test(?f, self.datapath)) then
       raise ArgumentError, "url #{url} doesn't exist in #{self.datadir} (#{self.datapath})"
     end
 
@@ -301,8 +317,6 @@ class ZenDocument
 	end 
 
 	theClass = Module.const_get(rendererName)
-
-	# REFACTOR: do not send self
 	renderer = theClass.send("new", self)
       rescue LoadError, NameError => err
 	raise NotImplementedError, "Renderer #{rendererName} is not implemented or loaded (#{err})"
@@ -603,7 +617,7 @@ class ZenSitemap < ZenDocument
 
       next if f == ""
 
-      if f =~ /^\s*([\/:~.\w-]+)$/
+      if f =~ /^\s*([\/-_~\.\w]+)$/
 	url = $1
 
 	if (url == self.url) then

@@ -44,22 +44,21 @@ class HtmlTemplateRenderer < HtmlRenderer
   def render(content)
     author      = @document['author']
     banner      = @document['banner']
-#   bgcolor     = @document['bgcolor']
-    charset     = @document['charset']
+    bgcolor     = @document['bgcolor']
+    dtd		= @document['dtd'] || 'DTD HTML 4.0 Transitional'
     copyright   = @document['copyright']
     description = @document['description']
-    dtd		= @document['dtd'] || 'DTD HTML 4.01'
     email       = @document['email']
-    icbm        = @document['icbm']
     keywords    = @document['keywords']
-    lang        = @document['lang'] || 'en'
     rating      = @document['rating'] || 'general'
-    style       = @document['style']
     stylesheet  = @document['stylesheet']
     subtitle    = @document['subtitle']
-    title       = @document.title
+    title       = @document['title'] || 'Unknown Title'
+    icbm        = @document['icbm']
+    icbm_title  = @document['icbm_title'] || @document['title']
+    charset     = @document['charset']
+    style       = @document['style']
 
-    icbm_title  = @document['icbm_title'] || title
     titletext   = @document.fulltitle
 
     # TODO: iterate over a list of metas and add them in one nicely organized block
@@ -67,7 +66,7 @@ class HtmlTemplateRenderer < HtmlRenderer
     # header
     push([
 	   "<!DOCTYPE HTML PUBLIC \"-//W3C//#{dtd}//EN\">\n",
-	   "<HTML lang=\"#{lang}\">\n",
+	   "<HTML>\n",
 	   "<HEAD>\n",
 	   "<TITLE>#{titletext}</TITLE>\n",
 	   email ? "<LINK REV=\"MADE\" HREF=\"#{email}\">\n" : [],
@@ -80,7 +79,7 @@ class HtmlTemplateRenderer < HtmlRenderer
 	   keywords ? "<META NAME=\"keywords\" CONTENT=\"#{keywords}\">\n" : [],
 	   description ? "<META NAME=\"description\" CONTENT=\"#{description}\">\n" : [],
 	   charset ? "<META HTTP-EQUIV=\"content-type\" CONTENT=\"text/html; charset=#{charset}\">" : [],
-	   icbm ? "<meta name=\"ICBM\" content=\"#{icbm}\">\n<meta name=\"DC.title\" content=\"#{icbm_title}\">\n" : [],
+	   icbm ? "<meta name=\"ICBM\" content=\"#{icbm}\">\n<meta name=\"DC.title\" content=\"#{icbm_title}\">" : [],
 
            "<link rel=\"up\" href=\"#{@document.parentURL}\" title=\"#{@document.parent.title}\">\n",
            "<link rel=\"contents\" href=\"#{@sitemap.url}\" title=\"#{@sitemap.title}\">\n",
@@ -88,12 +87,11 @@ class HtmlTemplateRenderer < HtmlRenderer
            # TODO: add next/prev
 
 	   "</HEAD>\n",
-	   "<BODY>\n\n"
+	   "<BODY" + (bgcolor ? " BGCOLOR=\"#{bgcolor}\"" : '') + ">\n",
 	 ])
 
-    self.navbar(1)
+    self.navbar
 
-    push("<DIV class=\"title\">\n")
     if banner then
       push("<IMG SRC=\"#{banner}\" BORDER=0><BR>\n")
       unless (subtitle) then
@@ -103,19 +101,14 @@ class HtmlTemplateRenderer < HtmlRenderer
       push("<H1>#{title}</H1>\n")
     end
 
-    # TODO: add divs everywhere (all renderers)
-
     push([
 	   subtitle ? "<H2>#{subtitle}</H2>\n" : [],
-           "</DIV><!-- title -->\n\n",
-	   "<HR>\n\n",
-           "<DIV ID=\"main\">\n",
+	   "<HR SIZE=\"3\" NOSHADE>\n\n",
 	   content,
-           "</DIV><!-- main -->\n\n",
-	   "<HR>\n\n",
+	   "<HR SIZE=\"3\" NOSHADE>\n\n",
 	 ])
 
-    self.navbar(4)
+    self.navbar
 
     push("\n</BODY>\n</HTML>\n")
 
@@ -132,17 +125,16 @@ class HtmlTemplateRenderer < HtmlRenderer
 
 =end
 
-  def navbar(n)
+  def navbar
 
     sep = " / "
     search  = @website["/Search.html"]
 
     push([
-	   "<DIV class=\"sidebar\" id=\"block#{n}\">\n",
-	   "<SPAN><A HREF=\"#{@sitemap.url}\">Sitemap</A>",
-	   search ? " <SPAN>|</SPAN></SPAN>\n" : [],
-           search ? "<SPAN><A HREF=\"#{search.url}\"><EM>Search</EM></A>" : [],
-	   " <SPAN>||</SPAN></SPAN>\n",
+	   "<P class=\"navbar\">\n",
+	   "<A HREF=\"#{@sitemap.url}\">Sitemap</A>",
+	   search ? " | <A HREF=\"#{search.url}\"><EM>Search</EM></A>" : [],
+	   " || ",
 	 ])
 
     path = []
@@ -153,9 +145,9 @@ class HtmlTemplateRenderer < HtmlRenderer
     end
 
     push([
-	   path.map{|doc| ["<SPAN><A HREF=\"#{doc.url}\">#{doc['title']}</A>\n", sep, "</SPAN>\n"]},
-	   "<SPAN>#{@document['title']}</SPAN>\n",
-	   "</DIV><!-- sidebar block#{n} -->\n\n",
+	   path.map{|doc| ["<A HREF=\"#{doc.url}\">#{doc['title']}</A>\n", sep]},
+	   @document['title'],
+	   "</P>\n",
 	 ])
 
     return []
