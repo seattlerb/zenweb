@@ -48,7 +48,7 @@ class RubyCodeRenderer < GenericRenderer
 	    }
 	  }
 	rescue Exception => something
-	  $stderr.puts "xmp: #{something}\nTrace =\n#{$@.join("\n")}\n"
+	  $stderr.puts "xmp: #{something}\nTrace =\n#{$@.join(\"\n\")}\n"
 	end
       else
 	push(p)

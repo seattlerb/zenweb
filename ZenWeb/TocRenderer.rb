@@ -42,7 +42,7 @@ class TocRenderer < GenericRenderer
 
 	level = header.length - 2
 
-	toc.push("#{"\t" * level}+ <A HREF=\"\##{count}\">#{text}</A>\n")
+	toc.push("#{\"\t\" * level}+ <A HREF=\"\##{count}\">#{text}</A>\n")
 
 	push "#{header} <A NAME=\"#{count}\">#{text}</A>\n"
 	# " [<A HREF=\"\#0\">toc</A>]\n"
