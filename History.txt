@@ -1,4 +1,10 @@
 ###############################################################################
+2002-04-07 2.7.1				   00 major / 00 minor / 02 bug
+
+	Updated to use Test::Unit instead of deprecated RUNIT.
+	Fixed all tests. Clean run!
+
+###############################################################################
 2002-04-07 2.7.1				   00 major / 00 minor / 01 bug
 
 	Synced version to new revisionist history version number.
