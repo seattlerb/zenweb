@@ -94,7 +94,7 @@ class ZenWebsite
 
   include CGI::Html4Tr
 
-  VERSION = '2.7.1'
+  VERSION = '2.7.2'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
