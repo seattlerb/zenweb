@@ -1,0 +1,8 @@
+#
+# Test Website v. 1.0.0
+#
+# 'title' = 'Sitemap'
+# 'renderers' = [ 'SitemapRenderer', 'TextToHtmlRenderer', 'HtmlTemplateRenderer' ]
+
+/~user/index.html
+/~user/SiteMap.html

@@ -1,0 +1,4 @@
+# 'title' = 'My homepage'
+# 'renderers' = [ 'TextToHtmlRenderer', 'HtmlTemplateRenderer' ]
+
+this is my homepage.
