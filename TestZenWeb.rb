@@ -4,6 +4,7 @@ $TESTING = TRUE
 
 require 'ZenWeb'
 require 'test/unit'
+require 'test/unit/ui/console/testrunner'
 
 class ZenTest < Test::Unit::TestCase
 
@@ -37,44 +38,34 @@ class TestZenWebsite < ZenTest
   end
 
   def test_initialize1
-    begin
-      @web = ZenWebsite.new("/doesn't exist", @datadir, @htmldir)
-    rescue
-      assert_equal("ArgumentError", $!.class.to_s)
-    else
-      assert(FALSE, "Bad url should throw exception")
-    end
+    # bad sitemap url
+    util_initialize("/doesn't exist", @datadir, @htmldir)
   end
 
   def test_initialize2
-    begin
-      @web = ZenWebsite.new(@sitemapUrl, "/doesn't exist", @htmldir)
-    rescue
-      assert_equal("ArgumentError", $!.class.to_s)
-    else
-      assert(FALSE, "Bad datadir should throw exception")
-    end
+    # data dir is missing
+    util_initialize(@sitemapUrl, "/doesn't exist", @htmldir)
   end
 
   def test_initialize3
     # missing a leading slash
-    begin
-      @web = ZenWebsite.new("SiteMap.html", @datadir, @htmldir)
-    rescue
-      assert_equal("ArgumentError", $!.class.to_s)
-    else
-      assert(FALSE, "Bad url should throw exception")
-    end
+    util_initialize("SiteMap.html", @datadir, @htmldir)
   end
 
   def test_initialize_tilde
-    # missing a leading slash
-    data = "xxx"
-    html = "xxxhtml"
-    begin
-      @web = ZenWebsite.new("/~user/SiteMap.html", data, html).renderSite()
-    rescue ArgumentError
-      fail("Got an ArgumentError" + $!)
+    # this should work fine
+    util_initialize("/~user/SiteMap.html", "xxx", "xxxhtml", false)
+  end
+
+  def util_initialize(sitemap_url, data_dir, html_dir, should_fail=true)
+    if (should_fail) then
+      assert_raises(ArgumentError, "Must throw an ArgumentError") {
+	ZenWebsite.new(sitemap_url, data_dir, html_dir)
+      }
+    else
+      assert_nothing_raised("Must not throw any exceptions") {
+	ZenWebsite.new(sitemap_url, data_dir, html_dir)
+      }
     end
   end
 
@@ -186,7 +177,7 @@ class TestZenDocument < ZenTest
   def test_initialize5
     # missing slash url
     begin
-      ZenDocument.new("/Something.html", nil)
+      ZenDocument.new("Something.html", nil)
     rescue ArgumentError
       # this is good
     rescue
@@ -244,22 +235,34 @@ class TestZenDocument < ZenTest
 	   "doc must be newer because target is missing")
   end
 
-  def test_newerThanTarget_yes
-    # setup, touch source file, call function. Must return true
+  def util_newerThanTarget(is_newer)
+    # FIX: find a less costly way of passing these tests
+    @web.renderSite
+    
+    assert(test(?f, @doc.htmlpath),
+	   "htmlpath must exist at #{@doc.htmlpath}")
+    assert(test(?f, @doc.datapath),
+	   "datapath must exist at #{@doc.datapath}")
 
-    `touch #{@doc.htmlpath}`
-    sleep 1
-    `touch #{@doc.datapath}`
-    assert(@doc.newerThanTarget, "doc must be newer")
+    if (is_newer) then
+      `touch #{@doc.htmlpath}`
+      sleep 1
+      `touch #{@doc.datapath}`
+      assert(@doc.newerThanTarget, "doc must be newer")
+    else
+      `touch #{@doc.datapath}`
+      sleep 1
+      `touch #{@doc.htmlpath}`
+      assert(! @doc.newerThanTarget, "doc must not be newer")
+    end
+  end
+
+  def test_newerThanTarget_yes
+    util_newerThanTarget(true)
   end
 
   def test_newerThanTarget_no
-    # setup, touch target file, call function. Must return false
-
-    `touch #{@doc.datapath}`
-    sleep 1
-    `touch #{@doc.htmlpath}`
-    assert(! @doc.newerThanTarget, "doc must not be newer")
+    util_newerThanTarget(false)
   end
 
   def test_parentURL
@@ -447,21 +450,24 @@ end
 class TestHtmlTemplateRenderer < ZenTest
 
   def test_renderContent_html_and_head
+
+    version=ZenWebsite::VERSION
+
     assert_not_nil(@content.index("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">
 <HTML>
 <HEAD>
-<TITLE>Ryan's Homepage: Version 2.0</TITLE>
+<TITLE>Ryan\'s Homepage: Version 2.0</TITLE>
 <LINK REV=\"MADE\" HREF=\"mailto:ryand-web@zenspider.com\">
 <META NAME=\"rating\" CONTENT=\"general\">
-<META NAME=\"GENERATOR\" CONTENT=\"ZenWeb 2.1.0\">
+<META NAME=\"GENERATOR\" CONTENT=\"ZenWeb #{version}\">
 <META NAME=\"author\" CONTENT=\"Ryan Davis\">
 <META NAME=\"copyright\" CONTENT=\"1996-2001, Zen Spider Software\">
 </HEAD>
 <BODY>
 <P>
 <A HREF=\"/SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"/index.html\">My Homepage</A>
- / Ryan's Homepage</P>
-<H1>Ryan's Homepage</H1>
+ / Ryan\'s Homepage</P>
+<H1>Ryan\'s Homepage</H1>
 <H2>Version 2.0</H2>
 <HR SIZE=\"3\" NOSHADE>"),
 	   "Must render the HTML header and all appropriate metadata")
@@ -470,7 +476,7 @@ class TestHtmlTemplateRenderer < ZenTest
   def test_renderContent_foot
 
     # TODO: expand this to test for navbar and other footerish stuff
-    assert(@content =~ %r,"<P>\n<A HREF=\"/SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"/index.html\">My Homepage</A>\n / Ryan's Homepage</P>"
+    assert(@content =~ %r,"<P>\n<A HREF=\"/SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"/index.html\">My Homepage</A>\n / Ryan\'s Homepage</P>"
 \n\n</BODY>\n</HTML>\n,,
 	   "Must render HTML footer")
   end
@@ -585,21 +591,21 @@ alone.
   end
 
   def test_navbar
-    assert_not_nil(@content.index("<A HREF=\"/SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"/index.html\">My Homepage</A>\n / Ryan's Homepage</P>\n"),
+    assert_not_nil(@content.index("<A HREF=\"/SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"/index.html\">My Homepage</A>\n / Ryan\'s Homepage</P>\n"),
 		   "Must render navbar correctly")
   end
 end
 
 class TestFooterRenderer < ZenTest
   def test_render
-    # must create own web so we don't attach to a pregenerated index.html
+    # must create own web so we do not attach to a pregenerated index.html
     web = ZenWebsite.new(@sitemapUrl, "test", "testhtml")
     @doc = ZenDocument.new("/index.html", web)
 
-    @doc.content = nil
-    @doc.content = [ "line 1\nline 2\nline 3\n" ]
     @doc['footer'] = "footer 1\n";
     @doc['renderers'] = [ 'FooterRenderer' ]
+
+    @doc.content = [ "line 1\nline 2\nline 3\n" ]
 
     content = @doc.renderContent
 
@@ -610,9 +616,9 @@ end
 class TestHeaderRenderer < ZenTest
   def test_render
     @doc = ZenDocument.new("/index.html", @web)
-    @doc.content = [ "line 1\nline 2\nline 3\n" ]
     @doc['header'] = "header 1\n";
     @doc['renderers'] = [ 'HeaderRenderer' ]
+    @doc.content = [ "line 1\nline 2\nline 3\n" ]
 
     content = @doc.renderContent
 
@@ -699,7 +705,7 @@ end
 
 class TestAll 
   def TestAll.suite
-    suite = Test::Unit::TestSuite.new
+    suite = Test::Unit::TestSuite.new("All of ZenWeb")
 
     suite.add(TestZenWebsite.suite)
     suite.add(TestZenDocument.suite)
@@ -720,16 +726,20 @@ end
 ############################################################
 # Main:
 
-if __FILE__ == $0
-  require 'test/unit/ui/console/testrunner'
+#if __FILE__ == $0
 
-  unless ($DEBUG) then
-    suite = TestAll.suite
-  else
-    suite = Test::Unit::TestSuite.new
-    suite.add(TestZenDocument.new("ZZZ", "TestZenDocument"))
-  end
+#   if ARGV.empty? then
+#     suite = TestAll.suite
+#   else
+#     suite = Test::Unit::TestSuite.new
+#     ARGV.each { | arg |
+#       print "Adding #{arg} to testsuite\n"
+#       suite.add(arg)
+#     }
+#   end
 
-  exit Test::Unit::UI::Console::TestRunner.run(suite).passed? ? 0 : 1
-end
+#   result = Test::Unit::UI::Console::TestRunner.run(suite)
+
+#   exit result.passed? ? 0 : 1
+#end
 

@@ -7,6 +7,8 @@
 
 # require "profile"
 require 'cgi'
+require 'ftools'
+
 $TESTING = FALSE unless defined? $TESTING
 
 $methodcalls = {}
@@ -157,7 +159,7 @@ class ZenWebsite
     #   be generated, generate it.
 
     unless (test(?d, self.htmldir)) then
-      Dir.mkdir(self.htmldir)
+      File::makedirs(self.htmldir)
     end
 
     @doc_order.each { | url |
@@ -302,7 +304,8 @@ class ZenDocument
 	theClass = Module.const_get(rendererName)
 	renderer = theClass.send("new", self)
 	# 4.2) Pass entire file contents to renderer and replace w/ result.
-	result = renderer.render(result)
+	newresult = renderer.render(result)
+	result = newresult
       rescue NameError => something
 	raise NotImplementedError, "Renderer #{rendererName} is not implemented or loaded (#{something})"
       end
@@ -326,7 +329,7 @@ class ZenDocument
       dir = File.dirname(path)
       
       unless (test(?d, dir)) then
-	Dir.mkdir(dir)
+	File::makedirs(dir)
       end
       
       content = self.renderContent
@@ -583,7 +586,7 @@ class ZenDocument
 =end
 
   def [](key)
-    return self.metadata[key] || nil
+    return self.metadata[key]
   end
 
 =begin
@@ -731,6 +734,9 @@ class Metadata < Hash
 =end
 
   def initialize(directory, toplevel = "/")
+    super()
+
+    self.default = nil
 
     unless (test(?e, directory)) then
       raise ArgumentError, "directory #{directory} does not exist"
@@ -1474,6 +1480,8 @@ class HeaderRenderer < GenericRenderer
       unless placed then
 	unshift(header) unless placed
       end
+    else
+      @result = content
     end
 
     return @result
@@ -1521,6 +1529,8 @@ class FooterRenderer < GenericRenderer
       }
 
       push(footer) unless placed
+    else
+      @result = content
     end
 
     return @result
