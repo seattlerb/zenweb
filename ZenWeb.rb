@@ -1,5 +1,10 @@
 #!/usr/local/bin/ruby -w
 
+# normal runtime      :  10.4 sec
+# resplitting runtime :  11.0 sec
+# xmp runtime         :  55.5 sec
+# xmp + resplitting   : 113.2 sec
+
 require 'cgi'
 $TESTING = FALSE unless defined? $TESTING
 
@@ -170,6 +175,8 @@ class ZenDocument
   # attr_reader :datapath, :htmlpath
 
   attr_reader :url, :metadata, :content
+
+  attr_writer :content if $TESTING
 
   # TODO: why should I allow this?
   attr_reader :subpages, :website
@@ -696,13 +703,8 @@ class Metadata < Hash
 	  key = $1
 	  val = $2
 
-	  key = eval($1)
-
-	  if key == "today" then
-	    puts "trying to eval '#{val}'"
-	  end
-
-	  val = eval($2)
+	  key = eval(key)
+	  val = eval(val)
 	rescue Exception
 	  $stderr.puts "WARNING on line #{count}: eval failed: #{line}: #{$!}"
 	else
@@ -929,6 +931,7 @@ class HtmlTemplateRenderer < HtmlRenderer
 
 =end
 
+
   def render(content)
     author      = @document['author']
     banner      = @document['banner']
@@ -945,6 +948,7 @@ class HtmlTemplateRenderer < HtmlRenderer
     titletext   = @document.fulltitle
 
     # header
+    push("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n")
     push("<HTML>\n")
     push("<HEAD>\n")
     push("<TITLE>#{titletext}</TITLE>\n")
@@ -963,11 +967,17 @@ class HtmlTemplateRenderer < HtmlRenderer
     push("</HEAD>\n")
     push("<BODY" + (bgcolor ? " BGCOLOR=\"#{bgcolor}\"" : '') + ">\n")
 
-    push("<IMG SRC=\"#{banner\}\" BORDER=0><BR>\n") if banner
-
     self.navbar
 
-    push("<H1>#{title}</H1>\n")
+    if banner then
+      push("<IMG SRC=\"#{banner}\" BORDER=0><BR>\n")
+      unless (subtitle) then
+	push("<H3>#{title}</H3>\n")
+      end
+    else
+      push("<H1>#{title}</H1>\n")
+    end
+
     push("<H2>#{subtitle}</H2>\n") if subtitle
     push("<HR SIZE=\"3\" NOSHADE>\n\n")
 
@@ -1085,7 +1095,7 @@ class TextToHtmlRenderer < HtmlRenderer
       p.chomp!
 
       # TODO: break into own renderer
-      # glossary substitutions:
+      # metadata substitutions:
       p.gsub!(/\#\{([^\}]+)\}/) {
 	key = $1
 	val = @document[key] || nil
@@ -1138,6 +1148,11 @@ class TextToHtmlRenderer < HtmlRenderer
       end
     }
 
+    # FIX: xmp makes this slow
+    # put it back into line-by-line format
+    # I use scan instead of split so I can keep the EOLs.
+    @result = @result.join("\n").scan(/^.*[\n\r]+/)
+
     return @result
 
   end
@@ -1183,10 +1198,12 @@ class HeaderRenderer < GenericRenderer
 	end
       }
 
-      @result.unshift(header) unless placed
+      unless placed then
+	unshift(header) unless placed
+      end
     end
 
-    return content
+    return @result
   end
 end
 
@@ -1234,6 +1251,53 @@ class FooterRenderer < GenericRenderer
     end
 
     return @result
+  end
+end
+
+=begin
+
+= Class RubyCodeRenderer
+
+Finds paragraphs prefixed with "!" and evaluates them with xmp
+
+=== Methods
+
+=end
+
+class RubyCodeRenderer < GenericRenderer
+
+=begin
+
+--- RubyCodeRenderer#render(content)
+
+    Finds paragraphs prefixed with "!" and evaluates them with xmp
+
+=end
+
+  def render(content)
+
+    # require "irb/xmp"
+    # text = content.join('')
+    # content = text.split(/#{$\/}#{$\/}+/)
+    # 
+    # content.each { | p |
+    # if (p =~ /^\s*\!$/) then
+    # p.gsub!(/^\s*\!/, '')
+    # 
+    # code = xmp p
+    # p.gsub!(/^/, '  ')
+    # push(p)
+    # else
+    # push(p)
+    # end
+    # }
+    # 
+    # # put it back into line-by-line format
+    # text = @result.join('')
+    # @result = text.split(/\n/)
+    # 
+    # return @result
+    return content
   end
 end
 
