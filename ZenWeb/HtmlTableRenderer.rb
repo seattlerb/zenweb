@@ -31,13 +31,8 @@ class HtmlTableRenderer < GenericRenderer
       case context
       when :START then
 	line = "<table border=\"0\">\n"
-
-	# Add a newline if the previous paragraph butted up against us
-	if ! @result.last.nil? and @result.last !~ /^\s*$/ then
-	  line = "\n" + line
-	end
       when :END then
-	line = "</table>\n\n"
+	line = "</table>\n"
       else
 	type = "td"
 

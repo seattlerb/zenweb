@@ -91,44 +91,50 @@ class GenericRenderer
 
 =end
 
-  # REFACTOR: content and metadata on render
+  # REFACTOR: pass in content and document to render
   def render(content)
     return content
   end
 
   def each_paragraph(content)
-    content.split($PARAGRAPH_RE).each do | p |
-      yield(p)
-      push("\n\n")
+    content.scan(/.+?(?:#{$/}#{$/}+|\Z)/m) do |block|
+      $stderr.puts "BLOCK = #{block.inspect}" if $DEBUG
+      yield(block)
     end
   end
 
   def each_paragraph_matching(content, pattern)
-    self.each_paragraph(content) do |p|
-      if p =~ pattern then
-        yield(p)
+    $stderr.puts "CONTENT = #{content.inspect}" if $DEBUG
+    self.each_paragraph(content) do |block|
+      $stderr.puts "PARAGRAPH = #{block.inspect}" if $DEBUG
+      if block =~ pattern then
+        yield(block)
       else
-	push p
+	push block
       end
     end
   end
 
   def scan_region(content, region_start, region_end)
     matching = false
-    content.split($/).each do |p|
+    content.scan(/.*#{$/}?/) do |l|
       # TODO: detect region_end w/o start and freak
       # TODO: detect nesting and freak
-      if p =~ region_start then
+      if l =~ region_start then
         matching = true
-        yield(p, :START)
-        matching = false if p =~ region_end
-      elsif p =~ region_end then
+	$stderr.puts :START, l.inspect if $DEBUG
+        yield(l, :START)
+        matching = false if l =~ region_end
+      elsif l =~ region_end then
         matching = false
-        yield(p, :END)
+	$stderr.puts :END, l.inspect if $DEBUG
+        yield(l, :END)
       elsif matching then
-        yield(p, :MIDDLE)
+	$stderr.puts :MIDDLE, l.inspect if $DEBUG
+        yield(l, :MIDDLE)
       else
-        push p + "\n"
+	$stderr.puts :IGNORED, l.inspect if $DEBUG
+        push l
       end
     end
   end

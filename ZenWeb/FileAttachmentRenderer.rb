@@ -37,21 +37,18 @@ class FileAttachmentRenderer < GenericRenderer
         dir = File.dirname @document.htmlpath
         path = File.join(dir, name)
         push "<A HREF=\"#{name}\">Download #{name}</A>\n"
-        begin
-          File.open(path, "w") do |file|
-            file.print file_content.join("\n")
-          end
-        rescue
-          system "pwd; find testhtml"
-        end
+	File.open(path, "w") do |file|
+	  file.print file_content.join('')
+	end
         file_content = []
+#	push "\n"
       else
         file_content.push line
-        push "  #{line}\n"
+        push "  " + line
       end
     end
 
-    return self.result.strip
+    return self.result
   end
 
 end

@@ -705,7 +705,7 @@ class TestGenericRenderer < ZenRendererTest
 
   def test_render
     assert_equal('', @renderer.result)
-    assert_equal('something', @renderer.render('something'))
+    util_render('something', 'something', "blah")
     assert_equal('', @renderer.result)
   end
 
@@ -736,13 +736,29 @@ class TestGenericRenderer < ZenRendererTest
 
   def test_scan_region_single
     s = "text\n<start>\nregion\n<end>\ntext"
-    e = "text\nfound\ntext\n"
+    e = "text\nfound\ntext"
     util_scan_region(e, s) do |region, context|
       @renderer.push "found\n" unless region =~ /^</
     end
   end
 
-  def ztest_scan_region_multiple
+  def test_scan_region_single_broken
+    s = "text\n<start>\nregion\n\nregion\n<end>\ntext"
+    e = "text\nfound\n\nfound\ntext"
+    util_scan_region(e, s) do |region, context|
+      unless region =~ /^</ then
+	region = "found\n" if region.size > 1
+	@renderer.push region
+      end
+    end
+  end
+
+  def test_scan_region_multiple
+    s = "text\n<start>\nregion\n<end>\ntext\ntext\n<start>\nregion\n<end>\ntext"
+    e = "text\nfound\ntext\ntext\nfound\ntext"
+    util_scan_region(e, s) do |region, context|
+      @renderer.push "found\n" unless region =~ /^</
+    end
   end
 
 end
@@ -775,16 +791,11 @@ class TestCompositeRenderer < ZenRendererTest
 		"Renderer must be in array")
   end
 
-  def test_render_empty
-    text = "this is some text"
-    assert_equal(text, @renderer.render(text))
-  end
-
   def test_render_one
     @doc['stupidmethod'] = 'strip'
     @renderer.addRenderer(StupidRenderer.new(@doc))
     text = "this is some text"
-    assert_equal('ths s sm txt', @renderer.render(text))
+    util_render('ths s sm txt', text, "stupid should like... work")
   end
 
   def test_render_many
@@ -793,7 +804,7 @@ class TestCompositeRenderer < ZenRendererTest
     @renderer.addRenderer(StupidRenderer.new(@doc))
     @renderer.addRenderer(FooterRenderer.new(@doc))
     text = "this is some text"
-    assert_equal('ths s sm txtfooter', @renderer.render(text))
+    util_render('ths s sm txtfooter', text, "stupid + footer should like... work")
   end
 end
 
@@ -826,24 +837,25 @@ class TestFileAttachmentRenderer < ZenRendererTest
   end
 
   # TODO: refactor
-  def test_simple
-    f = "line 1\nline 2\nline 3"
+  def test_render_simple
+    f = "line 1\nline 2\nline 3\n"
     f2 = "  line 1\n  line 2\n  line 3"
-    s = "blah blah\n\n<file name=\"something.txt\">\n#{f}\n</file>\n\nblah blah"
+    s = "blah blah\n\n<file name=\"something.txt\">\n#{f}</file>\n\nblah blah"
     e = "blah blah\n\n#{f2}\n<A HREF=\"something.txt\">Download something.txt</A>\n\nblah blah"
     util_render e, s, "FAR must render the content correctly"
     assert test(?f, 'testhtml/ryand/something.txt'), "File must exist or you suck"
     assert_equal f, File.new('testhtml/ryand/something.txt').read
   end
 
-  def test_eric_is_a_fucktard
-    f = "line 1\n\nline 2\nline 3"
-    f2 = "  line 1\n  \n  line 2\n  line 3"
-    s = "blah blah\n\n<file name=\"something.txt\">\n#{f}\n</file>\n\nblah blah"
-    e = "blah blah\n\n#{f2}\n<A HREF=\"something.txt\">Download something.txt</A>\n\nblah blah"
-    util_render e, s, "FAR must render the content correctly, even if eric is a fucktard"
+  def test_render_emptyish_line
+    f = "line 1\n\nline 2\nline 3\n"
+    s = "blah blah\n\n<file name=\"something.txt\">\n#{f}</file>\n\nblah blah"
+    e = "blah blah\n\n  line 1\n  \n  line 2\n  line 3\n<A HREF=\"something.txt\">Download something.txt</A>\n\nblah blah"
+
+    util_render e, s, "FAR must render the content correctly"
     assert test(?f, 'testhtml/ryand/something.txt'), "File must exist or you suck"
-    assert_equal f, File.new('testhtml/ryand/something.txt').read
+    assert_equal(f, File.new('testhtml/ryand/something.txt').read,
+		 "File must have the correct contents")
   end
 
 end
@@ -880,7 +892,7 @@ class TestHtmlRenderer < ZenRendererTest
 
   def test_render
     assert_raises(RuntimeError, "should raise a subclass responsibity error") {
-      @renderer.render("anything")
+      util_render('', '', '')
     }
   end
 
@@ -926,20 +938,15 @@ class TestHtmlTemplateRenderer < ZenRendererTest
 end
 
 class TestSubpageRenderer < ZenRendererTest
-
   def test_render
-
-    result = @renderer.render('')
-
-    assert_equal([ "\n\n",
-		   "** Subpages:\n\n",
-		   "+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
-		   "+ <A HREF=\"/~ryand/blah-blah.html\">blah</A>\n",
-		   "+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n",
-		   "\n" ].join(''),
-		 result)
+    expected = (["\n\n",
+		  "** Subpages:\n\n",
+		  "+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
+		  "+ <A HREF=\"/~ryand/blah-blah.html\">blah</A>\n",
+		  "+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n",
+		  "\n" ].join(''))
+    util_render(expected, '', "Subpages should be properly added to the end")
   end
-
 end
 
 class TestTextToHtmlRenderer < ZenRendererTest
@@ -1234,9 +1241,7 @@ class TestRelativeRenderer < ZenRendererTest
       '<a href="blah.html#location">same dir</A>',
     ].join('')
 
-    result = @renderer.render(content)
-
-    assert_equal(expect, result)
+    util_render(expect, content, "Urls should be made relative... ugh")
   end
 
   def test_convert
@@ -1256,13 +1261,47 @@ class TestRelativeRenderer < ZenRendererTest
 end
 
 class TestRubyCodeRenderer < ZenRendererTest
-  def test_render()
-    # XMP is a POS, so this is as much as I'm willing to test right
-    # now until I can pinpoint the bug and go though xmp properly or
-    # bypass it altogether...
+  # XMP is a POS, so this is as much as I'm willing to test right
+  # now until I can pinpoint the bug and go though xmp properly or
+  # bypass it altogether...
 
+  def test_render
     shutupwhile {
-      assert_match(/<EM>4<\/EM>/, @renderer.render("! 2+2"))
+      input = "<ruby>\n2+2\n</ruby>"
+      expect = "  2+2\n    ==\\><EM>4</EM>"
+      util_render(expect, input, "2+2 = 4")
+    }
+  end
+  
+  def test_render2
+    shutupwhile {
+      input = "<ruby>\n2+2\n</ruby>\n"
+      expect = "  2+2\n    ==\\><EM>4</EM>\n"
+      util_render(expect, input, "2+2 = 4")
+    }
+  end
+  
+  def test_render_multiline
+    shutupwhile {
+      input = "<ruby>\nn=2\nn+n\n</ruby>"
+      expect = "  n=2\n  n+n\n    ==\\><EM>4</EM>"
+      util_render(expect, input, "2+2 = 4")
+    }
+  end
+
+  def test_render_paragraphs
+    shutupwhile {
+      input = "blah blah\n\n<ruby>\nn=2\nn+n\n</ruby>\n\nblah blah"
+      expect = "blah blah\n\n  n=2\n  n+n\n    ==\\><EM>4</EM>\n\nblah blah"
+      util_render(expect, input, "2+2 = 4")
+    }
+  end
+
+  def test_render_paragraphs2
+    shutupwhile {
+      input = "blah blah\n\n<ruby>\nn=2\nn+n\n</ruby>\n\nblah blah\n\n"
+      expect = "blah blah\n\n  n=2\n  n+n\n    ==\\><EM>4</EM>\n\nblah blah\n\n"
+      util_render(expect, input, "2+2 = 4")
     }
   end
 end
@@ -1313,36 +1352,32 @@ class TestTocRenderer < ZenRendererTest
       "\n",
     ].join('')
 
-    result = @renderer.render(content)
-
-    assert_equal(expected, result, "Must properly generate TOC")
+    util_render(expected, content, "Must properly generate TOC")
   end
 end
 
 class TestStupidRenderer < ZenRendererTest
-  def util_render(input, expected)
-    result = @renderer.render(input)
-    assert_equal(expected, result)
-  end
-
   def test_render_undefined
-    util_render("This is some text", "This is some text")
+    util_render("This is some text", "This is some text",
+		"undefined should not modify")
   end
 
   def test_render_leet
     @doc['stupidmethod'] = 'leet'
-    util_render("This is some text", '+]-[|$ |$ $0/\/\3 +3><+')
+    util_render('+]-[|$ |$ $0/\/\3 +3><+', "This is some text",
+		"leet is... 7337")
   end
 
   def test_render_strip
     @doc['stupidmethod'] = 'strip'
-    util_render("This is some text", "Ths s sm txt")
+    util_render("Ths s sm txt", "This is some text",
+		"ll vwls shld b strpd")
   end
 
   def test_render_unknown
     @doc['stupidmethod'] = 'dunno'
-    assert_raises(NameError) {
-      @renderer.render("anything")
+    assert_raises(NameError, "bad renderer should puke") {
+      util_render("", "", "bad renderer should puke")
     }
   end
 
@@ -1383,6 +1418,7 @@ line 3</pre>
 line 2
 line 3</pre></body></html>"
 
+    # TODO: convert
     assert_equal(expected, @renderer.render(input))
   end
 end
@@ -1399,10 +1435,9 @@ d\te\tf
 <tr><th>a</th><th>b</th><th>c</th></tr>
 <tr><td>d</td><td>e</td><td>f</td></tr>
 </table>
-
 "
 
-    assert_equal(expected, @renderer.render(input))
+    util_render(expected, input, "Plain tabs chunk should be converted to table")
   end
 
   def test_render_multitabs
@@ -1416,10 +1451,9 @@ d\t\t\te\tf
 <tr><th>a</th><th>b</th><th>c</th></tr>
 <tr><td>d</td><td>e</td><td>f</td></tr>
 </table>
-
 "
 
-    assert_equal(expected, @renderer.render(input))
+    util_render(expected, input, "Multiple tabs should collapse")
   end
 
 
@@ -1441,40 +1475,18 @@ something else
 <tr><td>d</td><td>e</td><td>f</td></tr>
 </table>
 
-
 something else
 "
 
-    assert_equal(expected, @renderer.render(input))
-  end
-
-  def test_render_paragraphs_adjacent
-
-    input = "first line
-<tabs>
-blah	blah	blah
-1	2	3
-</tabs>
-second line
-"
-
-    expected = "first line
-
-<table border=\"0\">
-<tr><th>blah</th><th>blah</th><th>blah</th></tr>
-<tr><td>1</td><td>2</td><td>3</td></tr>
-</table>
-
-second line
-"
-
-    util_render(expected, input, "table renderer should separate from other paragraphs")
+    util_render(expected, input,
+		"Multiple paragraphs should be properly split and parsed")
   end
 end
 
 # this is more here to shut up ZenTest than anything else.
 class TestXXXRenderer < ZenRendererTest
   def test_render
+    # TODO: convert
     assert_equal("This is a test", @renderer.render("This is a test"))
   end
 end
