@@ -5,7 +5,6 @@ $TESTING = TRUE
 require 'ZenWeb'
 require 'runit/testcase'
 
-# REFACTOR: get subclasses to use this
 class ZenTest < RUNIT::TestCase
 
   def setup
@@ -45,9 +44,6 @@ class TestZenWebsite < RUNIT::TestCase
   end
 
   def test_initialize1
-    # TODO: add a test for a url w/o leading slash
-    # TODO: def initialize(sitemapUrl, datadir, htmldir)
-
     begin
       @web = ZenWebsite.new("/doesn't exist", @datadir, @htmldir)
     rescue
@@ -55,12 +51,9 @@ class TestZenWebsite < RUNIT::TestCase
     else
       assert(FALSE, "Bad url should throw exception")
     end
-    
   end
 
   def test_initialize2
-    # TODO: add a test for a url w/o leading slash
-
     begin
       @web = ZenWebsite.new(@url, "/doesn't exist", @htmldir)
     rescue
@@ -72,9 +65,7 @@ class TestZenWebsite < RUNIT::TestCase
   end
 
   def test_initialize3
-
     # missing a leading slash
-    # TODO: what should happen if it is missing a leading slash?
     begin
       @web = ZenWebsite.new("SiteMap.html", @datadir, @htmldir)
     rescue
@@ -134,8 +125,65 @@ end
 
 class TestZenDocument < ZenTest
 
-  def test_initialize
-    # TODO: def initialize(url, website, datadir, htmldir)
+  def test_initialize1
+    # good url
+    begin
+      ZenDocument.new("/Something.html", @web)
+    rescue
+      assert(FALSE, "good url must not throw an exception")
+    else
+      # this is good.
+    end
+  end
+
+  def test_initialize2
+    # missing extension
+    begin
+      ZenDocument.new("/Something", @web)
+    rescue
+      assert(FALSE, "missing extension must not throw an exception")
+    else
+      # this is good
+    end
+  end
+
+  def test_initialize3
+    # missing slash url
+    begin
+      ZenDocument.new("Something.html", @web)
+    rescue ArgumentError
+      # this is good
+    rescue
+      assert(FALSE, "missing slash produced the wrong type of exception")
+    else
+      assert(FALSE, "missing slash should have thrown an exception")
+    end
+  end
+
+  def test_initialize4
+    # bad url
+    begin
+      ZenDocument.new("/missing.html", @web)
+    rescue ArgumentError
+      # this is good
+    rescue
+      assert(FALSE, "missing document produced the wrong type of exception")
+    else
+      assert(FALSE, "missing document should have thrown an exception")
+    end
+  end
+
+  def test_initialize5
+    # missing slash url
+    begin
+      ZenDocument.new("/Something.html", nil)
+    rescue ArgumentError
+      # this is good
+    rescue
+      assert(FALSE, "nil website produced the wrong type of exception")
+    else
+      assert(FALSE, "nil website should have thrown an exception")
+    end
   end
 
   def test_subpages
@@ -144,8 +192,6 @@ class TestZenDocument < ZenTest
     assert_equals([ '/~ryand/blah.html', '/~ryand/stuff/index.html' ],
 		  @doc.subpages.sort)
   end
-
-  # TODO: move these renderer specific things to their test classes.
 
   def test_render
     # TODO: test_render
@@ -182,7 +228,6 @@ class TestZenDocument < ZenTest
 
     # 1 levels deep with a tilde
     @doc = ZenDocument.new("/~ryand/index.html", @web)
-    # TODO: at this point, I think this is correct. This may become a variable.
     assert_equals("/index.html", @doc.parentURL())
 
     # 2 levels deep with a tilde
@@ -222,19 +267,15 @@ class TestZenDocument < ZenTest
 		 "Parent url must be correct")
   end
 
-  def test_metadata
-    # TODO: def metadata
+  def test_dir
+    assert_equals("test/ryand", @doc.dir)
   end
 
-  def test_getDir
-    # TODO: def getDir()
-  end
-
-  def test_getDataPath
+  def test_datapath
     assert_equals("test/ryand/index", @doc.datapath)
   end
 
-  def test_getHtmlPath
+  def test_htmlpath
     assert_equals("testhtml/ryand/index.html", @doc.htmlpath)
   end
 
@@ -252,7 +293,7 @@ class TestZenSitemap < RUNIT::TestCase
   end
 
   def test_initialize
-    # TODO: def initialize(url, website, datadir, htmldir)
+    # TODO: def initialize(url, website)
   end
 
   def test_getDocuments
