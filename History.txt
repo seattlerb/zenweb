@@ -1,4 +1,22 @@
 ###############################################################################
+2002-08-31 2.13.0				   01 major / 03 minor / 04 bug
+
+	! Architectural change: render methods now take and return a
+	  single string.
+	! Reduced runtime by about 20%.
+	+ Fixed use of regular expressions that caused
+	  incompatibilities between 1.6.4, 1.6.7, and 1.7.2. Needs
+	  testing.
+	+ Updated sitemaps now cause re-rendering of entire
+	  site. (disabled-minor bug)
+	+ Added GenericRenderer#result
+	- Moved several documents to design directory. Updated manifest.
+	- Moved ZenDocument#createList and createHash to
+	  ZenWeb/TextToHtmlRenderer.
+	- Stripped out old profiling code.
+	- Removed all existing warnings from ruby 1.7.2
+
+###############################################################################
 2002-08-29 2.12.1				   00 major / 00 minor / 01 bug
 
 	- Added StupidRenderer, which is so stupid that I thought I'd

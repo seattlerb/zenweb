@@ -1,6 +1,6 @@
 RUBY?=ruby
 
-all: syntax
+all: syntax demo
 
 test: requirements syntax 
 	$(RUBY) -w -I. TestZenWeb.rb $(TEST)

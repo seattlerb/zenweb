@@ -22,10 +22,9 @@ class RubyCodeRenderer < GenericRenderer
 
   def render(content)
 
-    text = content.join('')
-    content = text.split(/#{$/}#{$/}+/)
+    text = content.split($PARAGRAPH_RE)
     
-    content.each { | p |
+    text.each { | p |
 
       # BUG? I think ruby has a bug, can't test for m/^\s*\!/
       if (p =~ /^[\ \t]*\!/m) then
@@ -48,7 +47,7 @@ class RubyCodeRenderer < GenericRenderer
 	    }
 	  }
 	rescue Exception => something
-	  $stderr.puts "xmp: #{something}\nTrace =\n#{$@.join(\"\n\")}\n"
+	  $stderr.puts "xmp: #{something}\nTrace =\n" + $@.join("\n") + "\n"
 	end
       else
 	push(p)
@@ -59,7 +58,7 @@ class RubyCodeRenderer < GenericRenderer
     # put it back into line-by-line format
     @result = @result.join("\n").scan(/^.*[\n\r]+/)
 
-    return @result
+    return self.result
   end
 end
 

@@ -105,7 +105,7 @@ class TestZenWebsite < ZenTest
   end
 
   def test_index_accessor
-    assert_not_nil(@web[@sitemapUrl],
+    assert_not_nil(@web.sitemap,
 		   "index accessor must return the sitemap")
     assert_nil(@web["doesn't exist"],
 	       "index accessor must return nil for bad urls")
@@ -206,7 +206,7 @@ class TestZenDocument < ZenTest
   end
 
   def test_renderContent_bad
-    @doc = @web[@sitemapUrl]
+    @doc = @web.sitemap
     @doc['renderers'] = [ 'NonExistantRenderer' ]
 
     begin
@@ -243,26 +243,39 @@ class TestZenDocument < ZenTest
     util_newerThanTarget(false)
   end
 
-  def util_newerThanTarget(is_newer)
+  def test_newerThanTarget_sitemap
+    util_newerThanTarget(false, true)
+    util_newerThanTarget(true,  true)
+  end
+
+  def util_newerThanTarget(page_is_newer, sitemap_is_newer=false)
 
     @web.renderSite
     
-    assert(test(?f, @doc.htmlpath),
-	   "htmlpath must exist at #{@doc.htmlpath}")
-    assert(test(?f, @doc.datapath),
-	   "datapath must exist at #{@doc.datapath}")
+    doc_htmlpath = @doc.htmlpath
+    doc_datapath = @doc.datapath
+
+    assert(test(?f, doc_htmlpath),
+	   "htmlpath must exist at #{doc_htmlpath}")
+    assert(test(?f, doc_datapath),
+	   "datapath must exist at #{doc_datapath}")
 
     time_old = '200101010000'
     time_new = '200101020000'
 
-    if (is_newer) then
-      `touch -t #{time_new} #{@doc.datapath}`
-      `touch -t #{time_old} #{@doc.htmlpath}`
-      assert(@doc.newerThanTarget, "doc must be newer")
+    # unify times
+    `touch -t #{time_old} #{doc_datapath} #{doc_htmlpath}`
+
+    # update page
+    if page_is_newer then `touch -t #{time_new} #{doc_datapath}` end
+
+    # test
+    if (page_is_newer) then
+      assert(@doc.newerThanTarget,
+	     "doc must be newer: #{page_is_newer} #{sitemap_is_newer}")
     else
-      `touch -t #{time_new} #{@doc.htmlpath}`
-      `touch -t #{time_old} #{@doc.datapath}`
-      assert(! @doc.newerThanTarget, "doc must not be newer")
+      assert(! @doc.newerThanTarget,
+	     "doc must not be newer")
     end
   end
 
@@ -290,25 +303,29 @@ class TestZenDocument < ZenTest
   end
 
   def test_createList1
+    r = TextToHtmlRenderer.new(@doc)
 
     assert_equal(["line 1", "line 2"],
-		 @doc.createList("line 1\nline 2\n"))
+		 r.createList("line 1\nline 2\n"))
   end
 
   def test_createList2
+    r = TextToHtmlRenderer.new(@doc)
 
     assert_equal([ "line 1", 
 		    [ "line 1.1", "line 1.2" ], 
 		    "line 2", 
 		    [ "line 2.1",
 		      [ "line 2.1.1" ] ] ],
-		  @doc.createList("line 1\n\tline 1.1\n\tline 1.2\n" +
+		  r.createList("line 1\n\tline 1.1\n\tline 1.2\n" +
 				  "line 2\n\tline 2.1\n\t\tline 2.1.1"))
   end
 
   def test_createHash1
+    r = TextToHtmlRenderer.new(@doc)
+
     assert_equal({"term 1" => "def 1", "term 2" => "def 2"},
-		 @doc.createHash("%- term 1\n%= def 1\n%-term 2\n%=def 2"))
+		 r.createHash("%- term 1\n%= def 1\n%-term 2\n%=def 2"))
   end
 
   def test_parent
@@ -476,25 +493,25 @@ class TestGenericRenderer < ZenTest
   end
 
   def test_push
-    assert_equal([], @renderer.result)
+    assert_equal('', @renderer.result)
     @renderer.push("something")
-    assert_equal(["something"], @renderer.result)
+    assert_equal('something', @renderer.result)
     @renderer.push(["completely", "different"])
-    assert_equal(["something", "completely", "different"], @renderer.result)
+    assert_equal('somethingcompletelydifferent', @renderer.result)
   end
 
   def test_unshift
-    assert_equal([], @renderer.result)
+    assert_equal('', @renderer.result)
     @renderer.unshift("something")
-    assert_equal(["something"], @renderer.result)
+    assert_equal('something', @renderer.result)
     @renderer.unshift(["completely", "different"])
-    assert_equal(["completely", "different", "something"], @renderer.result)
+    assert_equal('completelydifferentsomething', @renderer.result)
   end
 
   def test_render
-    assert_equal([], @renderer.result)
-    assert_equal(["something"], @renderer.render(["something"]))
-    assert_equal([], @renderer.result)
+    assert_equal('', @renderer.result)
+    assert_equal('something', @renderer.render('something'))
+    assert_equal('', @renderer.result)
   end
 end
 
@@ -554,7 +571,8 @@ class TestHtmlTemplateRenderer < ZenTest
   end
 
   def test_renderContent_foot
-    expected = "\n<HR SIZE=\"3\" NOSHADE>\n\n<P>\n<A HREF=\"../SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan's Homepage</P>\n<P>This is my footer, jive turkey</P>\n</BODY>\n</HTML>\n"
+    @content = @doc.renderContent
+    expected = "\n<HR SIZE=\"3\" NOSHADE>\n\n<P>\n<A HREF=\"../SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan's Homepage</P>\n\n<P>This is my footer, jive turkey</P></BODY>\n</HTML>\n"
 
     assert_not_nil(@content.index(expected),
 		   "Must render the HTML footer")
@@ -571,13 +589,13 @@ class TestSubpageRenderer < ZenTest
 
   def test_render
 
-    result = @renderer.render([])
+    result = @renderer.render('')
 
     assert_equal([ "\n\n",
 		   "** Subpages:\n\n",
 		   "+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
 		   "+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n",
-		   "\n" ],
+		   "\n" ].join(''),
 		 result)
   end
 
@@ -585,100 +603,105 @@ end
 
 class TestTextToHtmlRenderer < ZenTest
 
+  def util_renderContent(regex, msg)
+    @content = @doc.renderContent
+    assert(@content =~ regex, msg)
+  end
+
   def test_renderContent_headers
-    assert(@content =~ %r,<H2>Head 2</H2>,,
-	   "Must render H2 from **")
+    util_renderContent(%r,<H2>Head 2</H2>,,
+		       "Must render H2 from **")
 
-    assert(@content =~ %r,<H3>Head 3</H3>,,
-	   "Must render H3 from ***")
+    util_renderContent(%r,<H3>Head 3</H3>,,
+		       "Must render H3 from ***")
 
-    assert(@content =~ %r,<H4>Head 4</H4>,,
-	   "Must render H4 from ****")
+    util_renderContent(%r,<H4>Head 4</H4>,,
+		       "Must render H4 from ****")
 
-    assert(@content =~ %r,<H5>Head 5</H5>,,
-	   "Must render H5 from *****")
+    util_renderContent(%r,<H5>Head 5</H5>,,
+		       "Must render H5 from *****")
 
-    assert(@content =~ %r,<H6>Head 6</H6>,,
-	   "Must render H6 from ******")
+    util_renderContent(%r,<H6>Head 6</H6>,,
+		       "Must render H6 from ******")
 
   end
 
   def test_renderContent_list1
 
-    assert_not_nil(@content.index("<UL>\n  <LI>Lists (should have two items).</LI>\n  <LI>Continuted Lists.</LI>\n</UL>"),
-	   "Must render normal list from +")
+    # TODO: test like this:
+    # r = TextToHtmlRenderer.new(@doc)
+    # result = r.render("+ blah1\n+ blah2")
+
+    util_renderContent(%r%<UL>\n  <LI>Lists \(should have two items\).</LI>\n  <LI>Continuted Lists.</LI>\n</UL>%,
+		       "Must render normal list from +")
   end
 
   def test_renderContent_list2
-    assert_not_nil(@content.index("<UL>\n  <LI>Another List (should have a sub list).</LI>\n  <UL>\n    <LI>With a sub-list</LI>\n    <LI>another item</LI>\n  </UL>\n</UL>"),
-	   "Must render compound list from indented +'s")
+    util_renderContent(%r%<UL>\n  <LI>Another List \(should have a sub list\).</LI>\n  <UL>\n    <LI>With a sub-list</LI>\n    <LI>another item</LI>\n  </UL>\n</UL>%,
+		       "Must render compound list from indented +'s")
   end
 
   def test_renderContent_dict1
-    assert_not_nil(@content.index("<DL>\n  <DT>Term 1</DT>\n  <DD>Def 1</DD>\n\n  <DT>Term 2</DT>\n  <DD>Def 2</DD>\n\n</DL>\n\n"),
-		   "Must render simple dictionary list")
+    util_renderContent("<DL>\n  <DT>Term 1</DT>\n  <DD>Def 1</DD>\n\n  <DT>Term 2</DT>\n  <DD>Def 2</DD>\n\n</DL>\n\n",
+		       "Must render simple dictionary list")
   end
 
   def test_renderContent_metadata
-    assert(@content =~ %r,Glossary lookups for 42 and some string \(see metadata.txt for a hint\)\.\s+key99 should not look up\.,,
-	   "Must render metadata lookups from \#\{key\}")
+    util_renderContent(%r,Glossary lookups for 42 and some string \(see metadata.txt for a hint\)\.\s+key99 should not look up\.,,
+		       "Must render metadata lookups from \#\{key\}")
   end
 
   def test_renderContent_metadata_eval
     r = MetadataRenderer.new(@doc)
-    result = r.render("blah #\{1+1\} blah").pop
+    result = r.render("blah #\{1+1\} blah")
     assert_equal("blah 2 blah", result,
 		 "MetadataRenderer must evaluate ruby expressions")
   end
 
   def test_renderContent_small_rule
-    assert(@content =~ %r,^<HR SIZE="1" NOSHADE>$,,
-	   "Must render small rule from ---")
+    util_renderContent(%r,^<HR SIZE="1" NOSHADE>$,,
+		       "Must render small rule from ---")
   end
 
   def test_renderContent_big_rule
-    assert(@content =~ %r,^<HR SIZE="2" NOSHADE>$,,
-	   "Must render big rule from ===")
+    util_renderContent(%r,^<HR SIZE="2" NOSHADE>$,,
+		       "Must render big rule from ===")
   end
 
   def test_renderContent_paragraph1
-    assert(@content =~ %r,^<P>Paragraphs can contain <A HREF="http://www\.ZenSpider\.com/ZSS/ZenWeb/">www\.ZenSpider\.com /ZSS /ZenWeb</A> and <A HREF="mailto:zss@ZenSpider\.com">zss@ZenSpider\.com</A> and they will automatically be converted\..*?</P>$,,
-	   "Must render paragraph from a single line")
+    util_renderContent(%r,^<P>Paragraphs can contain <A HREF="http://www\.ZenSpider\.com/ZSS/ZenWeb/">www\.ZenSpider\.com /ZSS /ZenWeb</A> and <A HREF="mailto:zss@ZenSpider\.com">zss@ZenSpider\.com</A> and they will automatically be converted\..*?</P>$,,
+		       "Must render paragraph from a single line")
   end
 
   def test_renderContent_paragraph2
-    assert(@content =~ %r;^<P>Likewise, two lines side by side\s+are considered one paragraph\..*?</P>$;,
-	   "Must render paragraph from multiple lines")
+    util_renderContent(%r;^<P>Likewise, two lines side by side\s+are considered one paragraph\..*?</P>$;,
+		       "Must render paragraph from multiple lines")
   end
 
   def test_renderContent_paragraph3
-     assert(@content =~ %r@Don\'t forget less-than "&lt;" &amp; greater-than "&gt;", but only if backslashed.</P>$@,
-	   "Must convert special entities")
+    util_renderContent(%r@Don\'t forget less-than "&lt;" &amp; greater-than "&gt;", but only if backslashed.</P>$@,
+		       "Must convert special entities")
   end
 
   def test_renderContent_paragraph4
-    assert(@content =~ %r;Supports <I>Embedded HTML</I>\.</P>$;,
-	   "Must render paragraph from multiple lines")
+    util_renderContent(%r;Supports <I>Embedded HTML</I>\.</P>$;,
+		       "Must render paragraph from multiple lines")
   end
 
   def test_renderContent_paragraph5
-    assert(@content =~ %r;Supports <A HREF=\"http://www.yahoo.com\">Unaltered urls</A> as well\.</P>$;,
-	   "Must render full urls without conversion")
+    util_renderContent(%r;Supports <A HREF=\"http://www.yahoo.com\">Unaltered urls</A> as well\.</P>$;,
+		       "Must render full urls without conversion")
   end
 
   def test_renderContent_pre
 
-    assert_not_nil(@content.index("<PRE>PRE blocks are paragraphs that are indented two spaces on each line.
-The two spaces will be stripped, and all other indentation will be left
-alone.
-   this allows me to put things like code examples in and retain
-       their formatting.</PRE>"),
-	   "Must render PRE blocks from indented paragraphs")
+    util_renderContent("<PRE>PRE blocks are paragraphs that are indented two spaces on each line.\nThe two spaces will be stripped, and all other indentation will be left\nalone.\n   this allows me to put things like code examples in and retain\n       their formatting.</PRE>",
+		       "Must render PRE blocks from indented paragraphs")
   end
 
   def test_navbar
-    assert_not_nil(@content.index("<A HREF=\"../SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan\'s Homepage</P>\n"),
-		   "Must render navbar correctly")
+    util_renderContent("<A HREF=\"../SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan\'s Homepage</P>\n",
+		       "Must render navbar correctly")
   end
 end
 
@@ -691,7 +714,8 @@ class TestFooterRenderer < ZenTest
     @doc['footer'] = "footer 1\n";
     @doc['renderers'] = [ 'FooterRenderer' ]
 
-    @doc.content = [ "line 1\nline 2\nline 3\n" ]
+    # TODO: need to test content w/ close HTML tag
+    @doc.content = "line 1\nline 2\nline 3\n"
 
     content = @doc.renderContent
 
@@ -704,7 +728,7 @@ class TestHeaderRenderer < ZenTest
     @doc = ZenDocument.new("/index.html", @web)
     @doc['header'] = "header 1\n";
     @doc['renderers'] = [ 'HeaderRenderer' ]
-    @doc.content = [ "line 1\nline 2\nline 3\n" ]
+    @doc.content = "line 1\nline 2\nline 3\n"
 
     content = @doc.renderContent
 
@@ -720,7 +744,7 @@ class TestSiteMapRenderer < ZenTest
   end
 
   def test_render
-    @doc = @web[@sitemapUrl]
+    @doc = @web.sitemap
     @content = @doc.content
     @renderer = SitemapRenderer.new(@doc)
 
@@ -733,7 +757,7 @@ class TestSiteMapRenderer < ZenTest
       "+ <A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A>\n",
       "\t+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
       "\t+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n"
-    ]
+    ].join('')
 
     assert_equal(expected, result, "Must properly convert the urls to a list")
   end
@@ -756,7 +780,7 @@ class TestSiteMapRenderer < ZenTest
       "+ <A HREF=\"/~ryand/SiteMap.html\">Sitemap: There are 4 pages in this website.</A>\n",
       "+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
       "+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n"
-    ]
+    ].join('')
 
     # FIX: need a sub-sub-page to test indention at that level
 
@@ -778,14 +802,14 @@ class TestRelativeRenderer < ZenTest
       '<a href="/something.html">something</A>',
       '<a href="/subdir/">other dir</A>',
       '<a href="/~ryand/blah.html">same dir</A>'
-    ]
+    ].join('')
 
     expect  = [
       '<A HREF="http://www.yahoo.com/blah/blah.html">stuff</A>',
       '<a href="../something.html">something</A>',
       '<a href="../subdir/">other dir</A>',
       '<a href="blah.html">same dir</A>'
-    ]
+    ].join('')
 
     result = @renderer.render(content)
 
@@ -837,7 +861,7 @@ class TestTocRenderer < ZenTest
       "\n",
       "This is more content 3\n",
       "\n",
-    ]
+    ].join('')
 
     expected = [
 
@@ -862,7 +886,7 @@ class TestTocRenderer < ZenTest
       "\n",
       "This is more content 3\n",
       "\n",
-    ]
+    ].join('')
 
     result = @renderer.render(content)
 

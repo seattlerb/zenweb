@@ -95,7 +95,7 @@ class HtmlTemplateRenderer < HtmlRenderer
 
     push("\n</BODY>\n</HTML>\n")
 
-    return @result
+    return self.result
   end
 
 =begin

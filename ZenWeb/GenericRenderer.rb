@@ -13,8 +13,6 @@ nothing itself.
 
 class GenericRenderer
 
-  attr_reader :result if $TESTING
-
 =begin
 
 --- GenericRenderer.new(document)
@@ -60,7 +58,6 @@ class GenericRenderer
 =end
 
   def unshift(obj)
-
     if obj.is_a?(Array) then
       obj.reverse.each { | item |
 	self.unshift(item)
@@ -71,6 +68,11 @@ class GenericRenderer
 
   end
 
+  # DOC GenericRenderer#result
+  def result
+    return @result.join('')
+  end
+
 =begin
 
 --- GenericRenderer#render(content)
@@ -78,6 +80,8 @@ class GenericRenderer
     Renders the content. Does nothing in GenericRenderer, but is
     expected to be overridden by subclasses. ((|content|)) is an array
     of strings and render must return an array of strings.
+
+    NEW: the argument and result are now a single string!
 
 =end
 

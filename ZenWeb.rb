@@ -1,77 +1,46 @@
 #!/usr/local/bin/ruby -w
 
 ############################################################
-# Pre-stupid-metadata cache:
+# Old timings are at the end of this file
 ############################################################
-# 33947 Metadata.load.foreach
-# 19533 ZenDocument.parseMetadata.foreach
-#   452 Metadata.load
-#   225 ZenSitemap.initialize.foreach
-#   221 ZenDocument.parseMetadata
-#     1 ZenSitemap.initialize
-
+# New render(string)->string architecture
+############################################################
+# %   cumulative   self              self     total
+# time   seconds   seconds    calls  ms/call  ms/call  name
+# 13.61    11.70     11.70     1533     7.63   176.06  Array#each
+# 12.77    22.66     10.97      235    46.68    69.88  IO#foreach
+# 12.51    33.41     10.75    14955     0.72     1.08  GenericRenderer#push
+#  5.78    38.38      4.97      355    14.00    31.43  ZenDocument#createList
+#  4.39    42.16      3.77    35405     0.11     0.11  Array#push
+#
+# real	1m39.577s
+# user	1m27.635s
+# sys	0m7.733s
+############################################################
+# Previous render(Array)->Array architecture
+############################################################
 #   %   cumulative   self              self     total
 #  time   seconds   seconds    calls  ms/call  ms/call  name
-#  26.39    60.79     60.79      674    90.19   209.73  IO#foreach
-#  15.56    96.63     35.84    54379     0.66     0.95  Object#methodcall
-#  11.88   124.00     27.37    61035     0.45     0.87  GenericRenderer#push
-#   6.46   138.88     14.88     2012     7.40   355.25  Array#each
-#   4.89   150.14     11.26    59307     0.19     0.30  Kernel.eval
-
-# real    4m20.347s
-# user    3m51.917s
-# sys     0m21.503s
-############################################################
-# Post-stupid-metadata cache:
-############################################################
-# 19533 ZenDocument.parseMetadata.foreach
-#   452 Metadata.load
-#   225 ZenSitemap.initialize.foreach
-#   221 ZenDocument.parseMetadata
-#   173 Metadata.load.foreach
-#     1 ZenSitemap.initialize
-
-#   %   cumulative   self              self     total
-#  time   seconds   seconds    calls  ms/call  ms/call  name
-#  22.51    26.91     26.91    61035     0.44     0.87  GenericRenderer#push
-#  12.26    41.58     14.66     2012     7.29   190.62  Array#each
-#  11.12    54.88     13.30      230    57.81   157.00  IO#foreach
-#  10.47    67.40     12.52    20605     0.61     0.89  Object#methodcall
-
-# real    2m20.308s
-# user    2m1.025s
-# sys     0m14.965s
+#  26.83    27.75     27.75    61960     0.45     0.89  GenericRenderer#push
+#  15.06    43.33     15.58     2059     7.57   164.09  Array#each
+#   9.67    53.33     10.00      235    42.55    62.00  IO#foreach
+#   5.89    59.42      6.09    82184     0.07     0.07  Array#push
+#   4.74    64.32      4.90    64417     0.08     0.08  Kernel.is_a?
+#
+# real    2m1.142s
+# user    1m44.934s
+# sys     0m12.849s
 ############################################################
 
-# require "profile"
 require 'cgi'
 require 'ftools'
 require 'uri'
 
 $TESTING = FALSE unless defined? $TESTING
 
-$methodcalls = {}
-$methodcalls.default= 0
-
-at_exit {
-  $methodcalls.sort {|a,b| b[1]<=>a[1]}.each { | key, val |
-    printf "%5d %s\n", val, key
-  }
-}
-
-def methodcall(meth)
-
-  $methodcalls[meth] += 1
-
-  if $DEBUG then
-    $stderr.puts meth
-
-    for c in caller(1)
-      print "  ", c, "\n"
-    end
-  end
-
-end
+# this is due to a stupid bug across 1.6.4, 1.6.7, and 1.7.2.
+$PARAGRAPH_RE = Regexp.new( $/ * 2 + "+")
+$PARAGRAPH_END_RE = Regexp.new( "^" + $/ + "+")
 
 =begin
 = ZenWeb
@@ -107,7 +76,8 @@ There are 5 major classes:
 * ((<Class Metadata>))
 * ((<Class GenericRenderer>))
 
-And many renderer classes. For example:
+And many renderer classes, now located separately in the ZenWeb
+sub-directory. For example:
 
 * ((<Class SitemapRenderer>))
 * ((<Class HtmlRenderer>))
@@ -133,7 +103,7 @@ class ZenWebsite
 
   include CGI::Html4Tr
 
-  VERSION = '2.12.1'
+  VERSION = '2.13.0'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
@@ -184,15 +154,27 @@ class ZenWebsite
   def renderSite()
 
     puts "Generating website..." unless $TESTING
-
+    force = false
     unless (test(?d, self.htmldir)) then
       File::makedirs(self.htmldir)
+    else
+      # NOTE: It would be better to know what was changed and only
+      # rerender them and their previous and current immediate
+      # relatives.
+
+      # HACK: found a bug at the last minute. Looks minor, but I'm
+      # disabling this in case it's too annoying.
+      # force = self.sitemap.newerThanTarget
+    end
+
+    if force then
+      puts "Sitemap modified, regenerating entire website." unless $TESTING
     end
 
     @doc_order.each { | url |
       doc = @documents[url]
 
-      if doc.render() then
+      if doc.render(force) then
 	puts url unless $TESTING
       end
     }
@@ -263,7 +245,7 @@ class ZenDocument
     @datapath = nil
     @htmlpath = nil
     @subpages = []
-    @content  = []
+    @content  = ""
 
     unless (test(?f, self.datapath)) then
       raise ArgumentError, "url #{url} doesn't exist in #{self.datadir} (#{self.datapath})"
@@ -290,10 +272,9 @@ class ZenDocument
     # 2) Parse w/ generic parser for metadata, stripping it out.
     count = 0
 
-#    methodcall("ZenDocument.parseMetadata")
+    page = []
 
     IO.foreach(self.datapath) { | line |
-#      methodcall("ZenDocument.parseMetadata.foreach")
       count += 1
       # REFACTOR: class Metadata also has this.
       if (line =~ /^\#\s*(\"(?:\\.|[^\"]+)\"|[^=]+)\s*=\s*(.*?)\s*$/) then
@@ -309,9 +290,11 @@ class ZenDocument
 	  self[key] = val
 	end
       else
-	self.content.push(line)
+	page.push(line)
       end
     }
+
+    @content = page.join('')
   end
 
 =begin
@@ -337,43 +320,44 @@ class ZenDocument
 
     renderers.each { | rendererName |
 
-      rendererName = rendererName.intern
-
       # 4.1) Invoke a renderer by that name
 
+      renderer = nil
       begin
 
 	# try to find ZenWeb/blah.rb first, then just blah.rb.
 	begin
-	  eval("require 'ZenWeb/#{rendererName}'")
+	  require "ZenWeb/#{rendererName}"
 	rescue LoadError => loaderr
-	  eval("require '#{rendererName}'")
+	  require "#{rendererName}" # FIX: ruby requires the quotes?!?!
 	end 
 
 	theClass = Module.const_get(rendererName)
 	renderer = theClass.send("new", self)
-	# 4.2) Pass entire file contents to renderer and replace w/ result.
-	newresult = renderer.render(result)
-	result = newresult
       rescue LoadError, NameError => err
 	raise NotImplementedError, "Renderer #{rendererName} is not implemented or loaded (#{err})"
       end
+
+      # 4.2) Pass entire file contents to renderer and replace w/ result.
+      newresult = renderer.render(result)
+      result = newresult
     }
 
-    return result.join('')
+    return result
   end
 
 =begin
 
---- ZenDocument#render
+--- ZenDocument#render(force)
 
     Gets the rendered content from ((<ZenDocument#renderContent>)) and
-    writes it to disk. Returns true if it rendered the document.
+    writes it to disk if it decides to or is told to force the
+    rendering. Returns true if it rendered the document.
 
 =end
 
-  def render()
-    if self.newerThanTarget then
+  def render(force=false)
+    if force or self.newerThanTarget then
       path = self.htmlpath
       dir = File.dirname(path)
       
@@ -396,7 +380,6 @@ class ZenDocument
 --- ZenDocument#newerThanTarget
 
     Returns true if the sourcefile is newer than the targetfile.
-    TODO: make it return true if the sitemap is newer
 
 =end
 
@@ -444,102 +427,6 @@ class ZenDocument
     if (url != self.url) then
       self.subpages.push(url)
     end
-  end
-
-=begin
-
---- ZenDocument#createList
-
-    Convert a string composed of lines prefixed by plus signs into an
-    array of those strings, sans plus signs. If a line is indented
-    with tabs, then the lines at that indention level will become an
-    array of their own, to be added to the encompassing array.
-
-=end
-
-  def createList(data)
-
-    if (data.is_a?(String)) then
-      data = data.split($/)
-    end
-
-    min = -1
-    i = 0
-    len = data.size
-
-    while (i < len)
-      if (min == -1) then
-
-	# looking for initial match:
-	if (data[i] =~ /^\t(\t*.*)/) then
-
-	  # replace w/ one less tab, and record that we have a match
-	  data[i] = $1
-	  min = i
-	end
-      else
-
-	# found match, looking for mismatch
-	if (data[i] !~ /^\t(\t*.*)/ or i == len) then
-
-	  # found mismatch, replacing w/ sublist
-	  data[min..i-1] = [ createList(data[min..i-1]) ]
-	  # resetting appropriate values
-	  len = data.size
-	  i = min
-	  min = -1
-	else
-	  data[i] = $1
-	end
-      end
-      i += 1
-    end
-
-    if (i >= len - 1 and min != -1) then
-      data[min..i-1] = [ createList(data[min..i-1]) ]
-    end
-
-    return data
-  end
-
-=begin
-
-     --- ZenDocument#createHash
-
-     Convert a string composed of lines prefixed one of two delimiters
-     into a hash. If the delimiter is "%-", then that string is used
-     as the key to the hash. If the delimiter is "%=", then that
-     string is used as the value to the hash.
-
-=end
-
-  def createHash(data)
-
-    # WARN: this needs to be ordered
-    result = {}
-
-    if (data.is_a?(String)) then
-      data = data.split($/)
-    end
-
-    key = nil
-    data.each { |line|
-      if (line =~ /^\s*%-\s*(.*)/) then
-	key = $1
-      elsif (line =~ /^\s*%=\s*(.*)/) then
-	val = $1
-
-	if (key) then
-	  # WARN: maybe do something if already defined?
-	  result[key] = val
-	end
-
-      else
-	# nothing
-      end
-    }
-
-    return result
   end
 
   ############################################################
@@ -717,8 +604,6 @@ class ZenSitemap < ZenDocument
   def initialize(url, website)
     super(url, website)
 
-#    methodcall("ZenSitemap.initialize")
-
     @documents = {}
     @doc_order = []
 
@@ -729,7 +614,6 @@ class ZenSitemap < ZenDocument
     count = 0
 
     IO.foreach(self.datapath) { |f|
-#      methodcall("ZenSitemap.initialize.foreach")
       count += 1
       f.chomp!
 
@@ -847,15 +731,11 @@ class Metadata < Hash
 
   def load(file)
 
-#    methodcall("Metadata.load")
-
     count = 0
 
-    # TODO: add a caching mechanism here. This is ~25% of our time
     unless (@@metadata[file]) then
       hash = {}
       IO.foreach(file) { | line |
-#	methodcall("Metadata.load.foreach")
 	count += 1
 	if (line =~ /^\s*(\"(?:\\.|[^\"]+)\"|[^=]+)\s*=\s*(.*?)\s*$/) then
 
@@ -908,4 +788,44 @@ if __FILE__ == $0
   ZenWebsite.new(url, path, path + "html").renderSite()
 
 end
+
+############################################################
+# Pre-stupid-metadata cache:
+############################################################
+# 33947 Metadata.load.foreach
+# 19533 ZenDocument.parseMetadata.foreach
+#   452 Metadata.load
+#   225 ZenSitemap.initialize.foreach
+#   221 ZenDocument.parseMetadata
+#     1 ZenSitemap.initialize
+#   %   cumulative   self              self     total
+#  time   seconds   seconds    calls  ms/call  ms/call  name
+#  26.39    60.79     60.79      674    90.19   209.73  IO#foreach
+#  15.56    96.63     35.84    54379     0.66     0.95  Object#methodcall
+#  11.88   124.00     27.37    61035     0.45     0.87  GenericRenderer#push
+#   6.46   138.88     14.88     2012     7.40   355.25  Array#each
+#   4.89   150.14     11.26    59307     0.19     0.30  Kernel.eval
+# real    4m20.347s
+# user    3m51.917s
+# sys     0m21.503s
+
+############################################################
+# Post-stupid-metadata cache:
+############################################################
+# 19533 ZenDocument.parseMetadata.foreach
+#   452 Metadata.load
+#   225 ZenSitemap.initialize.foreach
+#   221 ZenDocument.parseMetadata
+#   173 Metadata.load.foreach
+#     1 ZenSitemap.initialize
+#   %   cumulative   self              self     total
+#  time   seconds   seconds    calls  ms/call  ms/call  name
+#  22.51    26.91     26.91    61035     0.44     0.87  GenericRenderer#push
+#  12.26    41.58     14.66     2012     7.29   190.62  Array#each
+#  11.12    54.88     13.30      230    57.81   157.00  IO#foreach
+#  10.47    67.40     12.52    20605     0.61     0.89  Object#methodcall
+# real    2m20.308s
+# user    2m1.025s
+# sys     0m14.965s
+############################################################
 

@@ -23,8 +23,6 @@ class SubpageRenderer < GenericRenderer
 =end
 
   def render(content)
-    @result = content
-
     subpages = @document.subpages.clone
     if (subpages.length > 0) then
       push("\n\n")
@@ -39,7 +37,7 @@ class SubpageRenderer < GenericRenderer
       push("\n")
     end
 
-    return @result
+    return content + self.result
   end
 end
 

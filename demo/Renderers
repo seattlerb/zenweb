@@ -34,7 +34,8 @@ the entire site.
 ** RubyCodeRenderer
 
 Evaluates blocks that are preceded with "!" characters and shows the
-code and the result together.
+code and the result together. NOTE: this feature is really weak and
+will require an overhaul to irb (read: not my code) to work properly.
 
 ** SitemapRenderer
 

@@ -54,7 +54,7 @@ class RelativeRenderer < GenericRenderer
       push(line)
     }
 
-    return @result
+    return self.result
   end
 
   def convert(u)

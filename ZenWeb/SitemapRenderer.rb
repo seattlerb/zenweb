@@ -50,7 +50,7 @@ class SitemapRenderer < GenericRenderer
       push("#{indent}+ <A HREF=\"#{url}\">#{title}</A>\n")
     }
 
-    return @result
+    return self.result
   end
 end
 

@@ -27,25 +27,12 @@ class FooterRenderer < GenericRenderer
     footer = @document['footer'] || nil
 
     if footer then
-
-      placed = false
-
-      content.each { | line |
-
-	if (line =~ /<\/BODY>/i) then
-	  push(footer)
-	  placed = true
-	end
-
-	push(line)
+      content.sub!(/(<\/BODY>|\z)/i) {
+	footer + $1
       }
-
-      push(footer) unless placed
-    else
-      @result = content
     end
 
-    return @result
+    return content
   end
 end
 

@@ -43,10 +43,10 @@ class HeaderRenderer < GenericRenderer
 	unshift(header) unless placed
       end
     else
-      @result = content
+      push(content)
     end
 
-    return @result
+    return self.result
   end
 end
 

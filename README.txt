@@ -24,7 +24,7 @@ FEATURES:
 
 REQUIREMENTS:
 
-+ Ruby - not sure about minimal version, but 1.6.x has been tested.
++ Ruby - 1.6.7 and 1.7.2 have been tested.
 + Test::Unit testing framework via RAA on http://www.ruby-lang.org/.
 
 INSTALL:

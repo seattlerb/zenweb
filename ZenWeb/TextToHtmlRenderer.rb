@@ -25,13 +25,12 @@ class TextToHtmlRenderer < HtmlRenderer
 
   def render(content)
 
-    text = content.join('')
-    content = text.split(/#{$/}#{$/}+/)
+    text = content.split($PARAGRAPH_RE)
 
-    content.each { | p |
+    text.each { | p |
 
       # massage a little
-      p = p.sub(/^#{$/}+/, '') # end of paragraph -> ''
+      p = p.sub($PARAGRAPH_END_RE, '')
       p.chomp!
 
       p.gsub!(/\\&/, "&amp;")
@@ -49,13 +48,13 @@ class TextToHtmlRenderer < HtmlRenderer
       p.gsub!(/([^=\"])((http|ftp|mailto):(\S+))/) {
 	pre = $1
 	url = $2
-	text = $4
+	txt = $4
 
-	text.gsub!(/\//, " ")
-	text.strip!
-	text.gsub!(/ /, " /")
+	txt.gsub!(/\//, " ")
+	txt.strip!
+	txt.gsub!(/ /, " /")
 
-	"#{pre}<A HREF=\"#{url}\">#{text}</A>"
+	"#{pre}<A HREF=\"#{url}\">#{txt}</A>"
       }
 
       if (p =~ /^(\*\*+)\s*(.*)$/) then
@@ -66,7 +65,7 @@ class TextToHtmlRenderer < HtmlRenderer
       elsif (p =~ /^===+$/) then
 	push("<HR SIZE=\"2\" NOSHADE>\n\n")
       elsif (p =~ /^%[=-]/) then # FIX: needs to maintain order
-	hash = @document.createHash(p)
+	hash = self.createHash(p)
 
 	if (hash) then
 	  push(self.hash2html(hash) + "\n")
@@ -74,10 +73,10 @@ class TextToHtmlRenderer < HtmlRenderer
       elsif (p =~ /^\t*\+/) then
 	p.gsub!(/^(\t*)\+\s*(.*)$/) { $1 + $2 }
 
-	list = @document.createList(p)
+	list = self.createList(p)
 
 	if (list) then
-	  push(self.array2html(list) + "\n")
+	  push(self.array2html(list))
 	end
       elsif (p =~ /^\ \ / and p !~ /^[^\ ]/) then
 	p.gsub!(/^\ \ /, '')
@@ -90,11 +89,106 @@ class TextToHtmlRenderer < HtmlRenderer
     # FIX: xmp makes this slow
     # put it back into line-by-line format
     # I use scan instead of split so I can keep the EOLs.
-    @result = @result.join("\n").scan(/^.*[\n\r]+/)
+    # @result = @result.join("\n").scan(/^.*[\n\r]+/)
 
-    return @result
+    return self.result
 
   end
 
-end
+=begin
 
+--- ZenDocument#createList
+
+    Convert a string composed of lines prefixed by plus signs into an
+    array of those strings, sans plus signs. If a line is indented
+    with tabs, then the lines at that indention level will become an
+    array of their own, to be added to the encompassing array.
+
+=end
+
+  def createList(data)
+
+    if (data.is_a?(String)) then
+      data = data.split($/)
+    end
+
+    min = -1
+    i = 0
+    len = data.size
+
+    while (i < len)
+      if (min == -1) then
+
+	# looking for initial match:
+	if (data[i] =~ /^\t(\t*.*)/) then
+
+	  # replace w/ one less tab, and record that we have a match
+	  data[i] = $1
+	  min = i
+	end
+      else
+
+	# found match, looking for mismatch
+	if (data[i] !~ /^\t(\t*.*)/ or i == len) then
+
+	  # found mismatch, replacing w/ sublist
+	  data[min..i-1] = [ createList(data[min..i-1]) ]
+	  # resetting appropriate values
+	  len = data.size
+	  i = min
+	  min = -1
+	else
+	  data[i] = $1
+	end
+      end
+      i += 1
+    end
+
+    if (i >= len - 1 and min != -1) then
+      data[min..i-1] = [ createList(data[min..i-1]) ]
+    end
+
+    return data
+  end
+
+=begin
+
+--- ZenDocument#createHash
+
+    Convert a string composed of lines prefixed one of two delimiters
+    into a hash. If the delimiter is "%-", then that string is used
+    as the key to the hash. If the delimiter is "%=", then that
+    string is used as the value to the hash.
+
+=end
+
+  def createHash(data)
+
+    # FIX: this needs to be ordered!
+    result = {}
+
+    if (data.is_a?(String)) then
+      data = data.split($/)
+    end
+
+    key = nil
+    data.each { |line|
+      if (line =~ /^\s*%-\s*(.*)/) then
+	key = $1
+      elsif (line =~ /^\s*%=\s*(.*)/) then
+	val = $1
+
+	if (key) then
+	  # WARN: maybe do something if already defined?
+	  result[key] = val
+	end
+
+      else
+	# nothing
+      end
+    }
+
+    return result
+  end
+
+end

@@ -25,7 +25,7 @@ class XXXRenderer < GenericRenderer
 
   def render(content)
     # YYY
-    return @result
+    return self.result
   end
 
 end
