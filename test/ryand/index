@@ -1,7 +1,6 @@
 # 'title' = "Ryan's Homepage"
 # 'subtitle' = "Version 2.0"
-# 'footer' = 'This is my footer, jive turkey'
-# 'renderers' = [ 'MetadataRenderer', 'FooterRenderer', 'TextToHtmlRenderer', 'HtmlTemplateRenderer' ]
+# 'footer' = '<P>This is my footer, jive turkey</P>'
 
 Everything is separated by paragraphs (two or more returns).
 

@@ -2,7 +2,7 @@
 # Test Website v. 1.0.0
 #
 # 'title' = 'Sitemap'
-# 'renderers' = [ 'SitemapRenderer', 'TextToHtmlRenderer', 'HtmlTemplateRenderer' ]
+# 'renderers' = [ 'SitemapRenderer', 'StandardRenderer' ]
 
 /index.html
 /SiteMap.html

@@ -1,4 +1,10 @@
 ###############################################################################
+2002-08-06 2.9.0				   00 major / 02 minor / 00 bug
+
+	+ Added RelativeRenderer to convert urls to relative where possible.
+	+ Improved tests and test content.
+
+###############################################################################
 2002-08-03 2.8.1				   00 major / 00 minor / 03 bug
 
 	+ Removed "mailto:" from MADE metadata to have anti-spam links.

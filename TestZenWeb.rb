@@ -337,7 +337,8 @@ class TestZenDocument < ZenTest
     assert_nil(@doc['nothing'])
 
     @doc = ZenDocument.new("/Something.html", @web)
-    assert_equal(['StandardRenderer'], @doc['renderers'])
+    assert_equal(['StandardRenderer', 'RelativeRenderer'],
+		 @doc['renderers'])
   end
 
 end
@@ -387,7 +388,7 @@ class TestZenSitemap < TestZenDocument
   end
 
   def test_sitemap_content
-    expected = "<H2>There are 6 pages in this website.</H2>\n<HR SIZE=\"3\" NOSHADE>\n\n<UL>\n  <LI><A HREF=\"/index.html\">My Homepage: Subtitle</A></LI>\n  <LI><A HREF=\"/SiteMap.html\">Sitemap: There are 6 pages in this website.</A></LI>\n  <LI><A HREF=\"/Something.html\">Something</A></LI>\n  <LI><A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A></LI>\n  <UL>\n    <LI><A HREF=\"/~ryand/blah.html\">blah</A></LI>\n    <LI><A HREF=\"/~ryand/stuff/index.html\">my stuff</A></LI>\n  </UL>\n</UL>"
+    expected = "<H2>There are 6 pages in this website.</H2>\n<HR SIZE=\"3\" NOSHADE>\n\n<UL>\n  <LI><A HREF=\"/index.html\">My Website: Subtitle</A></LI>\n  <LI><A HREF=\"/SiteMap.html\">Sitemap: There are 6 pages in this website.</A></LI>\n  <LI><A HREF=\"/Something.html\">Something</A></LI>\n  <LI><A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A></LI>\n  <UL>\n    <LI><A HREF=\"/~ryand/blah.html\">blah</A></LI>\n    <LI><A HREF=\"/~ryand/stuff/index.html\">my stuff</A></LI>\n  </UL>\n</UL>"
 
     assert_not_nil(@content.index(expected) > 0,
 		   "Must render some form of HTML")
@@ -471,7 +472,7 @@ class TestHtmlTemplateRenderer < ZenTest
 </HEAD>
 <BODY>
 <P>
-<A HREF=\"/SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"/index.html\">My Homepage</A>
+<A HREF=\"../SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"../index.html\">My Website</A>
  / Ryan\'s Homepage</P>
 <H1>Ryan\'s Homepage</H1>
 <H2>Version 2.0</H2>
@@ -480,8 +481,9 @@ class TestHtmlTemplateRenderer < ZenTest
   end
 
   def test_renderContent_foot
+    expected = "\n<HR SIZE=\"3\" NOSHADE>\n\n<P>\n<A HREF=\"../SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan's Homepage</P>\n<P>This is my footer, jive turkey</P>\n</BODY>\n</HTML>\n"
 
-    assert_not_nil(@content.index("<P>This is my footer, jive turkey</P>\n\n<HR SIZE=\"3\" NOSHADE>\n\n<P>\n<A HREF=\"/SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"/index.html\">My Homepage</A>\n / Ryan's Homepage</P>\n\n</BODY>\n</HTML>\n"),
+    assert_not_nil(@content.index(expected),
 		   "Must render the HTML footer")
   end
 
@@ -602,7 +604,7 @@ alone.
   end
 
   def test_navbar
-    assert_not_nil(@content.index("<A HREF=\"/SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"/index.html\">My Homepage</A>\n / Ryan\'s Homepage</P>\n"),
+    assert_not_nil(@content.index("<A HREF=\"../SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan\'s Homepage</P>\n"),
 		   "Must render navbar correctly")
   end
 end
@@ -634,6 +636,52 @@ class TestHeaderRenderer < ZenTest
     content = @doc.renderContent
 
     assert_equal("header 1\nline 1\nline 2\nline 3\n", content)
+  end
+end
+
+class TestRelativeRenderer < ZenTest
+  def set_up
+    super
+    @renderer = RelativeRenderer.new(@doc)
+  end
+
+  def test_render
+
+    content = [
+      '<A HREF="http://www.yahoo.com/blah/blah.html">stuff</A>',
+      '<a href="/something.html">something</A>',
+      '<a href="/subdir/">other dir</A>',
+      '<a href="/~ryand/blah.html">same dir</A>'
+    ]
+
+    expect  = [
+      '<A HREF="http://www.yahoo.com/blah/blah.html">stuff</A>',
+      '<a href="../something.html">something</A>',
+      '<a href="../subdir/">other dir</A>',
+      '<a href="blah.html">same dir</A>'
+    ]
+
+    result = @renderer.render(content)
+
+    # just to satisfy me and make sure the relative urls are still there...
+    @doc.render
+
+    assert_equal(expect, result)
+  end
+
+  def test_convert
+
+    assert_equal('http://www.yahoo.com/blah/blah.html',
+		 @renderer.convert('http://www.yahoo.com/blah/blah.html'))
+
+    assert_equal('../something.html',
+		 @renderer.convert('/something.html'))
+
+    assert_equal('../subdir/',
+		 @renderer.convert('/subdir/'))
+
+    assert_equal('blah.html',
+		 @renderer.convert('/~ryand/blah.html'))
   end
 end
 
@@ -701,7 +749,8 @@ class TestMetadata < Test::Unit::TestCase
 
   def test_parenthood
     # this is defined in the parent, but not the child
-    assert_equal([ 'StandardRenderer' ], @hash["renderers"])
+    assert_equal([ 'StandardRenderer', 'RelativeRenderer' ],
+		 @hash["renderers"])
   end
 
 end
@@ -722,8 +771,9 @@ class TestAll
     suite.add(TestTextToHtmlRenderer.suite)
     suite.add(TestFooterRenderer.suite)
     suite.add(TestHeaderRenderer.suite)
-    suite.add(TestMetadata.suite)
     suite.add(TestSubpageRenderer.suite)
+    suite.add(TestRelativeRenderer.suite)
+    suite.add(TestMetadata.suite)
 
     return suite
   end

@@ -1,6 +1,6 @@
 # 'description' = 'This is the demo sitemap.'
 # 'keywords' = 'map, website, ZenWeb'
-# 'renderers' = ['SitemapRenderer', 'TextToHtmlRenderer', 'HtmlTemplateRenderer', 'FooterRenderer']
+# 'renderers' = ['SitemapRenderer', 'StandardRenderer' ]
 
 /index.html
 /SiteMap.html
