@@ -4,11 +4,7 @@
 # 'title' = 'Sitemap'
 # 'renderers' = [ 'SitemapRenderer', 'TextToHtmlRenderer', 'HtmlTemplateRenderer' ]
 
-/index.html
-/SiteMap.html
-/Something.html
 /~ryand/index.html
+/~ryand/SiteMap.html
 /~ryand/blah.html
 /~ryand/stuff/index.html
-
-

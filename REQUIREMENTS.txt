@@ -15,7 +15,7 @@ directory.
 will dictate what will generate the page, and correspondingly, what
 the page will look like.
 
-+ Another file, named Metadata.rb, contains metadata of it's own that
++ Another file, named Metadata.txt, contains metadata of it's own that
 is scoped to all files in the directory and below. This file may exist
 in any directory and will overlay the metadata defined in files in any
 parent directories.
@@ -28,17 +28,17 @@ into the resulting content.
 
 + Scope of Metadata:
 
-  { Sitemap { Metadata.rb { Metadata.rb* { File }}}}
+  { Sitemap { Metadata.txt { Metadata.txt* { File }}}}
 
 + General Structure:
 
 data/
   SiteMap [ urls, pagetypes, metadata ]
   other content files
-  Metadata.rb
+  Metadata.txt
   subdir/
     other content files
-    Metadata.rb
+    Metadata.txt
 
 + General Algorithm:
 

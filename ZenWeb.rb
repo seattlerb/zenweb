@@ -133,7 +133,7 @@ class ZenWebsite
 
   include CGI::Html4Tr
 
-  VERSION = '2.9.0'
+  VERSION = '2.9.1 beta'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
@@ -266,7 +266,7 @@ class ZenDocument
     @content  = []
 
     unless (test(?f, self.datapath)) then
-      raise ArgumentError, "url #{url} doesn't exist in #{self.datadir}"
+      raise ArgumentError, "url #{url} doesn't exist in #{self.datadir} (#{self.datapath})"
     end
 
     @metadata = nil
@@ -1068,11 +1068,19 @@ class SitemapRenderer < GenericRenderer
 
   def render(content)
 
+    # used for /~user/blah.html pages
+    # basically, we need to strip off whatever the base of the sitemap is to
+    # make sure we indent everything to the right level.
+    base = @sitemap.url
+    base = base.sub(%r%/[^/]*$%, '/')
+
     urls = @sitemap.doc_order.clone
 
     @document['subtitle'] ||= "There are #{urls.size} pages in this website."
     urls.each { | url |
+
       indent = url.sub(/\.html$/, "")
+      indent.sub!(/#{base}/, "")
       indent.sub!(/\/index$/, "")
       indent.sub!(/^\//, "")
       indent.gsub!(/[^\/]+\//, "\t")

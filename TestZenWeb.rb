@@ -54,7 +54,7 @@ class TestZenWebsite < ZenTest
 
   def test_initialize_tilde
     # this should work fine
-    util_initialize("/~ryand/AnotherSiteMap.html", @datadir, @htmldir, false)
+    util_initialize("/~ryand/SiteMap.html", @datadir, @htmldir, false)
   end
 
   def util_initialize(sitemap_url, data_dir, html_dir, should_fail=true)
@@ -637,6 +637,58 @@ class TestHeaderRenderer < ZenTest
 
     assert_equal("header 1\nline 1\nline 2\nline 3\n", content)
   end
+end
+
+class TestSiteMapRenderer < ZenTest
+
+  def set_up
+    super
+  end
+
+  def test_render
+    @doc = @web[@sitemapUrl]
+    @content = @doc.content
+    @renderer = SitemapRenderer.new(@doc)
+
+    result = @renderer.render(@content)
+
+    expected = [
+      "+ <A HREF=\"/index.html\">My Website: Subtitle</A>\n",
+      "+ <A HREF=\"/SiteMap.html\">Sitemap: There are 6 pages in this website.</A>\n", 
+      "+ <A HREF=\"/Something.html\">Something</A>\n",
+      "+ <A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A>\n",
+      "\t+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
+      "\t+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n"
+    ]
+
+    assert_equal(expected, result, "Must properly convert the urls to a list")
+  end
+
+  def test_render_subsite
+    # this is a weird one... if my sitemap is something like:
+    #   /~ryand/index.html
+    #   /~ryand/SiteMap.html
+    # then ZenWeb somehow thinks that sitemap is a subdirectory to index.
+
+    @web = ZenWebsite.new('/~ryand/SiteMap.html', "test", "testhtml")
+    @doc = @web['/~ryand/SiteMap.html']
+    @content = @doc.content
+    @renderer = SitemapRenderer.new(@doc)
+
+    result = @renderer.render(@content)
+
+    expected = [
+      "+ <A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A>\n",
+      "+ <A HREF=\"/~ryand/SiteMap.html\">Sitemap: There are 4 pages in this website.</A>\n",
+      "+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
+      "+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n"
+    ]
+
+    # FIX: need a sub-sub-page to test indention at that level
+
+    assert_equal(expected, result, "Must properly convert the urls to a list")
+  end
+
 end
 
 class TestRelativeRenderer < ZenTest
