@@ -320,32 +320,6 @@ class TestZenDocument < ZenTest
     assert_equal("/~ryand/index.html", @doc.parentURL())
   end
 
-  def test_createList_flat
-    r = TextToHtmlRenderer.new(@doc)
-
-    assert_equal(["line 1", "line 2"],
-		 r.createList("line 1\nline 2\n"))
-  end
-
-  def test_createList_deep
-    r = TextToHtmlRenderer.new(@doc)
-
-    assert_equal([ "line 1", 
-		    [ "line 1.1", "line 1.2" ], 
-		    "line 2", 
-		    [ "line 2.1",
-		      [ "line 2.1.1" ] ] ],
-		  r.createList("line 1\n\tline 1.1\n\tline 1.2\n" +
-				  "line 2\n\tline 2.1\n\t\tline 2.1.1"))
-  end
-
-  def test_createHash_simple
-    r = TextToHtmlRenderer.new(@doc)
-
-    assert_equal({"term 1" => "def 1", "term 2" => "def 2"},
-		 r.createHash("%- term 1\n%= def 1\n%-term 2\n%=def 2"))
-  end
-
   def test_parent
     parent = @doc.parent
 
@@ -376,6 +350,61 @@ class TestZenDocument < ZenTest
 		 @doc['renderers'])
   end
 
+  def test_addSubpage
+    assert(false, 'Need to write test_addSubpage tests')
+  end
+
+  def test_content
+    assert(false, 'Need to write test_content tests')
+  end
+
+  def test_content=
+      assert(false, 'Need to write test_content= tests')
+  end
+
+  def test_datadir
+    assert(false, 'Need to write test_datadir tests')
+  end
+
+  def test_fulltitle
+    assert(false, 'Need to write test_fulltitle tests')
+  end
+
+  def test_htmldir
+    assert(false, 'Need to write test_htmldir tests')
+  end
+
+  def test_index
+    assert(false, 'Need to write test_index tests')
+  end
+
+  def test_index_equals
+    assert(false, 'Need to write test_index_equals tests')
+  end
+
+  def test_metadata
+    assert(false, 'Need to write test_metadata tests')
+  end
+
+  def test_newerThanTarget
+    assert(false, 'Need to write test_newerThanTarget tests')
+  end
+
+  def test_parseMetadata
+    assert(false, 'Need to write test_parseMetadata tests')
+  end
+
+  def test_renderContent
+    assert(false, 'Need to write test_renderContent tests')
+  end
+
+  def test_url
+    assert(false, 'Need to write test_url tests')
+  end
+
+  def test_website
+    assert(false, 'Need to write test_website tests')
+  end
 end
 
 ############################################################
@@ -741,6 +770,32 @@ class TestTextToHtmlRenderer < ZenTest
     util_render("<A HREF=\"../SiteMap.html\"><STRONG>Sitemap</STRONG></A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan\'s Homepage</P>\n",
 		       "Must render navbar correctly")
   end
+
+  def test_createList_flat
+    r = TextToHtmlRenderer.new(@doc)
+
+    assert_equal(["line 1", "line 2"],
+		 r.createList("line 1\nline 2\n"))
+  end
+
+  def test_createList_deep
+    r = TextToHtmlRenderer.new(@doc)
+
+    assert_equal([ "line 1", 
+		   [ "line 1.1", "line 1.2" ], 
+		   "line 2", 
+		   [ "line 2.1",
+		     [ "line 2.1.1" ] ] ],
+		 r.createList("line 1\n\tline 1.1\n\tline 1.2\n" +
+			      "line 2\n\tline 2.1\n\t\tline 2.1.1"))
+  end
+
+  def test_createHash_simple
+    r = TextToHtmlRenderer.new(@doc)
+
+    assert_equal({"term 1" => "def 1", "term 2" => "def 2"},
+		 r.createHash("%- term 1\n%= def 1\n%-term 2\n%=def 2"))
+  end
 end
 
 class TestFooterRenderer < ZenTest
@@ -781,7 +836,7 @@ class TestSiteMapRenderer < ZenTest
     super
   end
 
-  def test_render
+  def test_render_normal
     @doc = @web.sitemap
     @content = @doc.content
     @renderer = SitemapRenderer.new(@doc)
@@ -938,49 +993,24 @@ class TestTocRenderer < ZenTest
   end
 end
 
-############################################################
-# The Test Suite:
-
-class TestAll 
-  def TestAll.suite
-    suite = Test::Unit::TestSuite.new("All of ZenWeb")
-
-    suite.add(TestZenWebsite.suite)
-    suite.add(TestZenDocument.suite)
-    suite.add(TestZenSitemap.suite)
-    suite.add(TestMetadata.suite)
-
-    suite.add(TestGenericRenderer.suite)
-    suite.add(TestHtmlRenderer.suite)
-    suite.add(TestHtmlTemplateRenderer.suite)
-    suite.add(TestTextToHtmlRenderer.suite)
-    suite.add(TestFooterRenderer.suite)
-    suite.add(TestHeaderRenderer.suite)
-    suite.add(TestSubpageRenderer.suite)
-    suite.add(TestRelativeRenderer.suite)
-    suite.add(TestTocRenderer.suite)
-
-    return suite
+# this is more here to shut up ZenTest than anything else.
+class TestXXXRenderer < Test::Unit::TestCase
+  def test_render
+    assert(false, 'Need to write test_render tests')
   end
 end
 
-############################################################
-# Main:
+class TestStupidRenderer < Test::Unit::TestCase
+  def test_leet
+    assert(false, 'Need to write test_leet tests')
+  end
 
-#if __FILE__ == $0
+  def test_render
+    assert(false, 'Need to write test_render tests')
+  end
 
-#   if ARGV.empty? then
-#     suite = TestAll.suite
-#   else
-#     suite = Test::Unit::TestSuite.new
-#     ARGV.each { | arg |
-#       print "Adding #{arg} to testsuite\n"
-#       suite.add(arg)
-#     }
-#   end
-
-#   result = Test::Unit::UI::Console::TestRunner.run(suite)
-
-#   exit result.passed? ? 0 : 1
-#end
+  def test_strip
+    assert(false, 'Need to write test_strip tests')
+  end
+end
 

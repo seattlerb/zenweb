@@ -25,10 +25,6 @@ class CompositeRenderer < GenericRenderer
     @renderers = []
   end
 
-  def addRenderer(renderer)
-    @renderers.push(renderer)
-  end
-
 =begin
 
 --- CompositeRenderer#render(content)
@@ -42,6 +38,18 @@ class CompositeRenderer < GenericRenderer
       content = renderer.render(content)
     }
     return content
+  end
+
+=begin
+
+--- CompositeRenderer#addRenderer(renderer)
+
+    Adds renderer to the list of renderers used by this composite.
+
+=end
+
+  def addRenderer(renderer)
+    @renderers.push(renderer)
   end
 
 end

@@ -39,6 +39,8 @@ install:
 	ln -sf $$where/ZenWeb.rb $(PREFIX)/bin/zenweb; \
 	echo Installed
 
+# install -BdSv
+
 clean:
 	find . -name \*~ -exec rm {} \;
 	rm -rf testhtml demohtml

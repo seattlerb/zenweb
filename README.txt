@@ -10,9 +10,8 @@ most rendering tools. It is content oriented, rather than style
 oriented, unlike most rendering tools. It provides a plugin system of
 renderers and filters to provide a very flexible, and powerful system.
 
-(Minimal) documentation is available in the demo directory. See
-QuickStart and YourOwnWebsite for setup and starting to build a
-website.
+Documentation is available in the demo directory. See QuickStart and
+YourOwnWebsite for setup and starting to build a website.
   
 FEATURES:
   
