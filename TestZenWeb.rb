@@ -54,7 +54,6 @@ class TestZenWebsite < ZenTest
     else
       assert(FALSE, "Bad datadir should throw exception")
     end
-    
   end
 
   def test_initialize3
@@ -66,7 +65,17 @@ class TestZenWebsite < ZenTest
     else
       assert(FALSE, "Bad url should throw exception")
     end
-    
+  end
+
+  def test_initialize_tilde
+    # missing a leading slash
+    data = "xxx/user"
+    html = "xxxhtml"
+    begin
+      @web = ZenWebsite.new("/SiteMap.html", data, html).renderSite()
+    rescue ArgumentError
+      fail("Got an ArgumentError")
+    end
   end
 
   def util_checkContent(path, expected)
