@@ -275,7 +275,7 @@ class ZenDocument(SimpleDocument):
 		if (self.parent is not None):
 			self.parent.addSubpage(self)
 
-	def loadRCs(self, filename="HTML.rc", path):
+	def loadRCs(self, filename="HTML.rc", path=""):
 		" to be called by read "
 		
 #		print "1 loadRCs('%s', '%s')" % (filename, path)
