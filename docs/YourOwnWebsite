@@ -13,7 +13,7 @@ failed my job.
 + Run the following commands:
 	+ <CODE>ZenWebsite.rb mysite</CODE>
 	+ <CODE>cd mysite</CODE>
-	+ <CODE>ZenWebsite.rb data/second</CODE>
+	+ <CODE>ZenWebpage.rb data/second</CODE>
 	+ Edit data/SiteMap and put "/second.html" where you'd like it
 	+ <CODE>make</CODE>
 + Edit as you see fit.
