@@ -42,7 +42,7 @@ class TextToHtmlRenderer < HtmlRenderer
       p.gsub!(/\\:/, "&#58;")
 
       # WARN Not sure if I want to do this or not... thinking about it.
-      # p.gsub!(/\\(.)/) { | c | "&##{$1.unpack('c').to_s};" }
+      # p.gsub!(/\\(.)/) { | c | sprintf("&#%04X#;", $1[0]) }
 
       # url substitutions
       p.gsub!(/([^=\"])((http|ftp|mailto):(\S+))/) {
@@ -85,6 +85,8 @@ class TextToHtmlRenderer < HtmlRenderer
 	push("<P>" + p + "</P>\n\n")
       end
     }
+
+    # TODO: need to extend: ordered lists
 
     # FIX: xmp makes this slow
     # put it back into line-by-line format

@@ -12,6 +12,8 @@ Allows multiple renderers to be plugged into a single renderer.
 
 class CompositeRenderer < GenericRenderer
 
+  attr_reader :renderers
+
 =begin
 
 --- CompositeRenderer#new(document)
@@ -49,6 +51,11 @@ class CompositeRenderer < GenericRenderer
 =end
 
   def addRenderer(renderer)
+
+    if (renderer.nil? or ! renderer.kind_of? GenericRenderer) then
+      raise ArgumentError, "You may only add an instance of GenericRenderer"
+    end
+
     @renderers.push(renderer)
   end
 

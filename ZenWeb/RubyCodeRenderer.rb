@@ -26,8 +26,7 @@ class RubyCodeRenderer < GenericRenderer
     
     text.each { | p |
 
-      # BUG? I think ruby has a bug, can't test for m/^\s*\!/
-      if (p =~ /^[\ \t]*\!/m) then
+      if (p =~ /^\s*\!/m) then
 
 	p.gsub!(/^[\ \t]*\!/, '')
 	

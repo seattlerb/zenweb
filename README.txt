@@ -19,11 +19,12 @@ FEATURES:
 + Generic architecture w/ a set of plugins to extend any page or directory.
 + Incremental page builds for very fast generation.
 + Simple text-to-html markup makes creating large websites easy.
++ ZenTest 1.0 compliant. http://sf.net/projects/zentest/
 + Much much more... I should probably add that here, huh?
 
 REQUIREMENTS:
 
-+ Ruby - 1.6.7 and 1.7.2 have been tested.
++ Ruby - 1.6.5-7 and 1.7.2 have been tested.
 + Test::Unit testing framework via RAA on http://www.ruby-lang.org/.
 
 INSTALL:

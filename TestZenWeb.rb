@@ -5,10 +5,38 @@ $TESTING = TRUE
 require 'ZenWeb'
 require 'ZenWeb/SitemapRenderer'
 require 'ZenWeb/TocRenderer'
-require 'test/unit'
-require 'test/unit/ui/console/testrunner'
+require 'ZenWeb/StupidRenderer'
 
-class ZenTest < Test::Unit::TestCase
+require 'test/unit/testresult'
+require 'test/unit/testcase'
+require 'zentestrunner'
+
+def shutupwhile
+  $dead = File.open("/dev/null", "w")
+
+  $stdout.flush
+  $stderr.flush
+  $defout.flush
+
+  oldstdout = $stdout.dup
+  oldstderr = $stderr.dup
+
+  $stdout.reopen($dead)
+  $stderr.reopen($dead)
+  $defout.reopen($dead)
+
+  yield
+
+  $stdout.flush
+  $stderr.flush
+  $defout.flush
+
+  $stdout = oldstdout
+  $stderr = oldstderr
+  $defout.reopen($stdout)
+end
+
+class ZenTestCase < Test::Unit::TestCase # ZenTest SKIP
 
   def set_up
     @datadir = "test"
@@ -18,12 +46,19 @@ class ZenTest < Test::Unit::TestCase
     @web = ZenWebsite.new(@sitemapUrl, @datadir, @htmldir)
     @doc = @web[@url]
     @content = @doc.renderContent
+
+    if self.class.name =~ /Test(\w+Renderer)$/ then
+      rendererclass = $1
+      require "ZenWeb/#{rendererclass}"
+      theClass = Module.const_get(rendererclass)
+      @renderer = theClass.send("new", @doc) # TODO: move everyone over to this
+    end
+
   end
 
   def tear_down
     if (test(?d, @htmldir)) then
       `rm -rf #{@htmldir}` 
-      # unless $DEBUG
     end
   end
 
@@ -32,12 +67,11 @@ end
 ############################################################
 # ZenWebsite:
 
-class TestZenWebsite < ZenTest
+class TestZenWebsite < ZenTestCase
 
   def tear_down
     if (test(?d, @htmldir)) then
       `rm -rf #{@htmldir}`
-      # unless $DEBUG
     end
   end
 
@@ -114,23 +148,38 @@ class TestZenWebsite < ZenTest
   end
 
   def test_datadir
-    assert(false, 'Need to write test_datadir tests')
+    datadir = @web.datadir
+    assert(datadir.instance_of?(String),
+	   "ZenWebsite's htmldir must be instantiated")
+    assert(test(?d, datadir),
+	   "ZenWebsite's datadir must be a directory")
   end
 
+  # WARN: I think these tests are too prescriptive
+  # REFACTOR: make an OrderedArray
   def test_doc_order
-    assert(false, 'Need to write test_doc_order tests')
+    doc_order = @web.doc_order
+    assert_kind_of(Array, doc_order)
+    assert(doc_order.size > 0, "doc_order better not be empty")
   end
 
   def test_documents
-    assert(false, 'Need to write test_documents tests')
+    documents = @web.documents
+    assert_kind_of(Hash, documents)
+    assert(documents.size > 0, "Documents better not be empty")
+    assert_not_nil(documents["/SiteMap.html"], "SiteMap must exist")
   end
 
   def test_htmldir
-    assert(false, 'Need to write test_htmldir tests')
+    htmldir = @web.htmldir
+    assert_not_nil(htmldir, "htmldir must be initialized")
+    assert_instance_of(String, htmldir)
   end
 
   def test_sitemap
-    assert(false, 'Need to write test_sitemap tests')
+    sitemap = @web.sitemap
+    assert(sitemap.instance_of?(ZenSitemap),
+	   "ZenWebsite's Sitemap must be instantiated")
   end
 
 end
@@ -138,7 +187,7 @@ end
 ############################################################
 # ZenDocument
 
-class TestZenDocument < ZenTest
+class TestZenDocument < ZenTestCase
 
   def set_up
     super
@@ -149,69 +198,40 @@ class TestZenDocument < ZenTest
   end
 
   def test_initialize_good_url
-    begin
+    assert_nothing_raised {
       ZenDocument.new("/Something.html", @web)
-    rescue
-      assert(FALSE, "good url must not throw an exception")
-    else
-      # this is good.
-    end
+    }
   end
 
   def test_initialize_missing_ext
-    # missing extension
-    begin
+    assert_nothing_raised {
       ZenDocument.new("/Something", @web)
-    rescue
-      assert(FALSE, "missing extension must not throw an exception")
-    else
-      # this is good
-    end
+    }
   end
 
   def test_initialize_missing_slash
-    # missing slash url
-    begin
+    assert_raises(ArgumentError) {
       ZenDocument.new("Something.html", @web)
-    rescue ArgumentError
-      # this is good
-    rescue
-      assert(FALSE, "missing slash produced the wrong type of exception")
-    else
-      assert(FALSE, "missing slash should have thrown an exception")
-    end
+    }
   end
 
   def test_initialize_bad_url
-    # bad url
-    begin
+    assert_raises(ArgumentError) {
       ZenDocument.new("/missing.html", @web)
-    rescue ArgumentError
-      # this is good
-    rescue
-      assert(FALSE, "missing document produced the wrong type of exception")
-    else
-      assert(FALSE, "missing document should have thrown an exception")
-    end
+    }
   end
 
   def test_initialize_nil_website
-    begin
+    assert_raises(ArgumentError) {
       ZenDocument.new("Something.html", nil)
-    rescue ArgumentError
-      # this is good
-    rescue
-      assert(FALSE, "nil website produced the wrong type of exception")
-    else
-      assert(FALSE, "nil website should have thrown an exception")
-    end
+    }
   end
 
   def test_subpages
     @web.renderSite
     @doc = @web[@url]
     assert_equal(@expected_subpages,
-		  @doc.subpages.sort)
+		 @doc.subpages.sort)
   end
 
   def test_render
@@ -229,15 +249,10 @@ class TestZenDocument < ZenTest
     @doc = @web.sitemap
     @doc['renderers'] = [ 'NonExistantRenderer' ]
 
-    begin
+    assert_raises(NotImplementedError,
+		  "renderContent must throw a NotImplementedError") {
       @doc.renderContent
-    rescue Exception
-      assert_equal("NotImplementedError", $!.class.name,
-		    "renderContent must throw a NotImplementError.")
-    else
-      assert(FALSE,
-	     "renderContent must throw an exception if renderer doesn't exist")
-    end
+    }
   end
 
   def test_newerThanTarget_missing
@@ -352,60 +367,125 @@ class TestZenDocument < ZenTest
 		 @doc['renderers'])
   end
 
-  def test_addSubpage
-    assert(false, 'Need to write test_addSubpage tests')
+  def test_addSubpage_bad
+    assert_raises(ArgumentError, "addSubpage must raise if arg wrong type") {
+      @doc.addSubpage []
+    }
+    assert_raises(ArgumentError, "subpage must be a url, not a page") {
+      @doc.addSubpage @doc
+    }
+  end
+
+  def test_addSubpage_different
+    oldpages = @doc.subpages.clone
+    url = "/Something.html"
+    @doc.addSubpage(url)
+    newpages = @doc.subpages
+    assert(newpages.size == oldpages.size + 1,
+	   "Page must grow the list of subpages")
+    found = newpages.find {|p| p == url }
+    assert_not_nil(found, "Page must be contained in new list")
+  end
+
+  def test_addSubpage_same
+    oldpages = @doc.subpages.clone
+    url = @url
+    @doc.addSubpage(url)
+    newpages = @doc.subpages
+    assert(newpages.size == oldpages.size,
+	   "Page must NOT grow the list of subpages")
+    found = newpages.find {|p| p == url }
+    assert_nil(found, "Page must be contained in new list")
   end
 
   def test_content
-    assert(false, 'Need to write test_content tests')
+    content = @doc.content
+    assert_not_nil(content, "Content must not be nil")
+    assert_instance_of(String, content)
   end
 
-  def test_content=
-      assert(false, 'Need to write test_content= tests')
+  def test_content=()
+    orig_content = @doc.content
+    @doc.content = "blah"
+    new_content = @doc.content
+    assert_not_nil(new_content, "Content must not be nil")
+    assert_instance_of(String, new_content)
+    assert_equal("blah", new_content)
   end
 
-  def test_datadir
-    assert(false, 'Need to write test_datadir tests')
+  def test_datadir # same as TestZenWebsite#test_datadir since it's a delegate
+    datadir = @web.datadir
+    assert(datadir.instance_of?(String),
+	   "ZenWebsite's htmldir must be instantiated")
+    assert(test(?d, datadir),
+	   "ZenWebsite's datadir must be a directory")
   end
 
   def test_fulltitle
-    assert(false, 'Need to write test_fulltitle tests')
+    @doc['title'] = "Title"
+    @doc['subtitle'] = "Subtitle"
+    assert_equal("Title: Subtitle", @doc.fulltitle)
   end
 
-  def test_htmldir
-    assert(false, 'Need to write test_htmldir tests')
+  def test_htmldir # same as TestZenWebsite#test_htmldir since it's a delegate
+    htmldir = @doc.htmldir
+    assert_not_nil(htmldir, "htmldir must be initialized")
+    assert_instance_of(String, htmldir)
   end
 
   def test_index
-    assert(false, 'Need to write test_index tests')
+    result = @doc["renderers"]
+    assert_not_nil(result, "renderers must exist for document")
+    assert_instance_of(Array, result)
   end
 
   def test_index_equals
-    assert(false, 'Need to write test_index_equals tests')
+    newrenderers = ["Something"]
+    @doc["renderers"] = newrenderers
+    metadata = @doc.metadata
+    assert_not_nil(metadata, "metadata must not be nil")
+    assert_instance_of(Metadata, metadata)
+    result = metadata["renderers"]
+    assert_not_nil(result, "renderers must exist in sitemap")
+    assert_instance_of(Array, result)
+    assert_not_nil(result.find {|x| x == "Something"})
   end
 
   def test_metadata
-    assert(false, 'Need to write test_metadata tests')
-  end
-
-  def test_newerThanTarget
-    assert(false, 'Need to write test_newerThanTarget tests')
+    metadata = @doc.metadata
+    assert_not_nil(metadata, "metadata must not be nil")
+    assert_instance_of(Metadata, metadata)
+    result = metadata["renderers"]
+    assert_not_nil(result, "renderers must exist in sitemap")
+    assert_instance_of(Array, result)
   end
 
   def test_parseMetadata
-    assert(false, 'Need to write test_parseMetadata tests')
-  end
+    @doc = ZenDocument.new('/index.html', @web)
 
-  def test_renderContent
-    assert(false, 'Need to write test_renderContent tests')
+    # metadata should be nil at this point.
+    # content should be an empty string
+    # as soon as we ask for metadata, it should
+    # parse... /index.html has 'key4' defined in
+    # it.
+
+    assert_equal('', @doc.content)
+    assert_not_nil(@doc.metadata, 'metadata should always be non-nil')
+    assert(@doc.content.length > 0, 'file should be parsed now')
+    assert_equal(69, @doc['key4'])
   end
 
   def test_url
-    assert(false, 'Need to write test_url tests')
+    url = @doc.url
+    assert_not_nil(url, "Each document must know it's url")
+    assert_kind_of(String, url)
+    assert_equal(@url, url)
   end
 
   def test_website
-    assert(false, 'Need to write test_website tests')
+    website = @doc.website
+    assert_not_nil(website, "Each document must know of it's website")
+    assert_kind_of(ZenWebsite, website)
   end
 end
 
@@ -465,7 +545,7 @@ end
 ############################################################
 # Metadata
 
-class TestMetadata < Test::Unit::TestCase
+class TestMetadata < ZenTestCase
 
   def set_up
     @hash = Metadata.new("test/ryand")
@@ -535,7 +615,7 @@ end
 ############################################################
 # All Renderer Tests:
 
-class TestGenericRenderer < ZenTest
+class TestGenericRenderer < ZenTestCase
 
   def set_up
     super
@@ -565,26 +645,74 @@ class TestGenericRenderer < ZenTest
   end
 
   def test_result
-    assert(false, 'Need to write test_result tests')
+    @renderer.push('this is some text')
+    assert_equal('this is some text', @renderer.result)
   end
 end
 
-class TestCompositeRenderer < Test::Unit::TestCase
+class TestCompositeRenderer < ZenTestCase
+  def test_renderers
+    newrenderer = StupidRenderer.new(@doc)
+    assert_equal([], @renderer.renderers)
+    @renderer.addRenderer(newrenderer)
+    assert_equal([newrenderer], @renderer.renderers)
+  end
+
   def test_addRenderer
-    assert(false, 'Need to write test_addRenderer tests')
+    renderer = CompositeRenderer.new(@doc)
+    originalRenderers = renderer.renderers.clone
+    assert_raises(ArgumentError, "Must throw an ArgumentError if passed non-renderer") {
+      renderer.addRenderer([])
+    }
+    assert_raises(ArgumentError, "Must throw an ArgumentError if passed nil") {
+      renderer.addRenderer(nil)
+    }
+
+    newRenderer = FooterRenderer.new(@doc)
+    renderer.addRenderer(newRenderer)
+    newRenderers = renderer.renderers
+
+    assert(originalRenderers.size + 1 == newRenderers.size,
+	   "Renderer addition must have grown array")
+    assert_equal(newRenderer, newRenderers.last,
+		"Renderer must be in array")
   end
 
-  def test_render
-    assert(false, 'Need to write test_render tests')
+  def test_render_empty
+    text = "this is some text"
+    assert_equal(text, @renderer.render(text))
+  end
+
+  def test_render_one
+    @doc['stupidmethod'] = 'strip'
+    @renderer.addRenderer(StupidRenderer.new(@doc))
+    text = "this is some text"
+    assert_equal('ths s sm txt', @renderer.render(text))
+  end
+
+  def test_render_many
+    @doc['stupidmethod'] = 'strip'
+    @doc['footer'] = 'footer'
+    @renderer.addRenderer(StupidRenderer.new(@doc))
+    @renderer.addRenderer(FooterRenderer.new(@doc))
+    text = "this is some text"
+    assert_equal('ths s sm txtfooter', @renderer.render(text))
   end
 end
 
-class TestHtmlRenderer < ZenTest
-
-  def set_up
-    super
-    @renderer = HtmlRenderer.new(@doc)
+class TestStandardRenderer < ZenTestCase
+  def test_initialize
+    renderers = @renderer.renderers
+    assert_equal(5, renderers.size)
+    assert_instance_of(SubpageRenderer, renderers[0])
+    assert_instance_of(MetadataRenderer, renderers[1])
+    assert_instance_of(TextToHtmlRenderer, renderers[2])
+    assert_instance_of(HtmlTemplateRenderer, renderers[3])
+    assert_instance_of(FooterRenderer, renderers[4])
   end
+end
+
+class TestHtmlRenderer < ZenTestCase
 
   def test_array2html_one_level
     assert_equal("<UL>\n  <LI>line 1</LI>\n  <LI>line 2</LI>\n</UL>\n",
@@ -609,12 +737,17 @@ class TestHtmlRenderer < ZenTest
   end
 
   def test_render
-    assert(false, 'Need to write test_render tests')
+    assert_raises(RuntimeError, "should raise a subclass responsibity error") {
+      @renderer.render("anything")
+    }
   end
 
 end
 
-class TestHtmlTemplateRenderer < ZenTest
+class TestHtmlTemplateRenderer < ZenTestCase
+
+  # TODO: need to test the following: html element conversions, url
+  # conversions, headers, rules, pre blocks, paragraphs
 
   def test_render_html_and_head
 
@@ -654,7 +787,7 @@ class TestHtmlTemplateRenderer < ZenTest
 
 end
 
-class TestSubpageRenderer < ZenTest
+class TestSubpageRenderer < ZenTestCase
 
   def set_up
     super
@@ -675,7 +808,7 @@ class TestSubpageRenderer < ZenTest
 
 end
 
-class TestTextToHtmlRenderer < ZenTest
+class TestTextToHtmlRenderer < ZenTestCase
 
   def util_render(regex, msg)
     # FIX: just render from the renderer directly
@@ -801,7 +934,7 @@ class TestTextToHtmlRenderer < ZenTest
   end
 end
 
-class TestFooterRenderer < ZenTest
+class TestFooterRenderer < ZenTestCase
   def test_render
     # must create own web so we do not attach to a pregenerated index.html
     web = ZenWebsite.new(@sitemapUrl, "test", "testhtml")
@@ -819,7 +952,7 @@ class TestFooterRenderer < ZenTest
   end
 end
 
-class TestHeaderRenderer < ZenTest
+class TestHeaderRenderer < ZenTestCase
   def test_render
     @doc = ZenDocument.new("/index.html", @web)
     @doc['header'] = "header 1\n";
@@ -832,13 +965,14 @@ class TestHeaderRenderer < ZenTest
   end
 end
 
-class TestMetadataRenderer < Test::Unit::TestCase
+class TestMetadataRenderer < ZenTestCase
   def test_render
-    assert(false, 'Need to write test_render tests')
+    @doc['nothing'] = 'you'
+    assert_equal('I hate you', @renderer.render('I hate #{nothing}'))
   end
 end
 
-class TestSitemapRenderer < ZenTest
+class TestSitemapRenderer < ZenTestCase
 
   def set_up
     super
@@ -890,7 +1024,7 @@ class TestSitemapRenderer < ZenTest
 
 end
 
-class TestRelativeRenderer < ZenTest
+class TestRelativeRenderer < ZenTestCase
   def set_up
     super
     @renderer = RelativeRenderer.new(@doc)
@@ -936,13 +1070,19 @@ class TestRelativeRenderer < ZenTest
   end
 end
 
-class TestRubyCodeRenderer < Test::Unit::TestCase
-  def test_render
-    assert(false, 'Need to write test_render tests')
+class TestRubyCodeRenderer < ZenTestCase
+  def test_render()
+    # XMP is a POS, so this is as much as I'm willing to test right
+    # now until I can pinpoint the bug and go though xmp properly or
+    # bypass it altogether...
+
+    shutupwhile {
+      assert_match(/<EM>4<\/EM>/, @renderer.render("! 2+2"))
+    }
   end
 end
 
-class TestTocRenderer < ZenTest
+class TestTocRenderer < ZenTestCase
 
   def set_up
     super
@@ -1001,23 +1141,81 @@ class TestTocRenderer < ZenTest
 end
 
 # this is more here to shut up ZenTest than anything else.
-class TestXXXRenderer < Test::Unit::TestCase
+class TestXXXRenderer < ZenTestCase
   def test_render
-    assert(false, 'Need to write test_render tests')
+    assert_equal("This is a test", @renderer.render("This is a test"))
   end
 end
 
-class TestStupidRenderer < Test::Unit::TestCase
-  def test_leet
-    assert(false, 'Need to write test_leet tests')
+class TestStupidRenderer < ZenTestCase
+  def util_render(input, expected)
+    result = @renderer.render(input)
+    assert_equal(expected, result)
   end
 
-  def test_render
-    assert(false, 'Need to write test_render tests')
+  def test_render_undefined
+    util_render("This is some text", "This is some text")
+  end
+
+  def test_render_leet
+    @doc['stupidmethod'] = 'leet'
+    util_render("This is some text", '+]-[|$ |$ $0/\/\3 +3><+')
+  end
+
+  def test_render_strip
+    @doc['stupidmethod'] = 'strip'
+    util_render("This is some text", "Ths s sm txt")
+  end
+
+  def test_render_unknown
+    @doc['stupidmethod'] = 'dunno'
+    assert_raises(NameError) {
+      @renderer.render("anything")
+    }
+  end
+
+  def test_leet
+    result = @renderer.leet("This is some text")
+    assert_equal('+]-[|$ |$ $0/\/\3 +3><+', result)
   end
 
   def test_strip
-    assert(false, 'Need to write test_strip tests')
+    result = @renderer.strip("This is some text")
+    assert_equal("Ths s sm txt", result)
   end
+end
+
+def run_all_tests_with(runnerclass)
+  if (!Test::Unit::UI::TestRunnerMediator.run?)
+    suite_name = $0.sub(/\.rb$/, '')
+    suite = Test::Unit::TestSuite.new(suite_name)
+    test_classes = []
+    ObjectSpace.each_object(Class) {
+      | klass |
+      test_classes << klass if (Test::Unit::TestCase > klass)
+    }
+
+    if ARGV.empty?
+      test_classes.each {|klass| suite.add(klass.suite)}
+    else
+      tests = test_classes.map { |klass| klass.suite.tests }.flatten
+      criteria = ARGV.map { |arg| (arg =~ %r{^/(.*)/$}) ? Regexp.new($1) : arg}
+      criteria.each {
+	| criterion |
+	if (criterion.instance_of?(Regexp))
+	  tests.each { |test| suite.add(test) if (criterion =~ test.name) }
+	elsif (/^A-Z/ =~ criterion)
+	  tests.each { |test| suite.add(test) if (criterion == test.type.name) }
+	else
+	  tests.each { |test| suite.add(test) if (criterion == test.method_name) }
+	end
+      }
+    end
+    runnerclass.run(suite)
+  end
+end
+
+if __FILE__ == $0 then
+  run_all_tests_with(ZenTestRunner) 
 end
 

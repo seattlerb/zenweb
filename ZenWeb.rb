@@ -99,7 +99,7 @@ process.
 
 class ZenWebsite
 
-  VERSION = '2.13.1'
+  VERSION = '2.14.0'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
@@ -413,8 +413,6 @@ class ZenDocument
     return url
   end
 
-  # protected
-
 =begin
 
 --- ZenDocument#addSubpage
@@ -424,6 +422,7 @@ class ZenDocument
 =end
 
   def addSubpage(url)
+    raise ArgumentError, "url must be a string" unless url.instance_of? String 
     if (url != self.url) then
       self.subpages.push(url)
     end
@@ -537,14 +536,22 @@ class ZenDocument
     self.metadata[key] = val
   end
 
-def metadata
-  if @metadata.nil? then
-    @metadata = Metadata.new(self.dir, self.datadir)
-    self.parseMetadata
-  end
+=begin
 
-  return @metadata
-end
+--- ZenDocument#metadata
+
+    DOC
+
+=end
+
+  def metadata
+    if @metadata.nil? then
+      @metadata = Metadata.new(self.dir, self.datadir)
+      self.parseMetadata
+    end
+    
+    return @metadata
+  end
 
 =begin
 

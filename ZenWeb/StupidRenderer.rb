@@ -48,11 +48,11 @@ class StupidRenderer < GenericRenderer
 	push(line)
       }
     else
-      @result = content
+      @result = content.to_a
     end
 
 
-    return @result
+    return self.result
   end
 
   def strip(s)
