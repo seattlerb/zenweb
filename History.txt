@@ -1,3 +1,14 @@
+*** 2.17.1 / ????-??-??
+
++ N bugs fixed
+	+ Revamped a number of tests.
+	+ Fixed a problem where files with dashes in their names were rejected.
+	+ Extended GenericRenderer#scan_region to pass the context to the yield block.
+	+ Fixed a bug in HtmlTableRenderer when a paragraph butts up against it. 
+	+ Switched HtmlTableRenderer to scan by line, not by paragraph.
+	+ ICBM metadata was missing a newline.
+	+ TextToHtmlRenderer no longer wraps in P tags if it detects a block tag.
+
 *** 2.17.0 / 2004-03-17
 
 + 3 minor enhancements

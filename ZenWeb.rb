@@ -7,6 +7,7 @@ $TESTING = FALSE unless defined? $TESTING
 # this is due to a stupid bug across 1.6.4, 1.6.7, and 1.7.2.
 $PARAGRAPH_RE = Regexp.new( $/ * 2 + "+")
 $PARAGRAPH_END_RE = Regexp.new( "^" + $/ + "+")
+$INLINE_RE = /<(?:A|ABBR|ACRONYM|B|BDO|BIG|BR|BUTTON|CITE|CODE|DFN|EM|I|IMG|INPUT|KBD|LABEL|MAP|OBJECT|Q|SAMP|SCRIPT|SELECT|SMALL|SPAN|STRONG|SUB|SUP|TEXTAREA|TT|VAR)/i
 
 =begin
 = ZenWeb
@@ -206,6 +207,7 @@ class ZenDocument
   # attr_reader :datapath, :htmlpath, :metadata
   attr_reader :url, :subpages, :website, :content
   attr_writer :content if $TESTING
+  attr_writer :metadata if $TESTING
 
 =begin
 
@@ -215,7 +217,7 @@ class ZenDocument
 
 =end
 
-  def initialize(url, website)
+  def initialize(url, website, testing=false)
 
     raise ArgumentError, "url was nil" if url.nil?
     raise ArgumentError, "web was nil" if website.nil?
@@ -227,7 +229,7 @@ class ZenDocument
     @subpages = []
     @content  = ""
 
-    unless (test(?f, self.datapath)) then
+    unless (testing or test(?f, self.datapath)) then
       raise ArgumentError, "url #{url} doesn't exist in #{self.datadir} (#{self.datapath})"
     end
 
@@ -317,6 +319,8 @@ class ZenDocument
 	end 
 
 	theClass = Module.const_get(rendererName)
+
+	# REFACTOR: do not send self
 	renderer = theClass.send("new", self)
       rescue LoadError, NameError => err
 	raise NotImplementedError, "Renderer #{rendererName} is not implemented or loaded (#{err})"
@@ -617,7 +621,7 @@ class ZenSitemap < ZenDocument
 
       next if f == ""
 
-      if f =~ /^\s*([\/-_~\.\w]+)$/
+      if f =~ /^\s*([\/\~\.\w\-]+)$/
 	url = $1
 
 	if (url == self.url) then

@@ -219,7 +219,11 @@ class TestZenDocument < ZenTestCase
     @expected_datapath = "test/ryand/index"
     @expected_htmlpath = "testhtml/ryand/index.html"
     @expected_dir = "test/ryand"
-    @expected_subpages = [ '/~ryand/blah.html', '/~ryand/stuff/index.html' ]
+    @expected_subpages = [
+      '/~ryand/blah.html',
+      '/~ryand/blah-blah.html',
+      '/~ryand/stuff/index.html'
+    ]
   end
 
   def test_initialize_good_url
@@ -256,7 +260,7 @@ class TestZenDocument < ZenTestCase
     @web.renderSite
     @doc = @web[@url]
     assert_equal(@expected_subpages,
-		 @doc.subpages.sort)
+		 @doc.subpages)
   end
 
   def test_render
@@ -536,6 +540,7 @@ class TestZenSitemap < TestZenDocument
 			"/Something.html",
 			"/~ryand/index.html",
 			"/~ryand/blah.html",
+			"/~ryand/blah-blah.html",
 			"/~ryand/stuff/index.html"])
   end
 
@@ -657,6 +662,15 @@ class ZenRendererTest < ZenTestCase
     assert_equal(expected, @renderer.render(input), message)
   end
 
+  def util_virgin_render(expected, input, message)
+    @doc = ZenDocument.new("/bogus.html", @web, $TESTING)
+    @doc.metadata = {} # HACK: for now just use a plain ole hash
+    @doc.content = ""
+    yield
+    @renderer = @renderer.class.new(@doc) # make a new renderer of the same type
+
+    assert_equal(expected, @renderer.render(input), message)
+  end
 end
 
 class TestGenericRenderer < ZenRendererTest
@@ -703,7 +717,7 @@ class TestGenericRenderer < ZenRendererTest
   def test_scan_region_one_line
     s = 'text <start>region<end> text'
 
-    util_scan_region('', s) do |region|
+    util_scan_region('', s) do |region, context|
       assert_equal s, region, "Region must match entire line"
     end
   end
@@ -711,7 +725,7 @@ class TestGenericRenderer < ZenRendererTest
   def test_scan_region_single
     s = "text\n<start>\nregion\n<end>\ntext"
     e = "text\nfound\ntext\n"
-    util_scan_region(e, s) do |region|
+    util_scan_region(e, s) do |region, context|
       @renderer.push "found\n" unless region =~ /^</
     end
   end
@@ -868,6 +882,7 @@ class TestHtmlTemplateRenderer < ZenRendererTest
   # TODO: need to test the following: html element conversions, url
   # conversions, headers, rules, pre blocks, paragraphs
 
+  # WARN: these tests really suck
   def test_render_html_and_head
 
     assert_not_nil(@content.index("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">
@@ -893,6 +908,15 @@ class TestHtmlTemplateRenderer < ZenRendererTest
 		   "Must render the HTML header and all appropriate metadata")
   end
 
+  def test_icbm
+    expected = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n<HTML>\n<HEAD>\n<TITLE>Unknown</TITLE>\n<META NAME=\"rating\" CONTENT=\"general\">\n<META NAME=\"GENERATOR\" CONTENT=\"ZenWeb v. 2.17.0 http://www.zenspider.com/ZSS/Products/ZenWeb/\">\n<meta name=\"ICBM\" content=\"lat, lon\">\n<meta name=\"DC.title\" content=\"Unknown\">\n<link rel=\"up\" href=\"/index.html\" title=\"My Website\">\n<link rel=\"contents\" href=\"/SiteMap.html\" title=\"Sitemap\">\n<link rel=\"top\" href=\"/index.html\" title=\"My Website\">\n</HEAD>\n<BODY>\n<P class=\"navbar\">\n<A HREF=\"/SiteMap.html\">Sitemap</A> || <A HREF=\"/index.html\">My Website</A>\n / </P>\n<H1>Unknown Title</H1>\n<HR SIZE=\"3\" NOSHADE>\n\n<HR SIZE=\"3\" NOSHADE>\n\n<P class=\"navbar\">\n<A HREF=\"/SiteMap.html\">Sitemap</A> || <A HREF=\"/index.html\">My Website</A>\n / </P>\n\n</BODY>\n</HTML>\n"
+
+    util_virgin_render(expected, '', "Basic skeleton + icbm must render lat/long data correctly") do
+      @doc['icbm'] = 'lat, lon'
+    end
+
+  end
+  
   def test_render_foot
     @content = @doc.renderContent
     expected = "\n<HR SIZE=\"3\" NOSHADE>\n\n<P class=\"navbar\">\n<A HREF=\"../SiteMap.html\">Sitemap</A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan's Homepage</P>\n\n<P>This is my footer, jive turkey</P></BODY>\n</HTML>\n"
@@ -918,6 +942,7 @@ class TestSubpageRenderer < ZenRendererTest
     assert_equal([ "\n\n",
 		   "** Subpages:\n\n",
 		   "+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
+		   "+ <A HREF=\"/~ryand/blah-blah.html\">blah</A>\n",
 		   "+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n",
 		   "\n" ].join(''),
 		 result)
@@ -927,26 +952,31 @@ end
 
 class TestTextToHtmlRenderer < ZenRendererTest
 
-  def util_render(regex, msg)
-    # FIX: just render from the renderer directly
-    @content = @doc.renderContent
-    assert(@content =~ regex, msg)
+  # HACK
+  def util_match(regex, msg)
+    assert_match(regex, @doc.renderContent, msg)
+  end
+
+  def test_embedded_html_vs_paragraphs
+
+    input = "<table>\n<tr><td>blah</td></tr>\n</table>"
+    util_render(input, input, "Renderer should not wrap blocks in p tags")
   end
 
   def test_render_headers
-    util_render(%r,<H2>Head 2</H2>,,
+    util_match(%r,<H2>Head 2</H2>,,
 		       "Must render H2 from **")
 
-    util_render(%r,<H3>Head 3</H3>,,
+    util_match(%r,<H3>Head 3</H3>,,
 		       "Must render H3 from ***")
 
-    util_render(%r,<H4>Head 4</H4>,,
+    util_match(%r,<H4>Head 4</H4>,,
 		       "Must render H4 from ****")
 
-    util_render(%r,<H5>Head 5</H5>,,
+    util_match(%r,<H5>Head 5</H5>,,
 		       "Must render H5 from *****")
 
-    util_render(%r,<H6>Head 6</H6>,,
+    util_match(%r,<H6>Head 6</H6>,,
 		       "Must render H6 from ******")
 
   end
@@ -957,27 +987,27 @@ class TestTextToHtmlRenderer < ZenRendererTest
     # r = TextToHtmlRenderer.new(@doc)
     # result = r.render("+ blah1\n+ blah2")
 
-    util_render(%r%<UL>\n  <LI>Lists \(should have two items\).</LI>\n  <LI>Continuted Lists.</LI>\n</UL>%,
+    util_match(%r%<UL>\n  <LI>Lists \(should have two items\).</LI>\n  <LI>Continuted Lists.</LI>\n</UL>%,
 		       "Must render normal list from +")
   end
 
   def test_render_ul2
-    util_render(%r%<UL>\n  <LI>Another List \(should have a sub list\).</LI>\n  <UL>\n    <LI>With a sub-list</LI>\n    <LI>another item</LI>\n  </UL>\n</UL>%,
+    util_match(%r%<UL>\n  <LI>Another List \(should have a sub list\).</LI>\n  <UL>\n    <LI>With a sub-list</LI>\n    <LI>another item</LI>\n  </UL>\n</UL>%,
 		       "Must render compound list from indented +'s")
   end
 
   def test_render_ol1
-    util_render(%r%<OL>\n  <LI>Ordered lists</LI>\n  <LI>are cool</LI>\n  <OL>\n    <LI>Especially when you make ordered sublists</LI>\n  </OL>\n</OL>\n%,
+    util_match(%r%<OL>\n  <LI>Ordered lists</LI>\n  <LI>are cool</LI>\n  <OL>\n    <LI>Especially when you make ordered sublists</LI>\n  </OL>\n</OL>\n%,
 		       "Must render compound list from indented +'s")
   end
 
   def test_render_dict1
-    util_render(%r%<DL>\n  <DT>Term 1</DT>\n  <DD>Def 1</DD>\n\n  <DT>Term 2</DT>\n  <DD>Def 2</DD>\n\n</DL>\n\n%,
+    util_match(%r%<DL>\n  <DT>Term 1</DT>\n  <DD>Def 1</DD>\n\n  <DT>Term 2</DT>\n  <DD>Def 2</DD>\n\n</DL>\n\n%,
 		       "Must render simple dictionary list")
   end
 
   def test_render_metadata
-    util_render(%r,Glossary lookups for 42 and some string \(see metadata.txt for a hint\)\.\s+key99 should not look up\.,,
+    util_match(%r,Glossary lookups for 42 and some string \(see metadata.txt for a hint\)\.\s+key99 should not look up\.,,
 		       "Must render metadata lookups from \#\{key\}")
   end
 
@@ -989,43 +1019,43 @@ class TestTextToHtmlRenderer < ZenRendererTest
   end
 
   def test_render_small_rule
-    util_render(%r,^<HR SIZE="1" NOSHADE>$,,
+    util_match(%r,^<HR SIZE="1" NOSHADE>$,,
 		       "Must render small rule from ---")
   end
 
   def test_render_big_rule
-    util_render(%r,^<HR SIZE="2" NOSHADE>$,,
+    util_match(%r,^<HR SIZE="2" NOSHADE>$,,
 		       "Must render big rule from ===")
   end
 
   def test_render_paragraph1
-    util_render(%r,^<P>Paragraphs can contain <A HREF="http://www\.ZenSpider\.com/ZSS/ZenWeb/">www\.ZenSpider\.com /ZSS /ZenWeb</A> and <A HREF="mailto:zss@ZenSpider\.com">zss@ZenSpider\.com</A> and they will automatically be converted\..*?</P>$,,
+    util_match(%r,^<P>Paragraphs can contain <A HREF="http://www\.ZenSpider\.com/ZSS/ZenWeb/">www\.ZenSpider\.com /ZSS /ZenWeb</A> and <A HREF="mailto:zss@ZenSpider\.com">zss@ZenSpider\.com</A> and they will automatically be converted\..*?</P>$,,
 		       "Must render paragraph from a single line")
   end
 
   def test_render_paragraph2
-    util_render(%r;^<P>Likewise, two lines side by side\s+are considered one paragraph\..*?</P>$;,
+    util_match(%r;^<P>Likewise, two lines side by side\s+are considered one paragraph\..*?</P>$;,
 		       "Must render paragraph from multiple lines")
   end
 
   def test_render_paragraph3
-    util_render(%r@Don\'t forget less-than "&lt;" &amp; greater-than "&gt;", but only if backslashed.</P>$@,
+    util_match(%r@Don\'t forget less-than "&lt;" &amp; greater-than "&gt;", but only if backslashed.</P>$@,
 		       "Must convert special entities")
   end
 
   def test_render_paragraph4
-    util_render(%r;Supports <I>Embedded HTML</I>\.</P>$;,
+    util_match(%r;Supports <I>Embedded HTML</I>\.</P>$;,
 		       "Must render paragraph from multiple lines")
   end
 
   def test_render_paragraph5
-    util_render(%r;Supports <A HREF=\"http://www.yahoo.com\">Unaltered urls</A> as well\.</P>$;,
+    util_match(%r;Supports <A HREF=\"http://www.yahoo.com\">Unaltered urls</A> as well\.</P>$;,
 		       "Must render full urls without conversion")
   end
 
   def test_render_pre
 
-    util_render(%r%<PRE>PRE blocks are paragraphs that are indented two spaces on each line.\nThe two spaces will be stripped, and all other indentation will be left\nalone.\n   this allows me to put things like code examples in and retain\n       their formatting.</PRE>%,
+    util_match(%r%<PRE>PRE blocks are paragraphs that are indented two spaces on each line.\nThe two spaces will be stripped, and all other indentation will be left\nalone.\n   this allows me to put things like code examples in and retain\n       their formatting.</PRE>%,
 		       "Must render PRE blocks from indented paragraphs")
   end
 
@@ -1127,10 +1157,11 @@ class TestSitemapRenderer < ZenRendererTest
 
     expected = [
       "+ <A HREF=\"/index.html\">My Website: Subtitle</A>\n",
-      "+ <A HREF=\"/SiteMap.html\">Sitemap: There are 6 pages in this website.</A>\n", 
+      "+ <A HREF=\"/SiteMap.html\">Sitemap: There are 7 pages in this website.</A>\n", 
       "+ <A HREF=\"/Something.html\">Something</A>\n",
       "+ <A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A>\n",
       "\t+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
+      "\t+ <A HREF=\"/~ryand/blah-blah.html\">blah</A>\n",
       "\t+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n"
     ].join('')
 
@@ -1161,6 +1192,8 @@ class TestSitemapRenderer < ZenRendererTest
 
     assert_equal(expected, result, "Must properly convert the urls to a list")
   end
+
+  # TODO: I need to be able to programatically generate/alter sitemaps.
 
 end
 
@@ -1399,12 +1432,34 @@ something else
 <tr><td>d</td><td>e</td><td>f</td></tr>
 </table>
 
+
 something else
-
-
 "
 
     assert_equal(expected, @renderer.render(input))
+  end
+
+  def test_render_paragraphs_adjacent
+
+    input = "first line
+<tabs>
+blah	blah	blah
+1	2	3
+</tabs>
+second line
+"
+
+    expected = "first line
+
+<table border=\"0\">
+<tr><th>blah</th><th>blah</th><th>blah</th></tr>
+<tr><td>1</td><td>2</td><td>3</td></tr>
+</table>
+
+second line
+"
+
+    util_render(expected, input, "table renderer should separate from other paragraphs")
   end
 end
 

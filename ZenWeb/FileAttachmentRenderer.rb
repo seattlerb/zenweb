@@ -26,17 +26,14 @@ class FileAttachmentRenderer < GenericRenderer
 
   def render(content)
 
-    start_re = /<file\s+name\s*=\s*\"([\w\.-]+)\"\s*>/i
-    end_re   = /<\/file>/i
-
     file_content = []
     name = nil
-    self.scan_region(content, start_re, end_re) do |line|
-      case line
-      when start_re then
-        name = $1
-      when end_re then
-        raise "fucked up" if name.nil?
+    self.scan_region(content, /<file\s+name\s*=\s*\"([\w\.-]+)\"\s*>/i, /<\/file>/i) do |line, context|
+      case context
+      when :START then
+        name = $1 if line =~ /name\s*=\s*\"([\w\.-]+)\"/i
+      when :END then
+        raise "name is undefined, add name= attribute" if name.nil?
         dir = File.dirname @document.htmlpath
         path = File.join(dir, name)
         push "<A HREF=\"#{name}\">Download #{name}</A>\n"

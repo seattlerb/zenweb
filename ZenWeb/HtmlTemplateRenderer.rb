@@ -55,7 +55,7 @@ class HtmlTemplateRenderer < HtmlRenderer
     subtitle    = @document['subtitle']
     title       = @document['title'] || 'Unknown Title'
     icbm        = @document['icbm']
-    icbm_title  = @document['icbm_title'] || @document['title']
+    icbm_title  = @document['icbm_title'] || @document.title
     charset     = @document['charset']
     style       = @document['style']
 
@@ -79,7 +79,7 @@ class HtmlTemplateRenderer < HtmlRenderer
 	   keywords ? "<META NAME=\"keywords\" CONTENT=\"#{keywords}\">\n" : [],
 	   description ? "<META NAME=\"description\" CONTENT=\"#{description}\">\n" : [],
 	   charset ? "<META HTTP-EQUIV=\"content-type\" CONTENT=\"text/html; charset=#{charset}\">" : [],
-	   icbm ? "<meta name=\"ICBM\" content=\"#{icbm}\">\n<meta name=\"DC.title\" content=\"#{icbm_title}\">" : [],
+	   icbm ? "<meta name=\"ICBM\" content=\"#{icbm}\">\n<meta name=\"DC.title\" content=\"#{icbm_title}\">\n" : [],
 
            "<link rel=\"up\" href=\"#{@document.parentURL}\" title=\"#{@document.parent.title}\">\n",
            "<link rel=\"contents\" href=\"#{@sitemap.url}\" title=\"#{@sitemap.title}\">\n",
@@ -100,6 +100,8 @@ class HtmlTemplateRenderer < HtmlRenderer
     else
       push("<H1>#{title}</H1>\n")
     end
+
+    # TODO: add divs everywhere (all renderers)
 
     push([
 	   subtitle ? "<H2>#{subtitle}</H2>\n" : [],

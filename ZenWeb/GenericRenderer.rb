@@ -22,6 +22,7 @@ class GenericRenderer
 
 =end
 
+  # REFACTOR: do not take a document at all
   def initialize(document)
     @document = document
     @website = @document.website
@@ -88,6 +89,7 @@ class GenericRenderer
 
 =end
 
+  # REFACTOR: content and metadata on render
   def render(content)
     return content
   end
@@ -116,13 +118,13 @@ class GenericRenderer
       # TODO: detect nesting and freak
       if p =~ region_start then
         matching = true
-        yield(p)
+        yield(p, :START)
         matching = false if p =~ region_end
       elsif p =~ region_end then
         matching = false
-        yield(p)
+        yield(p, :END)
       elsif matching then
-        yield(p)
+        yield(p, :MIDDLE)
       else
         push p + "\n"
       end
