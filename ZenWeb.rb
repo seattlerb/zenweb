@@ -32,6 +32,8 @@
 # sys     0m12.849s
 ############################################################
 
+require 'ftools' # for File::* below
+
 $TESTING = FALSE unless defined? $TESTING
 
 # this is due to a stupid bug across 1.6.4, 1.6.7, and 1.7.2.

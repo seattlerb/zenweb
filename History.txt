@@ -1,5 +1,5 @@
 ###############################################################################
-2002-08-31 2.13.0				   01 major / 03 minor / 04 bug
+2002-08-31 2.13.0				   01 major / 04 minor / 05 bug
 
 	! Architectural change: render methods now take and return a
 	  single string.
@@ -7,6 +7,7 @@
 	+ Fixed use of regular expressions that caused
 	  incompatibilities between 1.6.4, 1.6.7, and 1.7.2. Needs
 	  testing.
+	+ Modified RelativeRenderer to NoOp if ruby < 1.6.7.
 	+ Updated sitemaps now cause re-rendering of entire
 	  site. (disabled-minor bug)
 	+ Added GenericRenderer#result
