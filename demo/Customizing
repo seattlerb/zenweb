@@ -1,0 +1,8 @@
+# 'title' = 'Customizing'
+# 'subtitle' = 'Tweaking your site'
+# "description" = "Describes how to really customize ZenWeb to your liking."
+
+This document will attempt to show you how renderers work and how to
+create your own to make a website render the way you want it to.
+
+TODO: finish document

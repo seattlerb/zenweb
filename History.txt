@@ -1,4 +1,15 @@
 ###############################################################################
+2002-08-15 2.11.0				   00 major / 01 minor / 03 bug
+
+	+ ZenWeb.rb: Split out all renderers into separate files and
+	  modified renderer instantiation to ensure they are loaded
+	  dynamically.
+	- TestZenWeb: got to work w/ new split structure.
+	- demo: added (mostly empty) customizing page.
+	- Makefile: added requirements checker and massive
+	  improvements to install.
+
+###############################################################################
 2002-08-13 2.10.0				   00 major / 04 minor / 04 bug
 
 	+ Overhauled demo pages. Documented special variables and much more.

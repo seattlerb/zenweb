@@ -639,6 +639,7 @@ class TestHeaderRenderer < ZenTest
   end
 end
 
+require 'ZenWeb/SitemapRenderer'
 class TestSiteMapRenderer < ZenTest
 
   def set_up
