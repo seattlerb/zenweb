@@ -523,15 +523,42 @@ class TestMetadata < RUNIT::TestCase
     end
   end
 
-  def test_initialize
-    # TODO: def initialize(directory, toplevel = "/")
+  def test_initialize1
+    begin
+      @hash = Metadata.new("test/ryand", "/")
+    rescue
+      assert_fail("Good init shall not throw an exception")
+    else
+      # this is good
+    end
   end
+
+  def test_initialize2
+    assert_exception(ArgumentError, "bad path shall throw an ArgumentError") {
+      @hash = Metadata.new("bad_path", "/")
+    }
+  end
+
+  def test_initialize3
+    assert_exception(ArgumentError, "bad top shall throw an ArgumentError") {
+      @hash = Metadata.new("test/ryand", "somewhereelse")
+    }
+  end
+
+  def test_initialize4
+    assert_exception(ArgumentError, "deeper top shall throw an ArgumentError") {
+      @hash = Metadata.new("test/ryand", "test/ryand/stuff")
+    }
+  end
+
   def test_save
     # TODO: def save(file)
   end
+
   def test_loadFromDirectory
     # TODO: def loadFromDirectory(directory, toplevel, count = 1)
   end
+
   def test_load
     # TODO: def load(file)
   end
