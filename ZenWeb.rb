@@ -32,10 +32,6 @@
 # sys     0m12.849s
 ############################################################
 
-require 'cgi'
-require 'ftools'
-require 'uri'
-
 $TESTING = FALSE unless defined? $TESTING
 
 # this is due to a stupid bug across 1.6.4, 1.6.7, and 1.7.2.
@@ -100,8 +96,6 @@ process.
 =end
 
 class ZenWebsite
-
-  include CGI::Html4Tr
 
   VERSION = '2.13.0'
 

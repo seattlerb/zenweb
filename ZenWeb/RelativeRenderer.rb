@@ -1,4 +1,5 @@
 require 'ZenWeb/GenericRenderer'
+require 'uri'
 
 =begin
 
