@@ -1,9 +1,47 @@
 #!/usr/local/bin/ruby -w
 
-# normal runtime      :  10.4 sec
-# resplitting runtime :  11.0 sec
-# xmp runtime         :  55.5 sec
-# xmp + resplitting   : 113.2 sec
+############################################################
+# Pre-stupid-metadata cache:
+############################################################
+# 33947 Metadata.load.foreach
+# 19533 ZenDocument.parseMetadata.foreach
+#   452 Metadata.load
+#   225 ZenSitemap.initialize.foreach
+#   221 ZenDocument.parseMetadata
+#     1 ZenSitemap.initialize
+
+#   %   cumulative   self              self     total
+#  time   seconds   seconds    calls  ms/call  ms/call  name
+#  26.39    60.79     60.79      674    90.19   209.73  IO#foreach
+#  15.56    96.63     35.84    54379     0.66     0.95  Object#methodcall
+#  11.88   124.00     27.37    61035     0.45     0.87  GenericRenderer#push
+#   6.46   138.88     14.88     2012     7.40   355.25  Array#each
+#   4.89   150.14     11.26    59307     0.19     0.30  Kernel.eval
+
+# real    4m20.347s
+# user    3m51.917s
+# sys     0m21.503s
+############################################################
+# Post-stupid-metadata cache:
+############################################################
+# 19533 ZenDocument.parseMetadata.foreach
+#   452 Metadata.load
+#   225 ZenSitemap.initialize.foreach
+#   221 ZenDocument.parseMetadata
+#   173 Metadata.load.foreach
+#     1 ZenSitemap.initialize
+
+#   %   cumulative   self              self     total
+#  time   seconds   seconds    calls  ms/call  ms/call  name
+#  22.51    26.91     26.91    61035     0.44     0.87  GenericRenderer#push
+#  12.26    41.58     14.66     2012     7.29   190.62  Array#each
+#  11.12    54.88     13.30      230    57.81   157.00  IO#foreach
+#  10.47    67.40     12.52    20605     0.61     0.89  Object#methodcall
+
+# real    2m20.308s
+# user    2m1.025s
+# sys     0m14.965s
+############################################################
 
 # require "profile"
 require 'cgi'
@@ -15,7 +53,7 @@ $methodcalls = {}
 $methodcalls.default= 0
 
 at_exit {
-  $methodcalls.each { | key, val |
+  $methodcalls.sort {|a,b| b[1]<=>a[1]}.each { | key, val |
     printf "%5d %s\n", val, key
   }
 }
@@ -68,7 +106,7 @@ There are 5 major classes:
 * ((<Class Metadata>))
 * ((<Class GenericRenderer>))
 
-And 6 renderer classes:
+And many renderer classes. For example:
 
 * ((<Class SitemapRenderer>))
 * ((<Class HtmlRenderer>))
@@ -94,7 +132,7 @@ class ZenWebsite
 
   include CGI::Html4Tr
 
-  VERSION = '2.7.4'
+  VERSION = '2.8.0'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING
@@ -110,8 +148,6 @@ class ZenWebsite
 =end
 
   def initialize(sitemapUrl, datadir, htmldir)
-
-    puts "Preprocessing website..." unless $TESTING
 
     unless (test(?d, datadir)) then
       raise ArgumentError, "datadir must be a valid directory"
@@ -133,8 +169,6 @@ class ZenWebsite
       end
     }
 
-    puts "Generating website..." unless $TESTING
-
   end
 
 =begin
@@ -148,15 +182,7 @@ class ZenWebsite
 
   def renderSite()
 
-    #1) Open Sitemap:
-    #  1) Read all urls:
-    #    1) Find page corresponding to url.
-    #    2) Open file.
-    #    3) Generically parse file, extracting metadata and content.
-    #    4) Based on current metadata, instantiate the correct type of page.
-    #2) Generate a makefile OR dependency map.
-    #3) Run make OR iterate over each page instance and IF it should
-    #   be generated, generate it.
+    puts "Generating website..." unless $TESTING
 
     unless (test(?d, self.htmldir)) then
       File::makedirs(self.htmldir)
@@ -185,6 +211,18 @@ class ZenWebsite
 
   def [](url)
     return @documents[url] || nil
+  end
+
+=begin
+
+--- ZenWebsite.banner()
+
+    Returns a string containing the ZenWeb banner including the version.
+
+=end
+  
+  def ZenWebsite.banner()
+    return "ZenWeb v. #{ZenWebsite::VERSION}"
   end
 
 end
@@ -251,9 +289,10 @@ class ZenDocument
     # 2) Parse w/ generic parser for metadata, stripping it out.
     count = 0
 
-    methodcall("ZenDocument.parseMetadata")
+#    methodcall("ZenDocument.parseMetadata")
 
     IO.foreach(self.datapath) { | line |
+#      methodcall("ZenDocument.parseMetadata.foreach")
       count += 1
       # REFACTOR: class Metadata also has this.
       if (line =~ /^\#\s*(\"(?:\\.|[^\"]+)\"|[^=]+)\s*=\s*(.*?)\s*$/) then
@@ -647,8 +686,6 @@ of lines of urls. Each of those urls will correspond to a file in the
 A ZenSitemap is a ZenDocument that knows about the order and hierarchy
 of all of the other pages in the website.
 
-WARN: how much difference is there between a website and a sitemap?
-
 === Methods
 
 =end
@@ -670,7 +707,7 @@ class ZenSitemap < ZenDocument
   def initialize(url, website)
     super(url, website)
 
-    methodcall("ZenSitemap.initialize")
+#    methodcall("ZenSitemap.initialize")
 
     @documents = {}
     @doc_order = []
@@ -682,6 +719,7 @@ class ZenSitemap < ZenDocument
     count = 0
 
     IO.foreach(self.datapath) { |f|
+#      methodcall("ZenSitemap.initialize.foreach")
       count += 1
       f.chomp!
 
@@ -723,6 +761,8 @@ directories, up to a specified directory, or "/" by default.
 =end
 
 class Metadata < Hash
+
+  @@metadata = {}
 
 =begin
 
@@ -797,34 +837,43 @@ class Metadata < Hash
 
   def load(file)
 
-    methodcall("Metadata.load")
+#    methodcall("Metadata.load")
 
     count = 0
 
-    IO.foreach(file) { | line |
-      count += 1
-      if (line =~ /^\s*(\"(?:\\.|[^\"]+)\"|[^=]+)\s*=\s*(.*?)\s*$/) then
+    # TODO: add a caching mechanism here. This is ~25% of our time
+    unless (@@metadata[file]) then
+      hash = {}
+      IO.foreach(file) { | line |
+#	methodcall("Metadata.load.foreach")
+	count += 1
+	if (line =~ /^\s*(\"(?:\\.|[^\"]+)\"|[^=]+)\s*=\s*(.*?)\s*$/) then
 
-	# REFACTEE: this is duplicated from above
-	begin
-	  key = $1
-	  val = $2
+	  # REFACTEE: this is duplicated from above
+	  begin
+	    key = $1
+	    val = $2
 
-	  key = eval(key)
-	  val = eval(val)
-	rescue Exception
-	  $stderr.puts "WARNING on line #{count}: eval failed: #{line}: #{$!}"
+	    key = eval(key)
+	    val = eval(val)
+	  rescue Exception
+	    $stderr.puts "WARNING on line #{count}: eval failed: #{line}: #{$!}"
+	  else
+	    hash[key] = val
+	  end
+	elsif (line =~ /^\s*$/) then
+	  # ignore
+	elsif (line =~ /^\#.*$/) then
+	  # ignore
 	else
-	  self[key] = val
-        end
-      elsif (line =~ /^\s*$/) then
-	# ignore
-      elsif (line =~ /^\#.*$/) then
-	# ignore
-      else
-	$stderr.puts "WARNING on line #{count}: cannot parse: #{line}"
-      end
-    }
+	  $stderr.puts "WARNING on line #{count}: cannot parse: #{line}"
+	end
+      }
+      @@metadata[file] = hash
+    end
+
+    self.update(@@metadata[file])
+
   end
 
 end
@@ -1178,12 +1227,28 @@ class HtmlTemplateRenderer < HtmlRenderer
     includes a navigation bar and a list of subpages, which will
     probably be broken out to their own renderers soon.
 
+    Metadata variables used:
+
+    + author
+    + banner - graphic at the top of the page, usually a logo
+    + bgcolor - defaults to not being defined
+    + copyright
+    + description
+    + dtd (default: 'DTD HTML 4.0 Transitional')
+    + email - used in a mailto in metadata
+    + keywords
+    + rating (default: 'general')
+    + stylesheet
+    + subtitle
+    + title (default: 'Unknown Title')
+
 =end
 
   def render(content)
     author      = @document['author']
     banner      = @document['banner']
     bgcolor     = @document['bgcolor']
+    dtd		= @document['dtd'] || 'DTD HTML 4.0 Transitional'
     copyright   = @document['copyright']
     description = @document['description']
     email       = @document['email']
@@ -1196,7 +1261,7 @@ class HtmlTemplateRenderer < HtmlRenderer
     titletext   = @document.fulltitle
 
     # header
-    push("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n")
+    push("<!DOCTYPE HTML PUBLIC \"-//W3C//#{dtd}//EN\">\n")
     push("<HTML>\n")
     push("<HEAD>\n")
     push("<TITLE>#{titletext}</TITLE>\n")
@@ -1205,7 +1270,7 @@ class HtmlTemplateRenderer < HtmlRenderer
     push("<LINK REL=\"STYLESHEET\" HREF=\"#{stylesheet}\" type=text/css title=\"#{stylesheet}\">\n") if stylesheet
 
     push("<META NAME=\"rating\" CONTENT=\"#{rating}\">\n")
-    push("<META NAME=\"GENERATOR\" CONTENT=\"ZenWeb #{ZenWebsite::VERSION}\">\n")
+    push("<META NAME=\"GENERATOR\" CONTENT=\"#{ZenWebsite.banner}\">\n")
     push("<META NAME=\"author\" CONTENT=\"#{author}\">\n") if author
     push("<META NAME=\"copyright\" CONTENT=\"#{copyright}\">\n") if copyright
     push("<META NAME=\"keywords\" CONTENT=\"#{keywords}\">\n") if keywords
@@ -1313,16 +1378,28 @@ class MetadataRenderer < GenericRenderer
 
   def render(content)
 
-    content.each { | p |
+    content=content.collect { | p |
       p.gsub!(/\#\{([^\}]+)\}/) {
 	key = $1
+
+	# check to see if this is a metadata entry
 	val = @document[key] || nil
 	
-	# WARN: should we allow embedded ruby?
+	# otherwise try to eval it. If that fails, just give text.
+	unless (val) then
+	  begin
+	    val = eval(key)
+	  rescue NameError
+	    val = key
+	  rescue Exception => err
+	    $stderr.puts "eval failed in MetadataRenderer for #{@document.datapath}: #{p}."
+	    val = key
+	  end
+	end
 	
-	val = key unless val
 	val
       }
+      p
     }
 
     return content
@@ -1589,6 +1666,8 @@ end
 # Main:
 
 if __FILE__ == $0
+
+  puts ZenWebsite.banner() unless $TESTING
 
   if (ARGV.size == 2) then
     path = ARGV.shift

@@ -27,6 +27,10 @@ REQUIREMENTS:
 + Ruby - not sure about minimal version, but 1.6.x has been tested.
 + Test::Unit testing framework via RAA on http://www.ruby-lang.org/.
 
+INSTALL:
+
++ make test && sudo make install
+
 LICENSE:
 
 (The MIT License)

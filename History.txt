@@ -1,4 +1,16 @@
 ###############################################################################
+2002-05-29 2.8.0				   00 major / 02 minor / 04 bug
+
+	! Added ruby code interpolation in MetadataRenderer
+	! Cut (wallclock) runtime for large sites by 50%. ~25% for
+	  smaller sites.
+	+ Added a INSTALL section to the readme.
+	+ Got rid of extra xxx test directory and fixed tests.
+	+ Added ZenWebsite.banner method and switched to it in cmdline
+	  tools and tests.
+	+ Improved metadata usage documentation.
+
+###############################################################################
 2002-05-17 2.7.4				   00 major / 00 minor / 04 bug
 
 	Added a 'demo' rule to the makefile.

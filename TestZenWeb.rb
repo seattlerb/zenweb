@@ -54,7 +54,7 @@ class TestZenWebsite < ZenTest
 
   def test_initialize_tilde
     # this should work fine
-    util_initialize("/~user/SiteMap.html", "xxx", "xxxhtml", false)
+    util_initialize("/~ryand/AnotherSiteMap.html", @datadir, @htmldir, false)
   end
 
   def util_initialize(sitemap_url, data_dir, html_dir, should_fail=true)
@@ -452,15 +452,13 @@ class TestHtmlTemplateRenderer < ZenTest
 
   def test_renderContent_html_and_head
 
-    version=ZenWebsite::VERSION
-
     assert_not_nil(@content.index("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">
 <HTML>
 <HEAD>
 <TITLE>Ryan\'s Homepage: Version 2.0</TITLE>
 <LINK REV=\"MADE\" HREF=\"mailto:ryand-web@zenspider.com\">
 <META NAME=\"rating\" CONTENT=\"general\">
-<META NAME=\"GENERATOR\" CONTENT=\"ZenWeb #{version}\">
+<META NAME=\"GENERATOR\" CONTENT=\"#{ZenWebsite.banner}\">
 <META NAME=\"author\" CONTENT=\"Ryan Davis\">
 <META NAME=\"copyright\" CONTENT=\"1996-2001, Zen Spider Software\">
 </HEAD>
@@ -542,6 +540,13 @@ class TestTextToHtmlRenderer < ZenTest
   def test_renderContent_metadata
     assert(@content =~ %r,Glossary lookups for 42 and some string \(see metadata.txt for a hint\)\.\s+key99 should not look up\.,,
 	   "Must render metadata lookups from \#\{key\}")
+  end
+
+  def test_renderContent_metadata_eval
+    r = MetadataRenderer.new(@doc)
+    result = r.render("blah #\{1+1\} blah").pop
+    assert_equal("blah 2 blah", result,
+		 "MetadataRenderer must evaluate ruby expressions")
   end
 
   def test_renderContent_small_rule

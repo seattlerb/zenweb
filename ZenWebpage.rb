@@ -1,6 +1,11 @@
 #!/usr/local/bin/ruby -w
 
-path     = ARGV.shift || raise(ArgumentError, "Need a file.")
+def usage
+  puts "#{$0} filepath [title [subtitle]]"
+  exit 1
+end
+
+path     = ARGV.shift || usage()
 title    = ARGV.shift || 'Title'
 subtitle = ARGV.shift || 'Subtitle'
 

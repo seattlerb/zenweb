@@ -22,7 +22,5 @@ test/metadata.txt
 test/ryand/blah
 test/ryand/index
 test/ryand/metadata.txt
+test/ryand/AnotherSiteMap
 test/ryand/stuff/index
-xxx/user/SiteMap
-xxx/user/index
-xxx/user/metadata.txt
