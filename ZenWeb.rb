@@ -68,7 +68,7 @@ class ZenWebsite
 
   include CGI::Html4Tr
 
-  VERSION = '2.0.0'
+  VERSION = '2.1.0'
 
   # TODO: figure out why I shouldn't provide access to the last two
   attr_reader :datadir, :htmldir, :sitemap, :documents, :doc_order
@@ -353,8 +353,6 @@ class ZenDocument
     with tabs, then the lines at that indention level will become an
     array of their own, to be added to the encompassing array.
 
-    TODO: find a proper place for this, it does not belong in ZenDocument.
-
 =end
 
   def createList(data)
@@ -400,6 +398,46 @@ class ZenDocument
     end
 
     return data
+  end
+
+=begin
+
+     --- ZenDocument#createHash
+
+     Convert a string composed of lines prefixed one of two delimiters
+     into a hash. If the delimiter is "%-", then that string is used
+     as the key to the hash. If the delimiter is "%=", then that
+     string is used as the value to the hash.
+
+=end
+
+  def createHash(data)
+
+    # FIX: this needs to be ordered
+    result = {}
+
+    if (data.is_a?(String)) then
+      data = data.split($/)
+    end
+
+    key = nil
+    data.each { |line|
+      if (line =~ /^\s*%-\s*(.*)/) then
+	key = $1
+      elsif (line =~ /^\s*%=\s*(.*)/) then
+	val = $1
+
+	if (key) then
+	  # FIX: maybe do something if already defined?
+	  result[key] = val
+	end
+
+      else
+	# nothing
+      end
+    }
+
+    return result
   end
 
   ############################################################
@@ -906,6 +944,23 @@ class HtmlRenderer < GenericRenderer
     return result
   end
 
+  def hash2html(hash)
+    result = ""
+
+    if (hash) then
+      result += "<DL>\n"
+      hash.each { | key, val |
+	result += "  <DT>#{key}</DT>\n"
+	result += "  <DD>#{val}</DD>\n\n"
+      }
+      result += "</DL>\n"
+    else
+      result = "not a hash"
+    end
+
+    return result
+  end
+
 end
 
 =begin
@@ -1131,8 +1186,13 @@ class TextToHtmlRenderer < HtmlRenderer
 	push("<HR SIZE=\"1\" NOSHADE>\n\n")
       elsif (p =~ /^===+$/) then
 	push("<HR SIZE=\"2\" NOSHADE>\n\n")
-      elsif (p =~ /^\t*\+/) then
+      elsif (p =~ /^%[=-]/) then
+	hash = @document.createHash(p)
 
+	if (hash) then
+	  push(self.hash2html(hash) + "\n")
+	end
+      elsif (p =~ /^\t*\+/) then
 	p.gsub!(/^(\t*)\+\s*(.*)$/) { $1 + $2 }
 
 	list = @document.createList(p)
