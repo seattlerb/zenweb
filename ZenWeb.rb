@@ -2,11 +2,60 @@
 
 require 'cgi'
 
-    # TODO: sitemap must push self on when url = self.url
+=begin
+= ZenWeb
+
+A set of classes for organizing and formating a collection of related
+documents.
+
+= SYNOPSIS
+
+  ZenWeb.rb directory
+
+= DESCRIPTION
+
+A ZenWebsite is a collection of documents in one or more directories,
+organized by a sitemap. The sitemap references every document in the
+collection and maintains their order and hierarchy.
+
+Each directory may contain a metadata file of key/value pairs that can
+be used by ZenWeb and by the documents themselves. Each metadata file
+can override values from the metadata file in the parent
+directory. Each document can also define metadata, which will also
+override any values from the metadata files.
+
+ZenWeb processes the sitemap and in turn all related documents. ZenWeb
+uses a series of renderers (determined by metadata) to process the
+documents and writes the end result to disk.
+
+There are 5 major classes:
+
+* ((<Class ZenWebsite>))
+* ((<Class ZenDocument>))
+* ((<Class ZenSitemap>))
+* ((<Class Metadata>))
+* ((<Class GenericRenderer>))
+
+And 6 renderer classes:
+
+* ((<Class SitemapRenderer>))
+* ((<Class HtmlRenderer>))
+* ((<Class HtmlTemplateRenderer>))
+* ((<Class TextToHtmlRenderer>))
+* ((<Class HeaderRenderer>))
+* ((<Class FooterRenderer>))
+
+=end
 
 =begin
-A ZenWebsite is a collection of pages, one of which is a sitemap
-that knows the order and hierarchy of those pages.
+
+= Class ZenWebsite
+
+ZenWebsite is the top level class. It is responsible for driving the
+process.
+
+=== Methods
+
 =end
 
 class ZenWebsite
@@ -18,9 +67,18 @@ class ZenWebsite
   # TODO: figure out why I shouldn't provide access to the last two
   attr_reader :datadir, :htmldir, :sitemap, :documents, :doc_order
 
+=begin
+
+--- ZenWeb.new(sitemapURL, datadir, htmldir)
+
+    Creates a new ZenWeb instance and preprocesses the sitemap and all
+    referenced documents.
+
+=end
+
   def initialize(sitemapUrl, datadir, htmldir)
 
-    puts "Preprocessing website..." if $DEBUG
+    puts "Preprocessing website..." unless $TESTING
 
     unless (test(?d, datadir)) then
       raise ArgumentError, "datadir must be a valid directory"
@@ -33,17 +91,26 @@ class ZenWebsite
     @doc_order = @sitemap.doc_order
 
     # Tell each document to notify it's parent about itself.
-    @documents.each_value { | doc |
+    @doc_order.each { | url |
+      doc = self[url]
       parentURL = doc.parentURL
       parentDoc = self[parentURL]
-      if (parentDoc and parentURL != doc.url) then
+      if (parentDoc and parentURL != url) then
 	parentDoc.addSubpage(doc.url)
       end
     }
 
-    puts "Generating website..." if $DEBUG
+    puts "Generating website..." unless $TESTING
 
   end
+
+=begin
+
+--- ZenWeb#renderSite
+
+    Iterates over all of the documents and asks them to ((<render|ZenDocument#render>)).
+
+=end
 
   def renderSite()
 
@@ -56,13 +123,13 @@ class ZenWebsite
     #2) Generate a makefile OR dependency map.
     #3) Run make OR iterate over each page instance and IF it should
     #   be generated, generate it.
-    
+
     unless (test(?d, self.htmldir)) then
       Dir.mkdir(self.htmldir)
     end
 
     self.doc_order.each { | url |
-      puts url if $DEBUG
+      puts url unless $TESTING
       doc = @documents[url]
       doc.render()
     }
@@ -72,6 +139,14 @@ class ZenWebsite
   ############################################################
   # Accessors:
 
+=begin
+
+--- ZenWebsite#[](url)
+
+    Accesses a document by url.
+
+=end
+
   def [](url)
     return @documents[url] || nil
   end
@@ -79,9 +154,13 @@ class ZenWebsite
 end
 
 =begin
+
+= Class ZenDocument
 A ZenDocument is an object representing a unit of input data,
 typically a file. It may correspond to multiple output data (one
 document could create several HTML pages).
+=== Methods
+
 =end
 
 class ZenDocument
@@ -95,8 +174,11 @@ class ZenDocument
   attr_reader :subpages, :website
 
 =begin
-There are 3 different types of relationships in a document. Parent,
-Child, Sibling. DOC
+
+--- ZenDocument.new(url, website)
+
+    Creates a new ZenDocument instance and preprocesses the metadata.
+
 =end
 
   def initialize(url, website)
@@ -117,6 +199,18 @@ Child, Sibling. DOC
     self.parseMetadata
 
   end
+
+=begin
+
+--- ZenDocument#parseMetadata
+
+    Opens the datafile and preparses the content for metadata. In a
+    document, metadata has the basic form of "# key = val" where key
+    and val are both proper ruby representations of the values in
+    question. Eval is used to convert them from textual representation
+    to an actual ruby object.
+
+=end
 
   def parseMetadata
     # 1) Open file
@@ -143,6 +237,17 @@ Child, Sibling. DOC
     }
   end
 
+=begin
+
+--- ZenDocument#renderContent
+
+    Renders the content of the document by passing the content to a
+    series of renderers. The renderers are specified by metadata as an
+    array of strings and each one must implement the GenericRenderer
+    interface.
+
+=end
+
   def renderContent()
 
     # contents already preparsed for metadata
@@ -153,21 +258,32 @@ Child, Sibling. DOC
 
     # 4) For each renderer in list:
 
-    renderers.each { | renderer |
+    renderers.each { | rendererName |
 
-      renderer = renderer.intern
+      rendererName = rendererName.intern
 
       # 4.1) Invoke a renderer by that name
-      # TODO: wrap in a try/catch
-      theClass = Module.const_get(renderer)
-      renderer = theClass.send("new", self)
-
-      # 4.2) Pass entire file contents to renderer and replace w/ result.
-      result = renderer.render(result)
+      begin
+	theClass = Module.const_get(rendererName)
+	renderer = theClass.send("new", self)
+	# 4.2) Pass entire file contents to renderer and replace w/ result.
+	result = renderer.render(result)
+      rescue NameError
+	raise NotImplementedError, "Renderer #{rendererName} is not implemented or loaded"
+      end
     }
 
     return result.join('')
   end
+
+=begin
+
+--- ZenDocument#render
+
+    Gets the rendered content from ((<ZenDocument#renderContent>)) and
+    writes it to disk.
+
+=end
 
   def render()
 
@@ -185,6 +301,16 @@ Child, Sibling. DOC
 
   end
 
+=begin
+
+--- ZenDocument#parentURL
+
+    Returns the parent url of this document. That is either the
+    index.html document of the current directory, or the parent
+    directory.
+
+=end
+
   def parentURL()
     url = self.url.clone
 
@@ -196,6 +322,14 @@ Child, Sibling. DOC
 
   # protected
 
+=begin
+
+--- ZenDocument#addSubpage
+
+    Adds a url to the list of subpages of this document.
+
+=end
+
   def addSubpage(url)
     if (url != self.url) then
       self.subpages.push(url)
@@ -203,10 +337,16 @@ Child, Sibling. DOC
   end
 
 =begin
-Convert a string composed of lines prefixed by plus signs into an
-array of those strings, sans plus signs. If a line is indented with
-tabs, then the lines at that indention level will become an array of
-their own, to be added to the encompassing array.
+
+--- ZenDocument#createList
+
+    Convert a string composed of lines prefixed by plus signs into an
+    array of those strings, sans plus signs. If a line is indented
+    with tabs, then the lines at that indention level will become an
+    array of their own, to be added to the encompassing array.
+
+    TODO: find a proper place for this, it does not belong in ZenDocument.
+
 =end
 
   def createList(data)
@@ -225,7 +365,7 @@ their own, to be added to the encompassing array.
 	# looking for initial match:
 	if (data[i] =~ /^\t(\t*.*)/) then
 
-	  # replace w/ one less tab, and record that we have a match 
+	  # replace w/ one less tab, and record that we have a match
 	  data[i] = $1
 	  min = i
 	end
@@ -257,15 +397,39 @@ their own, to be added to the encompassing array.
   ############################################################
   # Accessors:
 
+=begin
+
+--- ZenDocument#parent
+
+    Returns the document object corresponding to the parentURL.
+
+=end
+
   def parent
     parentURL = self.parentURL
     parent = (parentURL != self.url ? self.website[parentURL] : nil)
     return parent
   end
 
+=begin
+
+--- ZenDocument#dir
+
+    Returns the path of the directory for this url.
+
+=end
+
   def dir()
     return File.dirname(self.datapath)
   end
+
+=begin
+
+--- ZenDocument#datapath
+
+    Returns the full path to the data document.
+
+=end
 
   def datapath()
 
@@ -279,6 +443,14 @@ their own, to be added to the encompassing array.
     return @datapath
   end
 
+=begin
+
+--- ZenDocument#htmlpath
+
+    Returns the full path to the rendered document.
+
+=end
+
   def htmlpath()
 
     if (@htmlpath.nil?) then
@@ -290,6 +462,14 @@ their own, to be added to the encompassing array.
     return @htmlpath
   end
 
+=begin
+
+--- ZenDocument#fulltitle
+
+    Returns the concatination of the title and subtitle, if any.
+
+=end
+
   def fulltitle
     title = self['title'] || "Unknown"
     subtitle = self['subtitle'] || nil
@@ -297,17 +477,49 @@ their own, to be added to the encompassing array.
     return title + (subtitle ? ": " + subtitle : '')
   end
 
+=begin
+
+--- ZenDocument#[](key)
+
+    Returns the metadata corresponding to ((|key|)), or nil.
+
+=end
+
   def [](key)
     return @metadata[key] || nil
   end
+
+=begin
+
+--- ZenDocument#[]=(key, val)
+
+    Sets the metadata value at ((|key|)) to ((|val|)).
+
+=end
 
   def []=(key, val)
     @metadata[key] = val
   end
 
+=begin
+
+--- ZenDocument#datadir
+
+    Returns the directory that all documents are read from.
+
+=end
+
   def datadir
     return self.website.datadir
   end
+
+=begin
+
+--- ZenDocument#htmldir
+
+    Returns the directory that all rendered documents are written to.
+
+=end
 
   def htmldir
     return self.website.htmldir
@@ -317,16 +529,34 @@ end
 
 =begin
 
+= Class ZenSitemap
+
+A ZenSitemap is a type of ZenDocument represents a file that consists
+of lines of urls. Each of those urls will correspond to a file in the
+((<datadir|ZenWebsite#datadir>)).
+
 A ZenSitemap is a ZenDocument that knows about the order and hierarchy
 of all of the other pages in the website.
 
 TODO: how much difference is there between a website and a sitemap?
+
+=== Methods
 
 =end
 
 class ZenSitemap < ZenDocument
 
   attr_reader :documents, :doc_order
+
+=begin
+
+--- ZenSitemap.new(url, website)
+
+    Creates a new ZenSitemap instance and processes the sitemap
+    content instantiating a ZenDocument for every referenced document
+    in the sitemap.
+
+=end
 
   def initialize(url, website)
     super(url, website)
@@ -348,10 +578,7 @@ class ZenSitemap < ZenDocument
 
       next if f == ""
 
-      if (f =~ /^\s*(\w+)\s*=\s*(.*)/) then
-	# RETIRE: no more metadata in sitemap
-	self[$1] = $2
-      elsif f =~ /^\s*([\/-_~\.\w]+)$/
+      if f =~ /^\s*([\/-_~\.\w]+)$/
 	url = $1
 
 	if (url == self.url) then
@@ -372,14 +599,30 @@ class ZenSitemap < ZenDocument
 end
 
 =begin
+
+= Class Metadata
+
 Metadata provides a hash whose content comes from a file whose name is
 fixed. Metadata will also be provided by metadata files in parent
 directories, up to a specified directory, or "/" by default.
+
+=== Methods
+
 =end
 
 class Metadata < Hash
-  
-  # TODO: set up a metadata dictionary structure w/ parent refs
+
+=begin
+
+--- Metadata.new(directory, toplevel = "/")
+
+    Instantiates a new metadata object and loads the data from
+    ((|directory|)) up to the ((|toplevel|)) directory.
+
+    TODO: set up a metadata dictionary structure w/ parent refs
+
+=end
+
   def initialize(directory, toplevel = "/")
 
     if (test(?f, directory)) then
@@ -390,6 +633,14 @@ class Metadata < Hash
 
   end
 
+=begin
+
+--- ZenSitemap#save(file)
+
+    Saves the current structure to file ((|file|)).
+
+=end
+
   def save(file)
     out = File.open(file, "w")
     self.each_key { | key |
@@ -397,6 +648,16 @@ class Metadata < Hash
     }
     out.close
   end
+
+=begin
+
+--- ZenSitemap#loadFromDirectory(directory, toplevel, count=1)
+
+    Loads a series of metadata files from the directory ((|toplevel|))
+    down to ((|directory|)). Each load in turn may override previous
+    values.
+
+=end
 
   def loadFromDirectory(directory, toplevel, count = 1)
 
@@ -412,6 +673,15 @@ class Metadata < Hash
     end
 
   end
+
+=begin
+
+--- ZenSitemap#load(file)
+
+    Loads a specific file ((|file|)). If any keys already exist that
+    are specifed in the file, then they are overridden.
+
+=end
 
   def load(file)
 
@@ -430,7 +700,7 @@ class Metadata < Hash
 	  if key == "today" then
 	    puts "trying to eval '#{val}'"
 	  end
-	  
+
 	  val = eval($2)
 	rescue Exception
 	  $stderr.puts "WARNING on line #{count}: eval failed: #{line}: #{$!}"
@@ -449,7 +719,27 @@ class Metadata < Hash
 
 end
 
+=begin
+
+= Class GenericRenderer
+
+A GenericRenderer provides an interface for all renderers. It renders
+nothing itself.
+
+=== Methods
+
+=end
+
 class GenericRenderer
+
+=begin
+
+--- GenericRenderer.new(document)
+
+    Instantiates a generic renderer with a reference to
+    ((|document|)), it\'s website and sitemap.
+
+=end
 
   def initialize(document)
     @document = document
@@ -458,20 +748,55 @@ class GenericRenderer
     @result = []
   end
 
-  def push(obj)
+=begin
 
-    if obj.is_a?(String) then
-      @result.push(obj)
-    elsif obj.is_a?(Array) then
-      @result.concat(obj)
+--- GenericRenderer#push(obj)
+
+    Pushes a string representation of ((|obj|)) onto the result
+    array. If ((|obj|)) is an array, it iterates each item and pushes
+    them (recursively). If it is not an array, it pushes (({obj.to_s})).
+
+=end
+
+  def push(obj)
+    if obj.is_a?(Array) then
+      obj.each { | item |
+	self.push(item)
+      }
     else
       @result.push(obj.to_s)
-    end  
+    end
   end
 
+=begin
+
+--- GenericRenderer#unshift(obj)
+
+    Same as ((<GenericRenderer#push>)) but prepends instead of appends.
+
+=end
+
   def unshift(obj)
-    @result.unshift(obj)
+
+    if obj.is_a?(Array) then
+      obj.reverse.each { | item |
+	self.unshift(item)
+      }
+    else
+      @result.unshift(obj.to_s)
+    end
+
   end
+
+=begin
+
+--- GenericRenderer#render(content)
+
+    Renders the content. Does nothing in GenericRenderer, but is
+    expected to be overridden by subclasses. ((|content|)) is an array
+    of strings and render must return an array of strings.
+
+=end
 
   def render(content)
     return content
@@ -479,7 +804,26 @@ class GenericRenderer
 
 end
 
+=begin
+
+= Class SitemapRenderer
+
+Converts a sitemap file into output suitable for
+((<Class TextToHtmlRenderer>)).
+
+=== Methods
+
+=end
+
 class SitemapRenderer < GenericRenderer
+
+=begin
+
+--- SitemapRenderer#render(content)
+
+    Converts a sitemap file into output suitable for ((<Class TextToHtmlRenderer>)).
+
+=end
 
   def render(content)
 
@@ -491,14 +835,14 @@ class SitemapRenderer < GenericRenderer
       indent.sub!(/\/index$/, "")
       indent.sub!(/^\//, "")
       indent.gsub!(/[^\/]+\//, "\t")
-      
+
       if indent =~ /^(\t*).*/ then
 	indent = $1
       end
-      
+
       doc      = @website[url]
       title    = doc.fulltitle
-      
+
       push("#{indent}+ <A HREF=\"#{url}\">#{title}</A>\n")
     }
 
@@ -506,16 +850,42 @@ class SitemapRenderer < GenericRenderer
   end
 end
 
+=begin
+
+= Class HtmlRenderer
+
+Abstract superclass that provides common functionality for those
+renderers that produce HTML.
+
+=== Methods
+
+=end
+
 class HtmlRenderer < GenericRenderer
+
+=begin
+
+--- HtmlRenderer#render(content)
+
+    Raises an exception. This is subclass responsibility as this is an
+    abstract class.
+
+=end
 
   def render(content)
     raise "Subclass Responsibility"
   end
 
+=begin
+
+--- HtmlRenderer#array2html
+
+    Converts an array (of arrays, potentially) into an unordered list.
+
+=end
+
   def array2html(list, indent=0)
     result = ""
-
-    result += ("<!-- " + list.inspect + "-->\n") if $DEBUG
 
     indent1 = "  " * indent
     indent2 = "  " * (indent + 1)
@@ -529,13 +899,34 @@ class HtmlRenderer < GenericRenderer
       end
     }
     result += (indent1 + "</UL>\n")
-    
+
     return result
   end
 
 end
 
+=begin
+
+= Class HtmlTemplateRenderer
+
+Generates a consistant HTML page header and footer, including a
+navigation bar, title, subtitle, and appropriate META tags.
+
+=== Methods
+
+=end
+
 class HtmlTemplateRenderer < HtmlRenderer
+
+=begin
+
+--- HtmlTemplateRenderer#render(content)
+
+    Renders a standardized HTML header and footer. This currently also
+    includes a navigation bar and a list of subpages, which will
+    probably be broken out to their own renderers soon.
+
+=end
 
   def render(content)
     author      = @document['author']
@@ -585,7 +976,7 @@ class HtmlTemplateRenderer < HtmlRenderer
     subpages = @document.subpages.clone
     if (subpages.length > 0) then
       push("<H2>Subpages:</H2>\n\n")
-      subpages.each_index { | index | 
+      subpages.each_index { | index |
 	url      = subpages[index]
 	doc      = @website[url]
 	title    = doc.fulltitle
@@ -605,6 +996,16 @@ class HtmlTemplateRenderer < HtmlRenderer
 
     return @result
   end
+
+=begin
+
+--- HtmlTemplateRenderer#navbar
+
+    Generates a navbar that contains a link to the sitemap, search
+    page (if any), and a fake "breadcrumbs" trail which is really just
+    a list of all of the parent titles up the chain to the top.
+
+=end
 
   def navbar
 
@@ -648,7 +1049,28 @@ class HtmlTemplateRenderer < HtmlRenderer
 
 end
 
+=begin
+
+= Class TextToHtmlRenderer
+
+Converts a fairly plain text format into styled HTML.
+
+=== Methods
+
+=end
+
 class TextToHtmlRenderer < HtmlRenderer
+
+=begin
+
+--- TextToHtmlRenderer#render(content)
+
+    Converts a simple plaintext format into formatted HTML. Includes
+    paragraphing, embedded variables, lists, rules, preformatted
+    blocks, and embedded HTML. See the demo pages for a complete
+    description on how to use this.
+
+=end
 
   def render(content)
 
@@ -668,14 +1090,13 @@ class TextToHtmlRenderer < HtmlRenderer
 	val = @document[key] || nil
 
 	# TODO: should we allow embedded ruby?
-	
+
 	val = key unless val
 	val
       }
 
       # TODO: break into own renderer
       # url substitutions
-      # FIX: needs to NOT substitute whole urls!
       p.gsub!(/([^=\"])((http|ftp|mailto):(\S+))/) {
 	pre = $1
 	url = $2
@@ -688,7 +1109,6 @@ class TextToHtmlRenderer < HtmlRenderer
 	"#{pre}<A HREF=\"#{url}\">#{text}</A>"
       }
 
-      # TODO: needs to be more selective?
       p.gsub!(/\\&/, "&amp;")
       p.gsub!(/\\</, "&lt;")
       p.gsub!(/\\>/, "&gt;")
@@ -723,7 +1143,27 @@ class TextToHtmlRenderer < HtmlRenderer
 
 end
 
+=begin
+
+= Class HeaderRenderer
+
+Inserts a header based on metadata.
+
+=== Methods
+
+=end
+
 class HeaderRenderer < GenericRenderer
+
+=begin
+
+--- HeaderRenderer#render(content)
+
+    Adds a header if the ((|header|)) metadata item exists. If the
+    document contains a BODY HTML tag, then the header immediately
+    follows it, otherwise it is simply at the top.
+
+=end
 
   def render(content)
 
@@ -749,7 +1189,27 @@ class HeaderRenderer < GenericRenderer
   end
 end
 
+=begin
+
+= Class FooterRenderer
+
+Inserts a footer based on metadata.
+
+=== Methods
+
+=end
+
 class FooterRenderer < GenericRenderer
+
+=begin
+
+--- FooterRenderer#render(content)
+
+    Adds a footer if the ((|footer|)) metadata item exists. If the
+    document contains a BODY close HTML tag, then the footer
+    immediately precedes it, otherwise it is simply at the bottom.
+
+=end
 
   def render(content)
 
@@ -780,6 +1240,7 @@ end
 # Main:
 
 if __FILE__ == $0
+  $TESTING = FALSE unless defined? $TESTING
   path = ARGV.shift || raise(ArgumentError, "Need a sitemap path to load.")
   ZenWebsite.new("/SiteMap.html", path, path + "html").renderSite()
 end
