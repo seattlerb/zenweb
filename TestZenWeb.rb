@@ -1182,13 +1182,6 @@ class TestTocRenderer < ZenTestCase
   end
 end
 
-# this is more here to shut up ZenTest than anything else.
-class TestXXXRenderer < ZenTestCase
-  def test_render
-    assert_equal("This is a test", @renderer.render("This is a test"))
-  end
-end
-
 class TestStupidRenderer < ZenTestCase
   def util_render(input, expected)
     result = @renderer.render(input)
@@ -1224,6 +1217,43 @@ class TestStupidRenderer < ZenTestCase
   def test_strip
     result = @renderer.strip("This is some text")
     assert_equal("Ths s sm txt", result)
+  end
+end
+
+class TestCompactRenderer < ZenTestCase
+  def test_render
+
+    input = "
+<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">
+<html>
+  <head>
+    <title>Title</title>
+  </head>
+  <body>
+
+    <h1>Title</h1>
+
+    <p>blah blah</p>
+    <pre>line 1
+line 2
+line 3</pre>
+
+  </body>
+</html>
+"
+
+    expected = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\"><html><head><title>Title</title></head><body><h1>Title</h1><p>blah blah</p><pre>line 1
+line 2
+line 3</pre></body></html>"
+
+    assert_equal(expected, @renderer.render(input))
+  end
+end
+
+# this is more here to shut up ZenTest than anything else.
+class TestXXXRenderer < ZenTestCase
+  def test_render
+    assert_equal("This is a test", @renderer.render("This is a test"))
   end
 end
 
