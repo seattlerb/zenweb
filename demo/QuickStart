@@ -1,0 +1,30 @@
+#title ZenWeb QuickStart
+#description Quicky instructions for ZenWeb
+#keywords ZenWeb, instructions, quickstart
+
+ZenWeb is supposed to be rather easy to use. This demo site is intended to be a demonstration that it is easy. If this takes me more than 10 minutes to do (including typing these pages), then I have failed my job.
+
+** How I made this demo site
+
++ I created a directory called demo
++ I created a file in demo called SiteMap
+	+ In that file I gave it a title, description and keywords
+	+ I then created a list of URLs (minus the base part of the URL) for the pages in the site.
++ I then created a file for each URL in the sitemap and put them in demo. NOTE: The file names do not have ".html" in them because they aren't HTML files.
++ To finish the content off, I copied an alias of my images directory into demohtml.
++ I then created a file called render.py, which defines the website object and tells it where the data is, and where the HTML should go (last parameter "demohtml").
++ I then ran the file render.py.
+
+** How you make YOUR new site
+
++ Copy demo & render.py and name them what you want
++ In render.py (your copy actually) change the names of the to/from directories to suit your purposes. Also change the name of the subclass to be appropriate. This might not make sense in this file, but it will when you look at it, it is a small file.
++ Modify the SiteMap to contain the pages of your site.
++ Remove any pages from demo you don't want, and create your own. Use a page from demo as your template for the new pages.
++ Run render.py
+
+** How to convert your OLD site
+
++ Do the same as the new site instructions, except:
+	+ For each file in the sitemap (except SiteMap), add a few tabs (or spaces) and then "RawDocument" to tell ZenWebsite that the documents are not to be modified in any way.
+	+ For each file, remove your HTML header and footer code.
