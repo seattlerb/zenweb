@@ -1,4 +1,16 @@
 ###############################################################################
+2002-08-19 2.12.0				   00 major / 02 minor / 03 bug
+
+	+ Added TocRenderer code and tests. Using it in the demo as well...
+	+ Added Renderers page to demo.
+	- Fixed some parsing errors when used w/ ruby 1.7. Tests clean
+	  in 1.6 and 1.7.
+	- Moved TestMetadata in TestZenWeb and clumped the renderers
+	  together.
+	- switched to RUBY variable in Makefile for testing in
+	  multiple versions.
+
+###############################################################################
 2002-08-16 2.11.1				   00 major / 00 minor / 01 bug
 
 	- Wrote Customizing document for those who want to really
@@ -50,40 +62,41 @@
 ###############################################################################
 2002-05-29 2.8.0				   00 major / 02 minor / 04 bug
 
-	! Added ruby code interpolation in MetadataRenderer
-	! Cut (wallclock) runtime for large sites by 50%. ~25% for
+	+ Added ruby code interpolation in MetadataRenderer
+	+ Cut (wallclock) runtime for large sites by 50%. ~25% for
 	  smaller sites.
-	+ Added a INSTALL section to the readme.
-	+ Got rid of extra xxx test directory and fixed tests.
-	+ Added ZenWebsite.banner method and switched to it in cmdline
+	- Added a INSTALL section to the readme.
+	- Got rid of extra xxx test directory and fixed tests.
+	- Added ZenWebsite.banner method and switched to it in cmdline
 	  tools and tests.
-	+ Improved metadata usage documentation.
+	- Improved metadata usage documentation.
 
 ###############################################################################
 2002-05-17 2.7.4				   00 major / 00 minor / 04 bug
 
-	Added a 'demo' rule to the makefile.
-	Added a requirements section to the readme.
-	Modified incremental build tests to be much faster. Requires 'touch'.
-	demo/... Updated old python based demo ... oops.
+	- Added a 'demo' rule to the makefile.
+	- Added a requirements section to the readme.
+	- Modified incremental build tests to be much faster. Requires 'touch'.
+	- demo/... Updated old python based demo ... oops.
 
 ###############################################################################
 2002-05-14 2.7.3				   00 major / 00 minor / 03 bug
 
-	Implemented test_load, test_loadFromDirectory, test_renderContent_foot.
-	Added -I. to Makefile invocation of tests.
-	Deleted Metadata#save and corresponding test. Yeah! Less code!
+	- Implemented test_load, test_loadFromDirectory,
+	  test_renderContent_foot.
+	- Added -I. to Makefile invocation of tests.
+	- Deleted Metadata#save and corresponding test. Yeah! Less code!
 
 ###############################################################################
 2002-04-07 2.7.2				   00 major / 00 minor / 02 bug
 
-	Updated to use Test::Unit instead of deprecated RUNIT.
-	Fixed all tests. Clean run!
+	- Updated to use Test::Unit instead of deprecated RUNIT.
+	- Fixed all tests. Clean run!
 
 ###############################################################################
 2002-04-07 2.7.1				   00 major / 00 minor / 01 bug
 
-	Synced version to new revisionist history version number.
+	- Synced version to new revisionist history version number.
 
 ######################################################################
 # NOTE: all versions below this line are essentially a revisionist

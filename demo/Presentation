@@ -2,15 +2,6 @@
 # "subtitle" = "For Talks on ZenWeb"
 # "keywords" = "ZenWeb, Presentation"
 
-** Major Topics:
-
-+ Philosophy
-+ Class Heirarchy
-+ Basic Design
-+ Metadata scoping
-+ Renderers
-+ Iterative Builds
-
 ** Philosophy:
 
 The primary focus of ZenWeb is to improve the signal-to-noise ratio so

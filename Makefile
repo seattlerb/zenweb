@@ -1,19 +1,20 @@
+RUBY?=ruby
 
 all: syntax
 
 test: requirements syntax 
-	ruby -w -I. TestZenWeb.rb $(TEST)
+	$(RUBY) -w -I. TestZenWeb.rb $(TEST)
 
 syntax:
-	ruby -wc ZenWeb.rb
-	ruby -wc TestZenWeb.rb
+	$(RUBY) -wc ZenWeb.rb
+	$(RUBY) -wc TestZenWeb.rb
 	@for f in ZenWeb/*.rb; do \
 	  echo checking requires $$f; \
-	  ruby -w $$f; \
+	  $(RUBY) -w $$f; \
 	done
 
 requirements:
-	@ruby -e "require 'test/unit/testcase'; \
+	@$(RUBY) -e "require 'test/unit/testcase'; \
 	          puts 'Requirements OK';" 2> /dev/null \
 	   || (echo "*** You need to install Test::Unit to run tests"; \
 	       echo "*** download from http://www.ruby-lang.org/raa/"; \
@@ -21,11 +22,11 @@ requirements:
 
 force:
 demo: force
-	ruby -w -I. ZenWeb.rb demo
+	$(RUBY) -w -I. ZenWeb.rb demo
 
 PREFIX=/usr/local
 install:
-	@where=`ruby -rrbconfig -e 'include Config; print CONFIG["sitelibdir"]'`; \
+	@where=`$(RUBY) -rrbconfig -e 'include Config; print CONFIG["sitelibdir"]'`; \
 	echo "installing ZenWeb.rb     in $$where"; \
 	cp -f ZenWeb.rb $$where; \
 	echo "installing ZenWeb        in $$where"; \

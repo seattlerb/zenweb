@@ -395,6 +395,79 @@ class TestZenSitemap < TestZenDocument
   end
 end
 
+############################################################
+# Metadata
+
+class TestMetadata < Test::Unit::TestCase
+
+  def set_up
+    @hash = Metadata.new("test/ryand")
+  end
+
+  def tear_down
+  end
+
+  def test_initialize1
+    begin
+      @hash = Metadata.new("test/ryand", "/")
+    rescue
+      assert_fail("Good init shall not throw an exception")
+    else
+      # this is good
+    end
+  end
+
+  def test_initialize2
+    assert_raises(ArgumentError, "bad path shall throw an ArgumentError") {
+      @hash = Metadata.new("bad_path", "/")
+    }
+  end
+
+  def test_initialize3
+    assert_raises(ArgumentError, "bad top shall throw an ArgumentError") {
+      @hash = Metadata.new("test/ryand", "somewhereelse")
+    }
+  end
+
+  def test_initialize4
+    assert_raises(ArgumentError, "deeper top shall throw an ArgumentError") {
+      @hash = Metadata.new("test/ryand", "test/ryand/stuff")
+    }
+  end
+
+  def test_loadFromDirectory
+    @hash = Metadata.new("test")
+    assert_equal(24, @hash["key1"])
+    @hash.loadFromDirectory("test/ryand", '.')
+    assert_equal(42, @hash["key1"])
+  end
+
+  def test_load
+    # initial load should be 
+    @hash = Metadata.new("test")
+    assert_equal(24, @hash["key1"])
+    @hash.load("test/ryand/metadata.txt")
+    assert_equal(42, @hash["key1"])
+  end
+
+  def test_core
+    # this asserts that the values in the child are correct.
+    assert_equal(42, @hash["key1"])
+    assert_equal("some string", @hash["key2"])
+    assert_equal("another string", @hash["key3"])
+  end
+
+  def test_parenthood
+    # this is defined in the parent, but not the child
+    assert_equal([ 'StandardRenderer', 'RelativeRenderer' ],
+		 @hash["renderers"])
+  end
+
+end
+
+############################################################
+# All Renderer Tests:
+
 class TestGenericRenderer < ZenTest
 
   def set_up
@@ -738,74 +811,63 @@ class TestRelativeRenderer < ZenTest
   end
 end
 
-############################################################
-# Metadata
-
-class TestMetadata < Test::Unit::TestCase
+require 'ZenWeb/TocRenderer'
+class TestTocRenderer < ZenTest
 
   def set_up
-    @hash = Metadata.new("test/ryand")
+    super
   end
 
-  def tear_down
-  end
+  def test_render
 
-  def test_initialize1
-    begin
-      @hash = Metadata.new("test/ryand", "/")
-    rescue
-      assert_fail("Good init shall not throw an exception")
-    else
-      # this is good
-    end
-  end
+    @renderer = TocRenderer.new(@doc)
 
-  def test_initialize2
-    assert_raises(ArgumentError, "bad path shall throw an ArgumentError") {
-      @hash = Metadata.new("bad_path", "/")
-    }
-  end
+    content = [
+      "This is some content, probably the intro...\n",
+      "\n",
+      "** Section 1\n",
+      "\n",
+      "This is more content 1\n",
+      "\n",
+      "*** Section 1.1\n",
+      "\n",
+      "This is more content 2\n",
+      "\n",
+      "** Section 2:\n",
+      "\n",
+      "This is more content 3\n",
+      "\n",
+    ]
 
-  def test_initialize3
-    assert_raises(ArgumentError, "bad top shall throw an ArgumentError") {
-      @hash = Metadata.new("test/ryand", "somewhereelse")
-    }
-  end
+    expected = [
 
-  def test_initialize4
-    assert_raises(ArgumentError, "deeper top shall throw an ArgumentError") {
-      @hash = Metadata.new("test/ryand", "test/ryand/stuff")
-    }
-  end
+      "** <A NAME=\"0\">Contents:</A>\n",
+      "\n",
+      "+ <A HREF=\"#0\">Contents</A>\n",
+      "+ <A HREF=\"#1\">Section 1</A>\n",
+      "\t+ <A HREF=\"#2\">Section 1.1</A>\n",
+      "+ <A HREF=\"#3\">Section 2</A>\n",
 
-  def test_loadFromDirectory
-    @hash = Metadata.new("test")
-    assert_equal(24, @hash["key1"])
-    @hash.loadFromDirectory("test/ryand", '.')
-    assert_equal(42, @hash["key1"])
-  end
+      "This is some content, probably the intro...\n",
+      "\n",
+      "** <A NAME=\"1\">Section 1</A>\n",
+      "\n",
+      "This is more content 1\n",
+      "\n",
+      "*** <A NAME=\"2\">Section 1.1</A>\n",
+      "\n",
+      "This is more content 2\n",
+      "\n",
+      "** <A NAME=\"3\">Section 2</A>\n", # note the lack of colon at the end
+      "\n",
+      "This is more content 3\n",
+      "\n",
+    ]
 
-  def test_load
-    # initial load should be 
-    @hash = Metadata.new("test")
-    assert_equal(24, @hash["key1"])
-    @hash.load("test/ryand/metadata.txt")
-    assert_equal(42, @hash["key1"])
-  end
+    result = @renderer.render(content)
 
-  def test_core
-    # this asserts that the values in the child are correct.
-    assert_equal(42, @hash["key1"])
-    assert_equal("some string", @hash["key2"])
-    assert_equal("another string", @hash["key3"])
+    assert_equal(expected, result, "Must properly generate TOC")
   end
-
-  def test_parenthood
-    # this is defined in the parent, but not the child
-    assert_equal([ 'StandardRenderer', 'RelativeRenderer' ],
-		 @hash["renderers"])
-  end
-
 end
 
 ############################################################
@@ -818,6 +880,8 @@ class TestAll
     suite.add(TestZenWebsite.suite)
     suite.add(TestZenDocument.suite)
     suite.add(TestZenSitemap.suite)
+    suite.add(TestMetadata.suite)
+
     suite.add(TestGenericRenderer.suite)
     suite.add(TestHtmlRenderer.suite)
     suite.add(TestHtmlTemplateRenderer.suite)
@@ -826,7 +890,7 @@ class TestAll
     suite.add(TestHeaderRenderer.suite)
     suite.add(TestSubpageRenderer.suite)
     suite.add(TestRelativeRenderer.suite)
-    suite.add(TestMetadata.suite)
+    suite.add(TestTocRenderer.suite)
 
     return suite
   end

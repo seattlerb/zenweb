@@ -1,8 +1,10 @@
 
-'renderers' = ['StandardRenderer']
+'renderers' = ['TocRenderer', 'StandardRenderer']
 
 'QuickStart' = '<A HREF="QuickStart.html">QuickStart</A>'
-'TextToHTML' = '<A HREF="TextToHTML.html">Text-To-HTML</A>'
+'customizing' = '<A HREF="Customizing.html">customizing</A>'
+'features' = '<A HREF="Features.html">features</A>'
+'TextToHTML' = '<A HREF="Features.html">Text-To-HTML</A>'
 'Your Own Website' = '<A HREF="YourOwnWebsite.html">Your Own Website</A>'
 'raa' = '<A HREF="http://www.ruby-lang.org/en/raa.html">Ruby Application Archive</A>'
 'support' = '<A HREF="mailto:support-zenweb@ZenSpider.com">support</A>'

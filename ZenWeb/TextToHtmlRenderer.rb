@@ -26,12 +26,12 @@ class TextToHtmlRenderer < HtmlRenderer
   def render(content)
 
     text = content.join('')
-    content = text.split(/#{$\/}#{$\/}+/)
+    content = text.split(/#{$/}#{$/}+/)
 
     content.each { | p |
 
       # massage a little
-      p = p.sub(/^#{$\/}+/, '') # end of paragraph -> ''
+      p = p.sub(/^#{$/}+/, '') # end of paragraph -> ''
       p.chomp!
 
       p.gsub!(/\\&/, "&amp;")
