@@ -143,7 +143,9 @@ class ZenWebsite:
 				output = output[1:]
 			output = posixpath.join(self.htmldir, output)
 
-			if self.siteMapIsModified or not fileIsNewerThan(mpath(output), mpath(input)):
+			# if you want to do the whole site when the sitemap
+			# is modified, add 'self.siteMapIsModified' to logic
+			if not fileIsNewerThan(mpath(output), mpath(input)):
 				print "%s" % (output)
 				doc	= self.pages[url]
 				doc.read(input)
@@ -246,7 +248,7 @@ class ZenDocument(SimpleDocument):
 		# Don't Customize (unless you really want to of course)
 		self.bgcolor		= HTMLcolors.WHITE
 		self.textcolor		= HTMLcolors.BLACK
-		self.title		= "UNTITLED!!! FIX THIS"
+		self.title		= "UNTITLED!!! CHANGE THIS"
 		self.banner		= None
 		self.subtitle		= None
 		self.metadict		= {}
@@ -298,11 +300,6 @@ class ZenDocument(SimpleDocument):
 		self.metadict[key] = value
 
 	def getTitle(self):
-		# FIX should be returning actual title, not filename
-		#title = regsub.sub("/index.html$", "", self.url)
-		#title = posixpath.basename(title)
-		#title = regsub.sub(".html$", "", title)
-		#return title
 		return self.title
 
 	def addSubpage(self, subpage):
@@ -340,10 +337,10 @@ class ZenDocument(SimpleDocument):
 			output.append(source[i:i+a])
 			# using the new get method for dicts in 1.5
 			key = source[i+a+1:i+b-1]
-			alt = "{" + key + "}" # = source[i+a:i+b]
+			alt = "{" + key + "}"
 			
-			# FIX insert check for value and add warning if failed.
-			#value = self.glossary.get(source[i+a+1:i+b-1])
+			# TODO insert check for value and warn if failed.
+			#value = self.glossary.get(key)
 			
 			output.append(str(self.glossary.get(key, alt)))
 			i = i + b
@@ -557,9 +554,6 @@ class ZenDocument(SimpleDocument):
 			else:
 				# print "STATE = ELSE"
 				pdata.append(line)
-		# print "STATE = DONE"
-		# NOTE: Not the most elegant fix since this is a duplicate of the above code.
-		# But it will do for now. DEFER FIX
 		if pdata and ldata:
 			self.append(Paragraph("Error: both pdata and ldata exist!"))
 		if pdata:
