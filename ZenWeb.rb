@@ -55,7 +55,7 @@ $INLINE_RE = /<(?:A|ABBR|ACRONYM|B|BDO|BIG|BR|BUTTON|CITE|CODE|DFN|EM|I|IMG|INPU
 
 class ZenWebsite
 
-  VERSION = '2.17.0'
+  VERSION = '2.18.0'
 
   attr_reader :datadir, :htmldir, :sitemap
   attr_reader :documents if $TESTING

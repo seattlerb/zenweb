@@ -33,6 +33,7 @@ class HeaderRenderer < GenericRenderer
 
 	push(line)
 
+        # TODO: DIV class="header", but only if HTML?
 	if (line =~ /<BODY/i) then
 	  push(header)
 	  placed = true

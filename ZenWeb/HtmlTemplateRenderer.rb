@@ -44,21 +44,22 @@ class HtmlTemplateRenderer < HtmlRenderer
   def render(content)
     author      = @document['author']
     banner      = @document['banner']
-    bgcolor     = @document['bgcolor']
-    dtd		= @document['dtd'] || 'DTD HTML 4.0 Transitional'
+#   bgcolor     = @document['bgcolor']
+    charset     = @document['charset']
     copyright   = @document['copyright']
     description = @document['description']
+    dtd		= @document['dtd'] || 'DTD HTML 4.01'
     email       = @document['email']
+    icbm        = @document['icbm']
     keywords    = @document['keywords']
+    lang        = @document['lang'] || 'en'
     rating      = @document['rating'] || 'general'
+    style       = @document['style']
     stylesheet  = @document['stylesheet']
     subtitle    = @document['subtitle']
     title       = @document.title
-    icbm        = @document['icbm']
-    icbm_title  = @document['icbm_title'] || title
-    charset     = @document['charset']
-    style       = @document['style']
 
+    icbm_title  = @document['icbm_title'] || title
     titletext   = @document.fulltitle
 
     # TODO: iterate over a list of metas and add them in one nicely organized block
@@ -66,7 +67,7 @@ class HtmlTemplateRenderer < HtmlRenderer
     # header
     push([
 	   "<!DOCTYPE HTML PUBLIC \"-//W3C//#{dtd}//EN\">\n",
-	   "<HTML>\n",
+	   "<HTML lang=\"#{lang}\">\n",
 	   "<HEAD>\n",
 	   "<TITLE>#{titletext}</TITLE>\n",
 	   email ? "<LINK REV=\"MADE\" HREF=\"#{email}\">\n" : [],
@@ -87,11 +88,12 @@ class HtmlTemplateRenderer < HtmlRenderer
            # TODO: add next/prev
 
 	   "</HEAD>\n",
-	   "<BODY" + (bgcolor ? " BGCOLOR=\"#{bgcolor}\"" : '') + ">\n",
+	   "<BODY>\n\n"
 	 ])
 
-    self.navbar
+    self.navbar(1)
 
+    push("<DIV class=\"title\">\n")
     if banner then
       push("<IMG SRC=\"#{banner}\" BORDER=0><BR>\n")
       unless (subtitle) then
@@ -105,12 +107,15 @@ class HtmlTemplateRenderer < HtmlRenderer
 
     push([
 	   subtitle ? "<H2>#{subtitle}</H2>\n" : [],
-	   "<HR SIZE=\"3\" NOSHADE>\n\n",
+           "</DIV><!-- title -->\n\n",
+	   "<HR>\n\n",
+           "<DIV ID=\"main\">\n",
 	   content,
-	   "<HR SIZE=\"3\" NOSHADE>\n\n",
+           "</DIV><!-- main -->\n\n",
+	   "<HR>\n\n",
 	 ])
 
-    self.navbar
+    self.navbar(4)
 
     push("\n</BODY>\n</HTML>\n")
 
@@ -127,16 +132,17 @@ class HtmlTemplateRenderer < HtmlRenderer
 
 =end
 
-  def navbar
+  def navbar(n)
 
     sep = " / "
     search  = @website["/Search.html"]
 
     push([
-	   "<P class=\"navbar\">\n",
-	   "<A HREF=\"#{@sitemap.url}\">Sitemap</A>",
-	   search ? " | <A HREF=\"#{search.url}\"><EM>Search</EM></A>" : [],
-	   " || ",
+	   "<DIV class=\"sidebar\" id=\"block#{n}\">\n",
+	   "<SPAN><A HREF=\"#{@sitemap.url}\">Sitemap</A>",
+	   search ? " <SPAN>|</SPAN></SPAN>\n" : [],
+           search ? "<SPAN><A HREF=\"#{search.url}\"><EM>Search</EM></A>" : [],
+	   " <SPAN>||</SPAN></SPAN>\n",
 	 ])
 
     path = []
@@ -147,9 +153,9 @@ class HtmlTemplateRenderer < HtmlRenderer
     end
 
     push([
-	   path.map{|doc| ["<A HREF=\"#{doc.url}\">#{doc['title']}</A>\n", sep]},
-	   @document['title'],
-	   "</P>\n",
+	   path.map{|doc| ["<SPAN><A HREF=\"#{doc.url}\">#{doc['title']}</A>\n", sep, "</SPAN>\n"]},
+	   "<SPAN>#{@document['title']}</SPAN>\n",
+	   "</DIV><!-- sidebar block#{n} -->\n\n",
 	 ])
 
     return []
