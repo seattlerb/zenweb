@@ -47,15 +47,15 @@ class ZenWebsite:
 			+ Tell all pages to render.
 		"""
 				
-		self.datadir			= input
-		self.htmldir			= output
-		self.homeIMG 			= ('/image/buttons/on/home.gif', 60, 15)
-		self.navhelpIMG 		= ('/image/buttons/on/navhelp.gif', 60, 15)
-		self.nextIMG 			= ('/image/buttons/on/nextpage.gif', 60, 15)
-		self.parentIMG  		= ('/image/buttons/on/up.gif', 60, 15)
-		self.prevIMG			= ('/image/buttons/on/prevpage.gif', 60, 15)
-		self.sitemapIMG			= ('/image/buttons/on/sitemap.gif', 60, 15)
-		self.searchIMG			= ('/image/buttons/on/search.gif', 60, 15)
+		self.datadir	= input
+		self.htmldir	= output
+		self.homeIMG 	= ('/image/buttons/on/home.gif', 60, 15)
+		self.navhelpIMG = ('/image/buttons/on/navhelp.gif', 60, 15)
+		self.nextIMG 	= ('/image/buttons/on/nextpage.gif', 60, 15)
+		self.parentIMG  = ('/image/buttons/on/up.gif', 60, 15)
+		self.prevIMG	= ('/image/buttons/on/prevpage.gif', 60, 15)
+		self.sitemapIMG	= ('/image/buttons/on/sitemap.gif', 60, 15)
+		self.searchIMG	= ('/image/buttons/on/search.gif', 60, 15)
 		if not self.__dict__.has_key("defaultType"):
 			self.defaultType	= "ZenDocument"
 
@@ -109,8 +109,8 @@ class ZenWebsite:
 			previousPage = doc
 
 		self.homeURL			= 'URL'
+		self.home_pg			= self.pageAtURL('/index.html')
 		self.sitemap_pg			= self.pageAtURL('/%s.html' % sitemap)
-
 
 	def pageAtURL(self, url):
 		""" Returns the document object for url or None if invalid url or not yet initialized. """
@@ -125,6 +125,10 @@ class ZenWebsite:
 		""" Renders pages in sitemap that have changed since last run OR all pages
 			if the sitemap has changed or needs rendering.
 		"""
+		print "Reading and caching all documents"
+		self.readAllPages()
+		self.sitemap_pg.contents = []
+		print "Writing those documents that have changed"
 		max = len(self.sitemap)
 		for i in range(0, max):
 			url = self.sitemap[i]
@@ -140,7 +144,6 @@ class ZenWebsite:
 			output = posixpath.join(self.htmldir, output)
 
 			if self.siteMapIsModified or not fileIsNewerThan(mpath(output), mpath(input)):
-#				print "%s from %s" % (output, input)
 				print "%s" % (output)
 				doc	= self.pages[url]
 				doc.read(input)
@@ -172,10 +175,10 @@ class ZenWebsite:
 		for i in range(0, max):
 			url = self.sitemap[i]
 			doc	= self.pages[url]
-			#if doc.subtitle:
-			#	result[doc.url] = "%s: %s" % (doc.title, doc.subtitle)
-			#else:
-			result[doc.url] = doc.title
+			if doc.subtitle:
+				result[doc.url] = "%s: %s" % (doc.title, doc.subtitle)
+			else:
+				result[doc.url] = doc.title
 		return result
 		
 	def fulltitles(self):
@@ -235,39 +238,40 @@ class ZenDocument(SimpleDocument):
 	def __init__(self, website, url, prevp=None, nextp=None, **kw):
 		apply(SimpleDocument.__init__, (self, None,), kw)
 
-		self.website			= website
-		self.url				= url
-		self.prevpage			= prevp
-		self.nextpage			= nextp
-
-		# Don't Customize (unless you really want to of course)
-		self.bgcolor			= HTMLcolors.WHITE
-		self.textcolor			= HTMLcolors.BLACK
-		self.title				= "UNTITLED!!! FIX THIS"
-		self.banner				= None
-		self.subtitle			= None
-		self.metadict			= {}
-		self.keywords			= None
-		self.description		= None
-		self.place_nav_buttons	= 'yes'
+		self.website		= website
+		self.url		= url
+		self.prevpage		= prevp
+		self.nextpage		= nextp
 		
-		self.glossary			= self.website.glossary
+		# Don't Customize (unless you really want to of course)
+		self.bgcolor		= HTMLcolors.WHITE
+		self.textcolor		= HTMLcolors.BLACK
+		self.title		= "UNTITLED!!! FIX THIS"
+		self.banner		= None
+		self.subtitle		= None
+		self.metadict		= {}
+		self.keywords		= None
+		self.description	= None
+		self.place_nav_bar	= 'yes'
+		self.glossary		= self.website.glossary
 
 		# Customize
-		self.author				= 'AUTHOR'
-		self.email				= 'AUTHOR@EMAIL'
-		self.sitename			= 'SITE NAME'
-		self.background			= None
+		self.author		= 'AUTHOR'
+		self.email		= 'AUTHOR@EMAIL'
+		self.sitename		= 'SITE NAME'
+		self.background		= None
 
 		######################################################################
 		## Navigation
 
-		self.navhelp			= None
-		self.parent				= None
-		self.sitemap			= None
-		self.subpages			= None
+		self.navhelp		= None
+		self.parent		= None
+		self.sitemap		= None
+		self.subpages		= None
 		self.includesubpages	= 1
-		self.parent				= self.website.pageAtURL(self.parentOfURL(self.url))
+		self.parent		= self.website.pageAtURL(self.parentOfURL(self.url))
+
+		self.fileInput=0
 
 		if (self.prevpage is not None):
 			self.prevpage.nextpage = self
@@ -278,16 +282,11 @@ class ZenDocument(SimpleDocument):
 	def loadRCs(self, filename="HTML.rc", path=""):
 		" to be called by read "
 		
-#		print "1 loadRCs('%s', '%s')" % (filename, path)
-		
 		assert path <> "", "path argument shall not be empty"
 
 		if (os.path.isfile(mpath(path))):
 			path = posixpath.dirname(path)
 			
-#		print "2 loadRCs(%s, %s)" % (filename, path)
-#		print "Looking for '%s'" % self.website.datadir
-		
 		if (path <> self.website.datadir):
 			#recurse until st top, then unwind.
 			self.loadRCs(filename, posixpath.dirname(path))
@@ -300,10 +299,11 @@ class ZenDocument(SimpleDocument):
 
 	def getTitle(self):
 		# FIX should be returning actual title, not filename
-		title = regsub.sub("/index.html$", "", self.url)
-		title = posixpath.basename(title)
-		title = regsub.sub(".html$", "", title)
-		return title
+		#title = regsub.sub("/index.html$", "", self.url)
+		#title = posixpath.basename(title)
+		#title = regsub.sub(".html$", "", title)
+		#return title
+		return self.title
 
 	def addSubpage(self, subpage):
 		if self.subpages is None:
@@ -366,7 +366,12 @@ class ZenDocument(SimpleDocument):
 		s = []
 		
 		s.append('<HTML>\n<HEAD>\n')
-		s.append('\t<TITLE>%s</TITLE>\n' % self.title)
+
+		if self.subtitle:
+			s.append('\t<TITLE>%s: %s</TITLE>\n' % (self.title, self.subtitle))
+		else:
+			s.append('\t<TITLE>%s</TITLE>\n' % self.title)
+
 		s.append('\t<LINK REV=MADE HREF="mailto:%s">\n' % (self.email))
 
 		if self.keywords:
@@ -416,8 +421,8 @@ class ZenDocument(SimpleDocument):
  				s.append(str(self.banner) + '<BR>\n')
  			else:
  				raise TypeError, 'banner must be either a tuple, instance, or string.'
- 		if self.place_nav_buttons:
- 			s.append(str(Paragraph(RawText(self.nav_buttons()), align='center')))
+ 		if self.place_nav_bar:
+ 			s.append(self.nav_bar())
 
  		s.append(str(Heading(1, RawText(self.title))))
 
@@ -440,24 +445,24 @@ class ZenDocument(SimpleDocument):
 
 		s.append(str(self.standardBigRule()) + "\n")
 
-		if self.place_nav_buttons:
- 			s.append(str(Paragraph(RawText(self.nav_buttons()), align='center')))
+		if self.place_nav_bar:
+ 			s.append(self.nav_bar())
 		
 		return string.join(s, '')
 
 	def standardBigRule(self):
 		"""	A thick rule, size = 3, no shading, centered. """
-		return HR(align="CENTER", noshade="", size="3")
+		return HR(align="CENTER", noshade=None, size="3")
 
 	def standardMediumRule(self):
 		"""	A medium rule, size = 2, no shading, centered. """
-		return HR(align="CENTER", noshade="", size="2")
+		return HR(align="CENTER", noshade=None, size="2")
 
 	def standardSmallRule(self):
 		"""	A skinny rule, size = 1, no shading, centered. """
-		return HR(align="CENTER", noshade="", size="1")
+		return HR(align="CENTER", noshade=None, size="1")
 
-	def nav_buttons(self):
+	def nav_bar(self):
 		"""Generate hyperlinked navigation buttons.
 
 		If a self.*URL attribute is null that corresponding button is
@@ -474,9 +479,13 @@ class ZenDocument(SimpleDocument):
 		s.append(self.mungeButton(Image(self.website.parentIMG, border=0, alt='Up'), self.parent))
 		s.append(self.mungeButton(Image(self.website.homeIMG, border=0, alt='Home Page'), self.website.homeURL))
 
-		return string.join(s, '')
+		return str(Paragraph(RawText(string.join(s, '')), align='center'))
 
 	def read(self, input):
+
+		if self.fileInput:
+			return
+		self.fileInput=1
 
 		self.loadRCs("HTML.rc", input)
 
@@ -542,8 +551,9 @@ class ZenDocument(SimpleDocument):
 				old_index = index # incremented from above, this is desired
 				while (index < max and not (re_code_end.search(lines[index]) > -1)):
 					index = index + 1
-				code = string.joinfields(lines[old_index:index], '\n')
+				code = string.joinfields(lines[old_index:index - 1], '\n')
 				self.append(Pre(code))
+				index = index + 1
 			else:
 				# print "STATE = ELSE"
 				pdata.append(line)
@@ -596,38 +606,39 @@ class AbsSiteMap:
 
 		re_var = regex.compile('^\#\([a-zA-Z_-]+\)[\ \t]+\(.*\)$')
 
-		def createURL(path):
-			def siteMapConverter(item):
-				re_sitemap = regex.compile("^\([^\t\ ]+\)[\t\ ]*\(.*\)$")
-				if re_sitemap.search(item) > -1:
-					return re_sitemap.group(1)
-				else:
-					return item
-				
-			# strip the optional document class "a b" -> "a"
-			path = siteMapConverter(path)
-			# create the name "/a/b/c.html" -> "c"
-			name = regsub.sub("\.html$", "", path)
-			name = regsub.sub("/index$", "", name)
-			name = regsub.sub("^/", "", name)
-			# indent with tabs for each directory level, this is for createList
-			name = regsub.gsub("[^/]+/", "\t", name)
-			# regex it to break the tabs from the name apart
-			re_indent = regex.compile("\(\t*\)\(.*\)")
-			re_indent.search(name)
-			return re_indent.group(1) + str(Href(path, re_indent.group(2)))
-
 		self.title = "SiteMap"
 		self.description = "This page links to every page in the website."
 		self.keywords = "sitemap, website"
 
-		sitemap=map(createURL, self.website.sitemap)
+		sitemap=map(self.createURL, self.website.sitemap)
 		self.subtitle = "There are %d pages in this website." % len(sitemap)
 
 		sitemap=createList(sitemap)
 		sitemap=[str(Href("/index.html", "Home")), sitemap[1:] ]
 		sitemap=List(sitemap)
 		self.append(sitemap)
+
+	def createURL(self, path):
+		
+		# strip the optional document class "a b" -> "a"
+		path = self.siteMapConverter(path)
+		# create the name "/a/b/c.html" -> "c"
+		name = regsub.sub("\.html$", "", path)
+		name = regsub.sub("/index$", "", name)
+		name = regsub.sub("^/", "", name)
+		# indent with tabs for each directory level, this is for createList
+		name = regsub.gsub("[^/]+/", "\t", name)
+		# regex it to break the tabs from the name apart
+		re_indent = regex.compile("\(\t*\)\(.*\)")
+		re_indent.search(name)
+		return re_indent.group(1) + str(Href(path, self.website.pageAtURL(path).getTitle()))
+
+	def siteMapConverter(self, item):
+		re_sitemap = regex.compile("^\([^\t\ ]+\)[\t\ ]*\(.*\)$")
+		if re_sitemap.search(item) > -1:
+			return re_sitemap.group(1)
+		else:
+			return item
 
 class SiteMap(AbsSiteMap, ZenDocument):
 	""" Glues AbsSiteMap to ZenDocument """
@@ -638,6 +649,10 @@ class AbsRawDocument:
 		See RawDocument for an example of using this as a mixin class in your site.
 	"""
 	def read(self, input):
+
+		if self.fileInput:
+			return
+		self.fileInput = 1
 
 		re_var = regex.compile('^\#\([a-zA-Z_-]+\)[\ \t]+\(.*\)$')
 
