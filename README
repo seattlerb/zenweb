@@ -1,11 +1,5 @@
-Quickstart:
+ZenWeb 1.2.0
 
-1) make sure that you have python correctly installed. Understanding of python is critical to ZenWeb (extending it at least).
-
-2) Run 'demo.py', if 'demohtml' is not created in the same directory, something is wrong. Investigate, and email support@ZenSpider.com for any help needed.
-
-3) Use a copy of 'demo' as a starting point for your website.
-
-4) Documentation is available at http://www.ZenSpider.com/
+(Minimal) documentation is available in the demo directory. See QuickStart and YourOwnWebsite for setup and starting to build a website.
 
 If you have any suggestions, comments, compliants, or need help, please email support@ZenSpider.com, thank you.

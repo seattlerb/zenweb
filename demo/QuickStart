@@ -1,30 +1,51 @@
-#title ZenWeb QuickStart
-#description Quicky instructions for ZenWeb
-#keywords ZenWeb, instructions, quickstart
+#title ZenWeb Quickstart
+#description Quick guide to setting up ZenWeb
+#keywords ZenWeb, instructions, Quick Start
 
-ZenWeb is supposed to be rather easy to use. This demo site is intended to be a demonstration that it is easy. If this takes me more than 10 minutes to do (including typing these pages), then I have failed my job.
+You are _expected_ to understand Python minimally to build a site
+(installation and basic use). It isn't hard to install on either UNIX
+or the macintosh, I've never used it on windoze.
 
-** How I made this demo site
+You are expected to understand Python programming only if you want to
+customize site/page layout. This includes, navigation, headers and
+footers, and general page layout.
 
-+ I created a directory called demo
-+ I created a file in demo called SiteMap
-	+ In that file I gave it a title, description and keywords
-	+ I then created a list of URLs (minus the base part of the URL) for the pages in the site.
-+ I then created a file for each URL in the sitemap and put them in demo. NOTE: The file names do not have ".html" in them because they aren't HTML files.
-+ To finish the content off, I copied an alias of my images directory into demohtml.
-+ I then created a file called render.py, which defines the website object and tells it where the data is, and where the HTML should go (last parameter "demohtml").
-+ I then ran the file render.py.
+Install and run python (no args), make sure that "1+1" outputs
+"2". That states that, yes, you installed it:
 
-** How you make YOUR new site
+<PRE>
+    [501] python
+    Python 1.5.1 (#1, Jun 12 1998, 17:16:56) [C] on osf1V4
+    Copyright 1991-1995 Stichting Mathematisch Centrum, Amsterdam
+    >>> 1 + 1
+    2
+    >>> ^D
+    [502]
+</PRE>
 
-+ Copy demo & render.py and name them what you want
-+ In render.py (your copy actually) change the names of the to/from directories to suit your purposes. Also change the name of the subclass to be appropriate. This might not make sense in this file, but it will when you look at it, it is a small file.
-+ Modify the SiteMap to contain the pages of your site.
-+ Remove any pages from demo you don't want, and create your own. Use a page from demo as your template for the new pages.
-+ Run render.py
+Make sure that your PYTHONLIB environment variable (or equivalent on
+other platforms) is set to include both ZenWeb AND ZenWeb/HTMLgen.
 
-** How to convert your OLD site
+<PRE>
+    [503] export PYTHONPATH=$PWD/ZenWeb:$PWD/ZenWeb/HTMLGen
+</PRE>
 
-+ Do the same as the new site instructions, except:
-	+ For each file in the sitemap (except SiteMap), add a few tabs (or spaces) and then "RawDocument" to tell ZenWebsite that the documents are not to be modified in any way.
-	+ For each file, remove your HTML header and footer code.
+Run demo.py. If the above was done correctly, it should run without a
+hitch. If not, then doublecheck your PYTHONLIB variable and make sure
+there are no name collisions. If everything looks fine, but still
+doesn't work, please email {support}, thanks.
+
+<PRE>
+    [504] python ./demo.py 
+    ./demohtml/index.html
+    ./demohtml/SiteMap.html
+    ./demohtml/QuickStart.html
+    ./demohtml/Features.html
+</PRE>
+
+A new directory demohtml should now exist. Check it out in your
+browser. It contains some docs to get your site up and running.
+
+Any questions, flames, requests, whatever should be sent to
+{support}. Thank you.
+

@@ -14,10 +14,11 @@
 + Another List (should have a sub list).
 	+ With a sub-list
 	+ http://www.ZenSpider.com/ and zss@ZenSpider.com.
++ A glossary entry to {Your Own Website} and {support} (see HTML.rc for a hint).
 
 ---
 
-Paragraphs can contain http://www.ZenSpider.com/ and zss@ZenSpider.com and they will automatically be converted. Rules are automatically converted as well...
+Paragraphs can contain http://www.ZenSpider.com/ and zss@ZenSpider.com and they will automatically be converted. Rules are automatically converted as well... (NOT YET)
 
 Likewise, two lines side by side
 are considered one paragraph.
