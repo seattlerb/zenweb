@@ -28,7 +28,7 @@ class HtmlTemplateRenderer < HtmlRenderer
     + bgcolor - defaults to not being defined
     + copyright
     + description
-    + dtd (default: 'DTD HTML 4.0 Transitional')
+    + dtd (default: 'DTD HTML 4.0')
     + email - used in a mailto in metadata
     + keywords
     + rating (default: 'general')
@@ -45,7 +45,7 @@ class HtmlTemplateRenderer < HtmlRenderer
     author      = @document['author']
     banner      = @document['banner']
     bgcolor     = @document['bgcolor']
-    dtd		= @document['dtd'] || 'DTD HTML 4.0 Transitional'
+    dtd		= @document['dtd'] || 'DTD HTML 4.0'
     copyright   = @document['copyright']
     description = @document['description']
     email       = @document['email']
@@ -63,6 +63,11 @@ class HtmlTemplateRenderer < HtmlRenderer
 
     # TODO: iterate over a list of metas and add them in one nicely organized block
 
+    if bgcolor then
+      style ||= ""
+      style = "body { background-color: #{bgcolor} }\n" + style
+    end
+
     # header
     push([
 	   "<!DOCTYPE HTML PUBLIC \"-//W3C//#{dtd}//EN\">\n",
@@ -70,10 +75,10 @@ class HtmlTemplateRenderer < HtmlRenderer
 	   "<HEAD>\n",
 	   "<TITLE>#{titletext}</TITLE>\n",
 	   email ? "<LINK REV=\"MADE\" HREF=\"#{email}\">\n" : [],
-	   stylesheet ? "<LINK REL=\"STYLESHEET\" HREF=\"#{stylesheet}\" type=\"text/css\" title=\"#{stylesheet}\">\n" : [],
+	   stylesheet ? "<LINK REL=\"STYLESHEET\" HREF=\"#{stylesheet}\" TYPE=\"text/css\" title=\"#{stylesheet}\">\n" : [],
 	   "<META NAME=\"rating\" CONTENT=\"#{rating}\">\n",
 	   "<META NAME=\"GENERATOR\" CONTENT=\"#{ZenWebsite.banner}\">\n",
-	   style ? "<STYLE>\n#{style}\n</STYLE>" : [],
+	   style ? "<STYLE TYPE=\"text/css\">\n#{style}\n</STYLE>" : [],
 	   author ? "<META NAME=\"author\" CONTENT=\"#{author}\">\n" : [],
 	   copyright ? "<META NAME=\"copyright\" CONTENT=\"#{copyright}\">\n" : [],
 	   keywords ? "<META NAME=\"keywords\" CONTENT=\"#{keywords}\">\n" : [],
@@ -87,15 +92,15 @@ class HtmlTemplateRenderer < HtmlRenderer
            # TODO: add next/prev
 
 	   "</HEAD>\n",
-	   "<BODY" + (bgcolor ? " BGCOLOR=\"#{bgcolor}\"" : '') + ">\n",
+	   "<BODY>\n",
 	 ])
 
     self.navbar
 
     if banner then
-      push("<IMG SRC=\"#{banner}\" BORDER=0><BR>\n")
+      push("<H1><IMG SRC=\"#{banner}\" ALT=\"#{File.basename banner}\"></H1>\n")
       unless (subtitle) then
-	push("<H3>#{title}</H3>\n")
+	push("<H2>#{title}</H2>\n")
       end
     else
       push("<H1>#{title}</H1>\n")
@@ -103,9 +108,9 @@ class HtmlTemplateRenderer < HtmlRenderer
 
     push([
 	   subtitle ? "<H2>#{subtitle}</H2>\n" : [],
-	   "<HR SIZE=\"3\" NOSHADE>\n\n",
+	   "<HR CLASS=\"thick\">\n\n",
 	   content,
-	   "<HR SIZE=\"3\" NOSHADE>\n\n",
+	   "<HR CLASS=\"thick\">\n\n",
 	 ])
 
     self.navbar

@@ -35,24 +35,28 @@ class HtmlRenderer < GenericRenderer
 =end
 
   def array2html(list, ordered=false, indent=0)
-    result = ""
+    result = []
 
     indent1 = "  " * indent
     indent2 = "  " * (indent + 1)
 
     tag = ordered ? "OL" : "UL"
 
-    result += (indent1 + "<#{tag}>\n")
+    result << "#{indent1}<#{tag}>\n"
     list.each { | l |
       if (l.is_a?(Array)) then
-	result += self.array2html(l, ordered, indent+1)
+        x = result.pop
+        result.push "\n"
+        result.push self.array2html(l, ordered, indent+2)
+        result.push indent2 unless x =~ /^\s+/
+        result.push x
       else
-	result += (indent2 + "<LI>" + l.to_s + "</LI>\n")
+	result.push(indent2, "<LI>", l.to_s, "</LI>\n")
       end
     }
-    result += (indent1 + "</#{tag}>\n")
+    result << "#{indent1}</#{tag}>\n"
 
-    return result
+    return result.join
   end
 
   def hash2html(hash, order)

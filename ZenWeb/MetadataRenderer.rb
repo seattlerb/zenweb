@@ -57,9 +57,17 @@ class MetadataRenderer < GenericRenderer
     return content
   end
 
+  @@paths = {}
+
   def include(path, remove_metadata=false)
-    path = File.expand_path(File.join(File.dirname(@document.datapath), path))
-    content = File.new(path).readlines
+    unless @@paths.include? path then
+      full_path = File.expand_path(File.join(File.dirname(@document.datapath), path))
+      @@paths[path] = full_path
+    else
+      full_path = @@paths[path]
+    end
+
+    content = File.new(full_path).readlines
 
     if remove_metadata then
       content = content.reject { |line| line =~ /^\s*\#/ }

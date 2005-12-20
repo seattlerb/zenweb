@@ -1,5 +1,5 @@
 RUBY?=ruby
-RUBYFLAGS?=-v
+RUBYFLAGS?=-vw
 
 all: docs
 

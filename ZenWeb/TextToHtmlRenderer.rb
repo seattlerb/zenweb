@@ -61,9 +61,9 @@ class TextToHtmlRenderer < HtmlRenderer
 	level = $1.length
 	push("<H#{level}>#{$2}</H#{level}>\n\n")
       elsif (p =~ /^---+$/) then
-	push("<HR SIZE=\"1\" NOSHADE>\n\n")
+	push("<HR>\n\n")
       elsif (p =~ /^===+$/) then
-	push("<HR SIZE=\"2\" NOSHADE>\n\n")
+	push("<HR CLASS=\"thick\">\n\n")
       elsif (p =~ /^%[=-]/) then # FIX: needs to maintain order
 	hash, order = self.createHash(p)
 

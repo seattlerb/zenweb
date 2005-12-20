@@ -697,6 +697,8 @@ class Metadata < Hash
     super
   end
 
+  @@path = {}
+
 =begin
 
 --- Metadata.new(directory, toplevel = "/")
@@ -720,8 +722,20 @@ class Metadata < Hash
     end
 
     # Check that toplevel is ABOVE directory, not below. Can be equal.
-    abs_dir = File.expand_path(directory)
-    abs_top = File.expand_path(toplevel)
+    unless @@path.include? directory then
+      abs_dir = File.expand_path(directory)
+      @@path[directory] = abs_dir
+    else
+      abs_dir = @@path[directory]
+    end
+
+    unless @@path.include? toplevel then
+      abs_top = File.expand_path(toplevel)
+      @@path[toplevel] = abs_top
+    else
+      abs_top = @@path[toplevel]
+    end
+
     if (abs_top.length > abs_dir.length || abs_dir.index(abs_top) != 0) then
       raise ArgumentError, "toplevel is not a parent dir to directory"
     end

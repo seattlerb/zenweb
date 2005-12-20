@@ -7,12 +7,12 @@ require 'ZenWeb/SitemapRenderer'
 require 'ZenWeb/TocRenderer'
 require 'ZenWeb/StupidRenderer'
 
-require 'test/unit'
+require 'test/unit/testcase'
 
 # this is used across different classes for html list tests
 $text_list_data = "+ a\n\t+ a1\n\t\t+ a1a\n+ b\n\t+ b1\n\t\t+ b1a\n\t\t+ b1b\n+ c\n\t+ c1\n\t\t+ c1a\n\t+ c2\n\t\t+ c2a\n\t\t+ c2b\n\t\t+ c2c\n\t\t+ c2d"
 $array_list_data = ['a', ['a1', ['a1a']], 'b', ['b1', ['b1a', 'b1b' ]], 'c', ['c1', ['c1a'], 'c2', ['c2a', 'c2b', 'c2c', 'c2d']]]
-$html_list_data = "<UL>\n<LI>a</LI>\n<UL>\n<LI>a1</LI>\n<UL>\n<LI>a1a</LI>\n</UL>\n</UL>\n<LI>b</LI>\n<UL>\n<LI>b1</LI>\n<UL>\n<LI>b1a</LI>\n<LI>b1b</LI>\n</UL>\n</UL>\n<LI>c</LI>\n<UL>\n<LI>c1</LI>\n<UL>\n<LI>c1a</LI>\n</UL>\n<LI>c2</LI>\n<UL>\n<LI>c2a</LI>\n<LI>c2b</LI>\n<LI>c2c</LI>\n<LI>c2d</LI>\n</UL>\n</UL>\n</UL>\n"
+$html_list_data = "<UL>\n<LI>a\n<UL>\n<LI>a1\n<UL>\n<LI>a1a</LI>\n</UL>\n</LI>\n</UL>\n</LI>\n<LI>b\n<UL>\n<LI>b1\n<UL>\n<LI>b1a</LI>\n<LI>b1b</LI>\n</UL>\n</LI>\n</UL>\n</LI>\n<LI>c\n<UL>\n<LI>c1\n<UL>\n<LI>c1a</LI>\n</UL>\n</LI>\n<LI>c2\n<UL>\n<LI>c2a</LI>\n<LI>c2b</LI>\n<LI>c2c</LI>\n<LI>c2d</LI>\n</UL>\n</LI>\n</UL>\n</LI>\n</UL>\n"
 
 class String
   def uberstrip
@@ -560,7 +560,7 @@ class TestZenSitemap < TestZenDocument
 
 # HACK: relocate to SitemapRenderer
 #  def test_renderContent
-#    expected = "<H2>There are 6 pages in this website.</H2>\n<HR SIZE=\"3\" NOSHADE>\n\n<UL>\n  <LI><A HREF=\"/index.html\">My Website: Subtitle</A></LI>\n  <LI><A HREF=\"/SiteMap.html\">Sitemap: There are 6 pages in this website.</A></LI>\n  <LI><A HREF=\"/Something.html\">Something</A></LI>\n  <LI><A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A></LI>\n  <UL>\n    <LI><A HREF=\"/~ryand/blah.html\">blah</A></LI>\n    <LI><A HREF=\"/~ryand/stuff/index.html\">my stuff</A></LI>\n  </UL>\n</UL>"
+#    expected = "<H2>There are 6 pages in this website.</H2>\n<HR CLASS=\"thick\">\n\n<UL>\n  <LI><A HREF=\"/index.html\">My Website: Subtitle</A></LI>\n  <LI><A HREF=\"/SiteMap.html\">Sitemap: There are 6 pages in this website.</A></LI>\n  <LI><A HREF=\"/Something.html\">Something</A></LI>\n  <LI><A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A></LI>\n  <UL>\n    <LI><A HREF=\"/~ryand/blah.html\">blah</A></LI>\n    <LI><A HREF=\"/~ryand/stuff/index.html\">my stuff</A></LI>\n  </UL>\n</UL>"
 #
 #    assert_not_nil(@content.index(expected) > 0,
 #		   "Must render some form of HTML")
@@ -870,7 +870,7 @@ class TestHtmlTemplateRenderer < ZenRendererTest
 
   def test_render_html_and_head
 
-    assert_not_nil(@content.index("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">
+    assert_not_nil(@content.index("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\">
 <HTML>
 <HEAD>
 <TITLE>Ryan\'s Homepage: Version 2.0</TITLE>
@@ -889,13 +889,13 @@ class TestHtmlTemplateRenderer < ZenRendererTest
  / Ryan\'s Homepage</P>
 <H1>Ryan\'s Homepage</H1>
 <H2>Version 2.0</H2>
-<HR SIZE=\"3\" NOSHADE>"),
+<HR CLASS=\"thick\""),
 		   "Must render the HTML header and all appropriate metadata")
   end
 
   def test_render_foot
     @content = @doc.renderContent
-    expected = "\n<HR SIZE=\"3\" NOSHADE>\n\n<P class=\"navbar\">\n<A HREF=\"../SiteMap.html\">Sitemap</A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan's Homepage</P>\n\n<P>This is my footer, jive turkey</P></BODY>\n</HTML>\n"
+    expected = "\n<HR CLASS=\"thick\">\n\n<P class=\"navbar\">\n<A HREF=\"../SiteMap.html\">Sitemap</A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan's Homepage</P>\n\n<P>This is my footer, jive turkey</P></BODY>\n</HTML>\n"
 
     assert_not_nil(@content.index(expected),
 		   "Must render the HTML footer")
@@ -962,12 +962,12 @@ class TestTextToHtmlRenderer < ZenRendererTest
   end
 
   def test_render_ul2
-    util_render(%r%<UL>\n  <LI>Another List \(should have a sub list\).</LI>\n  <UL>\n    <LI>With a sub-list</LI>\n    <LI>another item</LI>\n  </UL>\n</UL>%,
+    util_render(%r%<UL>\n  <LI>Another List \(should have a sub list\).\n    <UL>\n      <LI>With a sub-list</LI>\n      <LI>another item</LI>\n    </UL>\n  </LI>\n</UL>%,
 		       "Must render compound list from indented +'s")
   end
 
   def test_render_ol1
-    util_render(%r%<OL>\n  <LI>Ordered lists</LI>\n  <LI>are cool</LI>\n  <OL>\n    <LI>Especially when you make ordered sublists</LI>\n  </OL>\n</OL>\n%,
+    util_render(%r%<OL>\n  <LI>Ordered lists</LI>\n  <LI>are cool\n    <OL>\n      <LI>Especially when you make ordered sublists</LI>\n    </OL>\n  </LI>\n</OL>\n%,
 		       "Must render compound list from indented +'s")
   end
 
@@ -989,12 +989,12 @@ class TestTextToHtmlRenderer < ZenRendererTest
   end
 
   def test_render_small_rule
-    util_render(%r,^<HR SIZE="1" NOSHADE>$,,
+    util_render(%r,^<HR>$,,
 		       "Must render small rule from ---")
   end
 
   def test_render_big_rule
-    util_render(%r,^<HR SIZE="2" NOSHADE>$,,
+    util_render(%r,^<HR CLASS="thick">$,,
 		       "Must render big rule from ===")
   end
 
@@ -1276,7 +1276,6 @@ class TestTocRenderer < ZenRendererTest
     assert_equal(expected, result, "Must properly generate TOC")
   end
 end
-
 
 class TestCalendarRenderer < ZenRendererTest
   def setup
@@ -1571,3 +1570,5 @@ class TestXXXRenderer < ZenRendererTest
     assert_equal("This is a test", @renderer.render("This is a test"))
   end
 end
+
+require 'test/unit' if $0 == __FILE__
