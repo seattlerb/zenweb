@@ -928,9 +928,14 @@ end
 class TestTextToHtmlRenderer < ZenRendererTest
 
   def util_render(regex, msg)
+    warn "deprecated: util_render from #{caller[0]}"
     # FIX: just render from the renderer directly
     @content = @doc.renderContent
     assert(@content =~ regex, msg)
+  end
+
+  def util_render2(expected, input, message="")
+    assert_equal(expected, @renderer.render(input), message)
   end
 
   def test_render_headers
@@ -1023,6 +1028,26 @@ class TestTextToHtmlRenderer < ZenRendererTest
 		       "Must render full urls without conversion")
   end
 
+  def test_render_paragraph6
+    util_render2("<P>blah</P>\n\n", "blah")
+  end
+
+  def test_render_paragraph7
+    util_render2("<DIV>blah</DIV>\n\n", "<DIV>blah</DIV>")
+  end
+
+  def test_render_paragraph8
+    util_render2("<P>blah</P>\n\n", "<P>blah</P>")
+  end
+
+  def test_render_paragraph9
+    util_render2("<P><XXX>blah</XXX></P>\n\n", "<XXX>blah</XXX>")
+  end
+
+  def test_render_paragraph10
+    util_render2("<H1>blah</H1>\n\n", "<H1>blah</H1>")
+  end
+
   def test_render_pre
 
     util_render(%r%<PRE>PRE blocks are paragraphs that are indented two spaces on each line.\nThe two spaces will be stripped, and all other indentation will be left\nalone.\n   this allows me to put things like code examples in and retain\n       their formatting.</PRE>%,
@@ -1105,7 +1130,7 @@ class TestMetadataRenderer < ZenRendererTest
   end
 
   def test_img
-    util_render("TEXT\n<IMG SRC=\"/goaway.png\" ALT=\"Go Away\" BORDER=0>\nTEXT",
+    util_render("TEXT\n<IMG SRC=\"/goaway.png\" ALT=\"Go Away\">\nTEXT",
                 "TEXT\n\#{img '/goaway.png', 'Go Away'}\nTEXT",
                 "img should create appropriate img")
   end

@@ -1,9 +1,11 @@
 RUBY?=ruby
 RUBYFLAGS?=-vw
 
-all: docs
+all: testfull
 
-test: requirements syntax 
+testfull: requirements syntax test
+
+test:
 	$(RUBY) $(RUBYFLAGS) -w -I. TestZenWeb.rb $(TEST)
 
 syntax:
@@ -11,7 +13,7 @@ syntax:
 	$(RUBY) -wc TestZenWeb.rb
 	@for f in ZenWeb/*.rb; do \
 	  echo checking requires $$f; \
-	  $(RUBY) -w $$f; \
+	  $(RUBY) -w ./$$f; \
 	done
 
 requirements:

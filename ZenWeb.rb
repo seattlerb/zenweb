@@ -846,7 +846,7 @@ end
 =end
 
 def img(url, alt, height=nil, width=nil, border=0)
-  return "<IMG SRC=\"#{url}\" ALT=\"#{alt}\" BORDER=#{border}" +(height ? " HEIGHT=#{height}" : '')+(width ? " WIDTH=#{width}" : '')+">"
+  return "<IMG SRC=\"#{url}\" ALT=\"#{alt}\""+(height ? " HEIGHT=#{height}" : '')+(width ? " WIDTH=#{width}" : '')+">"
 end
 
 ############################################################

@@ -81,7 +81,13 @@ class TextToHtmlRenderer < HtmlRenderer
 	p.gsub!(/^\ \ /, '')
 	push("<PRE>" + p + "</PRE>\n\n")
       else
-	push("<P>" + p + "</P>\n\n")
+        case p
+        when /^\s*<\//, /^\s*<(?:DIV|FORM|P|TABLE|BLOCKQUOTE|H[1-7])\b/i then
+          push p
+        else
+          push("<P>" + p + "</P>")
+        end
+        push "\n\n"
       end
     }
 
