@@ -940,7 +940,7 @@ class TestTextToHtmlRenderer < ZenRendererTest
   end
 
   def test_render_table_with_2_divs
-    util_render("<table><tr><td>\n\n<div class=\"blah1\"><div>\n\n<P>blah1</P>\n\n</div></div>\n</td><td>\n<div class=\"blah2\"><div>\n\n<P>blah2</P>\n\n</td></tr></table>\n\n",
+    util_render("<table><tr><td>\n\n<div class=\"blah1\"><div>\n\n<P>blah1</P>\n\n</div></div>\n</td><td>\n<div class=\"blah2\"><div>\n\n<P>blah2</P>\n\n</div></div>\n</td></tr></table>\n\n",
                 "%%\n\n%%% class=\"blah1\"\n\nblah1\n\n%%% class=\"blah2\"\n\nblah2\n\n%%",
                 "unadorned div sections should render")
   end

@@ -75,7 +75,7 @@ class TextToHtmlRenderer < HtmlRenderer
         push "</td><td>\n" if table and div
         
         push "<div #{rest}><div>\n\n" unless close
-        div = ! div 
+        div = ! close
       when /^%%\s*$/ then
         if div then
           push "</div></div>\n"
