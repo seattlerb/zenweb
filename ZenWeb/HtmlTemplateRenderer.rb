@@ -58,6 +58,8 @@ class HtmlTemplateRenderer < HtmlRenderer
     icbm_title  = @document['icbm_title'] || @document['title']
     charset     = @document['charset']
     style       = @document['style']
+    naked_page  = @document['naked_page']
+    head_extra  = @document['head_extra'] || []
 
     titletext   = @document.fulltitle
 
@@ -89,32 +91,41 @@ class HtmlTemplateRenderer < HtmlRenderer
            "<link rel=\"up\" href=\"#{@document.parentURL}\" title=\"#{@document.parent.title}\">\n",
            "<link rel=\"contents\" href=\"#{@sitemap.url}\" title=\"#{@sitemap.title}\">\n",
            "<link rel=\"top\" href=\"#{@website.top.url}\" title=\"#{@website.top.title}\">\n",
-           # TODO: add next/prev
+
+          head_extra.join("\n"),
 
 	   "</HEAD>\n",
 	   "<BODY>\n",
 	 ])
 
-    self.navbar
+    unless naked_page then
+      self.navbar
 
-    if banner then
-      push("<H1><IMG SRC=\"#{banner}\" ALT=\"#{File.basename banner}\"></H1>\n")
-      unless (subtitle) then
-	push("<H2>#{title}</H2>\n")
+      if banner then
+        push("<H1><IMG SRC=\"#{banner}\" ALT=\"#{File.basename banner}\"></H1>\n")
+        unless (subtitle) then
+          push("<H2>#{title}</H2>\n")
+        end
+      else
+        push("<H1>#{title}</H1>\n")
       end
-    else
-      push("<H1>#{title}</H1>\n")
+    
+      push([
+            subtitle ? "<H2>#{subtitle}</H2>\n" : [],
+            "<HR CLASS=\"thick\">\n\n",
+           ])
     end
 
-    push([
-	   subtitle ? "<H2>#{subtitle}</H2>\n" : [],
-	   "<HR CLASS=\"thick\">\n\n",
-	   content,
-	   "<HR CLASS=\"thick\">\n\n",
-	 ])
+    push content
 
-    self.navbar
+    unless naked_page then
+      push([
+            "<HR CLASS=\"thick\">\n\n",
+           ])
 
+      self.navbar
+    end
+    
     push("\n</BODY>\n</HTML>\n")
 
     return self.result

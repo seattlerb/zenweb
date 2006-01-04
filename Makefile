@@ -1,20 +1,18 @@
 RUBY?=ruby
-RUBYFLAGS?=-vw
+RUBYFLAGS?=-w -I.
 
 all: testfull
 
 testfull: requirements syntax test
 
 test:
-	$(RUBY) $(RUBYFLAGS) -w -I. TestZenWeb.rb $(TEST)
+	$(RUBY) $(RUBYFLAGS) TestZenWeb.rb $(TEST)
 
 syntax:
-	$(RUBY) -wc ZenWeb.rb
-	$(RUBY) -wc TestZenWeb.rb
-	@for f in ZenWeb/*.rb; do \
-	  echo checking requires $$f; \
-	  $(RUBY) -w ./$$f; \
-	done
+	@$(RUBY) $(RUBYFLAGS) -c ZenWeb.rb 1>/dev/null
+	@$(RUBY) $(RUBYFLAGS) -c TestZenWeb.rb 1>/dev/null
+	@for f in ZenWeb/*.rb; do $(RUBY) $(RUBYFLAGS) -c ./$$f 1>/dev/null || exit 1; done
+	@for f in ZenWeb/*.rb; do $(RUBY) $(RUBYFLAGS) ./$$f || exit 1; done
 
 requirements:
 	@$(RUBY) -e "require 'test/unit/testcase'; \

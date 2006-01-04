@@ -59,7 +59,7 @@ class MetadataRenderer < GenericRenderer
 
   @@paths = {}
 
-  def include(path, remove_metadata=false)
+  def include(path, remove_metadata=false, escape=false)
     unless @@paths.include? path then
       full_path = File.expand_path(File.join(File.dirname(@document.datapath), path))
       @@paths[path] = full_path
@@ -73,7 +73,10 @@ class MetadataRenderer < GenericRenderer
       content = content.reject { |line| line =~ /^\s*\#/ }
     end
 
-    return self.render(content.join(''))
+    content = self.render(content.join(''))
+    content.gsub!(/([<>&])/) { |x| '\\' + x } if escape
+
+    content
   end
 
 end

@@ -9,6 +9,8 @@ require 'ZenWeb/StupidRenderer'
 
 require 'test/unit/testcase'
 
+# TODO: get rid of all calls to renderContent
+
 # this is used across different classes for html list tests
 $text_list_data = "+ a\n\t+ a1\n\t\t+ a1a\n+ b\n\t+ b1\n\t\t+ b1a\n\t\t+ b1b\n+ c\n\t+ c1\n\t\t+ c1a\n\t+ c2\n\t\t+ c2a\n\t\t+ c2b\n\t\t+ c2c\n\t\t+ c2d"
 $array_list_data = ['a', ['a1', ['a1a']], 'b', ['b1', ['b1a', 'b1b' ]], 'c', ['c1', ['c1a'], 'c2', ['c2a', 'c2b', 'c2c', 'c2d']]]
@@ -82,7 +84,6 @@ class ZenTestCase < Test::Unit::TestCase # ZenTest SKIP
     @url = "/~ryand/index.html"
     @web = ZenWebsite.new(@sitemapUrl, @datadir, @htmldir)
     @doc = @web[@url]
-    @content = @doc.renderContent
   end
 
   def teardown
@@ -524,7 +525,6 @@ class TestZenSitemap < TestZenDocument
     @url = @sitemapUrl
     @web = ZenWebsite.new(@url, "test", "testhtml")
     @doc = @web[@url]
-    @content = @doc.renderContent
 
     @expected_datapath = "test/SiteMap"
     @expected_dir = "test"
@@ -649,14 +649,13 @@ class ZenRendererTest < ZenTestCase
       rendererclass = $1
       require "ZenWeb/#{rendererclass}"
       theClass = Module.const_get(rendererclass)
-      @renderer = theClass.send("new", @doc) # TODO: move everyone over to this
+      @renderer = theClass.new(@doc)
     end
   end
 
   def util_render(expected, input, message="")
     assert_equal(expected, @renderer.render(input), message)
   end
-
 end
 
 class TestGenericRenderer < ZenRendererTest
@@ -730,6 +729,7 @@ class TestCompositeRenderer < ZenRendererTest
   end
 
   def test_addRenderer
+    @content = @doc.renderContent # HACK!!! Quells NameError: uninitialized constant TestCompositeRenderer::FooterRenderer (no idea how)
     renderer = CompositeRenderer.new(@doc)
     originalRenderers = renderer.renderers.clone
     assert_raises(ArgumentError, "Must throw an ArgumentError if passed non-renderer") {
@@ -869,7 +869,7 @@ class TestHtmlTemplateRenderer < ZenRendererTest
   # conversions, headers, rules, pre blocks, paragraphs
 
   def test_render_html_and_head
-
+    @content = @doc.renderContent
     assert_not_nil(@content.index("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\">
 <HTML>
 <HEAD>
@@ -927,32 +927,45 @@ end
 
 class TestTextToHtmlRenderer < ZenRendererTest
 
-  def util_render(regex, msg)
-    warn "deprecated: util_render from #{caller[0]}"
-    # FIX: just render from the renderer directly
-    @content = @doc.renderContent
-    assert(@content =~ regex, msg)
+  def test_render_table
+    util_render("<table><tr><td>\n\n<P>blah</P>\n\n</td></tr></table>\n\n",
+                "%%\n\nblah\n\n%%",
+                "unadorned div sections should render")
   end
 
-  def util_render2(expected, input, message="")
-    assert_equal(expected, @renderer.render(input), message)
+  def test_render_table_with_div
+    util_render("<table><tr><td>\n\n<div class=\"blah1\"><div>\n\n<P>blah</P>\n\n</div></div>\n</td></tr></table>\n\n",
+                "%%\n\n%%% class=\"blah1\"\n\nblah\n\n%%",
+                "unadorned div sections should render")
+  end
+
+  def test_render_table_with_2_divs
+    util_render("<table><tr><td>\n\n<div class=\"blah1\"><div>\n\n<P>blah1</P>\n\n</div></div>\n</td><td>\n<div class=\"blah2\"><div>\n\n<P>blah2</P>\n\n</td></tr></table>\n\n",
+                "%%\n\n%%% class=\"blah1\"\n\nblah1\n\n%%% class=\"blah2\"\n\nblah2\n\n%%",
+                "unadorned div sections should render")
+  end
+
+  def test_render_div
+    util_render("<div class=\"blah\"><div>\n\n<P>blah</P>\n\n</div></div>\n\n",
+                "%%% class=\"blah\"\n\nblah\n\n%%%",
+                "styled div sections should render")
   end
 
   def test_render_headers
-    util_render(%r,<H2>Head 2</H2>,,
-		       "Must render H2 from **")
+    util_render("<H2>Head 2</H2>\n\n", "** Head 2",
+                "Must render H2 from **")
 
-    util_render(%r,<H3>Head 3</H3>,,
-		       "Must render H3 from ***")
+    util_render("<H3>Head 3</H3>\n\n", "*** Head 3",
+                "Must render H3 from ***")
 
-    util_render(%r,<H4>Head 4</H4>,,
-		       "Must render H4 from ****")
+    util_render("<H4>Head 4</H4>\n\n", "**** Head 4",
+                "Must render H4 from ****")
 
-    util_render(%r,<H5>Head 5</H5>,,
-		       "Must render H5 from *****")
+    util_render("<H5>Head 5</H5>\n\n", "***** Head 5",
+                "Must render H5 from *****")
 
-    util_render(%r,<H6>Head 6</H6>,,
-		       "Must render H6 from ******")
+    util_render("<H6>Head 6</H6>\n\n", "****** Head 6",
+                "Must render H6 from ******")
 
   end
 
@@ -962,28 +975,26 @@ class TestTextToHtmlRenderer < ZenRendererTest
     # r = TextToHtmlRenderer.new(@doc)
     # result = r.render("+ blah1\n+ blah2")
 
-    util_render(%r%<UL>\n  <LI>Lists \(should have two items\).</LI>\n  <LI>Continuted Lists.</LI>\n</UL>%,
-		       "Must render normal list from +")
+    util_render("<UL>\n  <LI>Lists (should have two items).</LI>\n  <LI>Continuted Lists.</LI>\n</UL>\n",
+                 "+ Lists (should have two items).\n+ Continuted Lists.\n",
+                 "Must render normal list from +")
   end
 
   def test_render_ul2
-    util_render(%r%<UL>\n  <LI>Another List \(should have a sub list\).\n    <UL>\n      <LI>With a sub-list</LI>\n      <LI>another item</LI>\n    </UL>\n  </LI>\n</UL>%,
+    util_render("<UL>\n  <LI>Another List \(should have a sub list\).\n    <UL>\n      <LI>With a sub-list</LI>\n      <LI>another item</LI>\n    </UL>\n  </LI>\n</UL>\n",
+                 "+ Another List (should have a sub list).\n\t+ With a sub-list\n\t+ another item\n",
 		       "Must render compound list from indented +'s")
   end
 
   def test_render_ol1
-    util_render(%r%<OL>\n  <LI>Ordered lists</LI>\n  <LI>are cool\n    <OL>\n      <LI>Especially when you make ordered sublists</LI>\n    </OL>\n  </LI>\n</OL>\n%,
-		       "Must render compound list from indented +'s")
+    util_render("<OL>\n  <LI>Ordered lists</LI>\n  <LI>are cool\n    <OL>\n      <LI>Especially when you make ordered sublists</LI>\n    </OL>\n  </LI>\n</OL>\n", "= Ordered lists\n= are cool\n\t= Especially when you make ordered sublists\n",
+                 "Must render compound list from indented ='s")
   end
 
   def test_render_dict1
-    util_render(%r%<DL>\n  <DT>Term 1</DT>\n  <DD>Def 1</DD>\n\n  <DT>Term 2</DT>\n  <DD>Def 2</DD>\n\n</DL>\n\n%,
-		       "Must render simple dictionary list")
-  end
-
-  def test_render_metadata
-    util_render(%r,Glossary lookups for 42 and some string \(see metadata.txt for a hint\)\.\s+key99 should not look up\.,,
-		       "Must render metadata lookups from \#\{key\}")
+    util_render("<DL>\n  <DT>Term 1</DT>\n  <DD>Def 1</DD>\n\n  <DT>Term 2</DT>\n  <DD>Def 2</DD>\n\n</DL>\n\n",
+                "%- Term 1\n%= Def 1\n%- Term 2\n%= Def 2",
+                "Must render simple dictionary list")
   end
 
   def test_render_metadata_eval
@@ -993,65 +1004,59 @@ class TestTextToHtmlRenderer < ZenRendererTest
 		 "MetadataRenderer must evaluate ruby expressions")
   end
 
-  def test_render_small_rule
-    util_render(%r,^<HR>$,,
-		       "Must render small rule from ---")
+  def test_render_rule_small
+    util_render("<HR>\n\n", "---",
+                 "Must render small rule from ---")
   end
 
-  def test_render_big_rule
-    util_render(%r,^<HR CLASS="thick">$,,
+  def test_render_rule_big
+    util_render(%Q(<HR CLASS="thick">\n\n), "===",
 		       "Must render big rule from ===")
   end
 
-  def test_render_paragraph1
-    util_render(%r,^<P>Paragraphs can contain <A HREF="http://www\.ZenSpider\.com/ZSS/ZenWeb/">www\.ZenSpider\.com /ZSS /ZenWeb</A> and <A HREF="mailto:zss@ZenSpider\.com">zss@ZenSpider\.com</A> and they will automatically be converted\..*?</P>$,,
+  def test_render_paragraph
+    util_render("<P>Paragraphs can contain <A HREF=\"http://www.ZenSpider.com/ZSS/ZenWeb/\">www.ZenSpider.com /ZSS /ZenWeb</A> and <A HREF=\"mailto:zss@ZenSpider.com\">zss@ZenSpider.com</A> and they will automatically be converted. Don't forget less-than \"&lt;\" &amp; greater-than \"&gt;\", but only if backslashed.</P>\n\n",
+                "Paragraphs can contain http://www.ZenSpider.com/ZSS/ZenWeb/ and mailto:zss@ZenSpider.com and they will automatically be converted. Don't forget less-than \"\\<\" \\& greater-than \"\\>\", but only if backslashed.\n",
 		       "Must render paragraph from a single line")
   end
 
-  def test_render_paragraph2
-    util_render(%r;^<P>Likewise, two lines side by side\s+are considered one paragraph\..*?</P>$;,
-		       "Must render paragraph from multiple lines")
+  def test_render_paragraph_2_lines_and_embedded
+    util_render("<P>Likewise, two lines side by side\nare considered one paragraph. Supports <I>Embedded HTML</I>.</P>\n\n",
+                "Likewise, two lines side by side\nare considered one paragraph. Supports <I>Embedded HTML</I>.
+",
+                "Must render paragraph from multiple lines")
   end
 
-  def test_render_paragraph3
-    util_render(%r@Don\'t forget less-than "&lt;" &amp; greater-than "&gt;", but only if backslashed.</P>$@,
-		       "Must convert special entities")
+  def test_render_paragraph_urls
+    util_render(%Q%<P>Supports <A HREF=\"http://www.yahoo.com\">Unaltered urls</A> as well\.</P>\n\n%,
+                %Q%Supports <A HREF="http://www.yahoo.com">Unaltered urls</A> as well.%,
+                "Must render full urls without conversion")
   end
 
-  def test_render_paragraph4
-    util_render(%r;Supports <I>Embedded HTML</I>\.</P>$;,
-		       "Must render paragraph from multiple lines")
+  def test_render_paragraph_tag_normal
+    util_render("<P>blah</P>\n\n", "blah")
   end
 
-  def test_render_paragraph5
-    util_render(%r;Supports <A HREF=\"http://www.yahoo.com\">Unaltered urls</A> as well\.</P>$;,
-		       "Must render full urls without conversion")
+  def test_render_paragraph_tag_div
+    util_render("<DIV>blah</DIV>\n\n", "<DIV>blah</DIV>")
   end
 
-  def test_render_paragraph6
-    util_render2("<P>blah</P>\n\n", "blah")
+  def test_render_paragraph_tag_p
+    util_render("<P>blah</P>\n\n", "<P>blah</P>")
   end
 
-  def test_render_paragraph7
-    util_render2("<DIV>blah</DIV>\n\n", "<DIV>blah</DIV>")
+  def test_render_paragraph_tag_unknown
+    util_render("<P><XXX>blah</XXX></P>\n\n", "<XXX>blah</XXX>")
   end
 
-  def test_render_paragraph8
-    util_render2("<P>blah</P>\n\n", "<P>blah</P>")
-  end
-
-  def test_render_paragraph9
-    util_render2("<P><XXX>blah</XXX></P>\n\n", "<XXX>blah</XXX>")
-  end
-
-  def test_render_paragraph10
-    util_render2("<H1>blah</H1>\n\n", "<H1>blah</H1>")
+  def test_render_paragraph_tag_h1
+    util_render("<H1>blah</H1>\n\n", "<H1>blah</H1>")
   end
 
   def test_render_pre
-
-    util_render(%r%<PRE>PRE blocks are paragraphs that are indented two spaces on each line.\nThe two spaces will be stripped, and all other indentation will be left\nalone.\n   this allows me to put things like code examples in and retain\n       their formatting.</PRE>%,
-		       "Must render PRE blocks from indented paragraphs")
+    util_render("<PRE>PRE blocks are paragraphs that are indented two spaces on each line.\nThe two spaces will be stripped, and all other indentation will be left\nalone.\n   this allows me to put things like code examples in and retain\n       their formatting.</PRE>\n\n",
+                "  PRE blocks are paragraphs that are indented two spaces on each line.\n  The two spaces will be stripped, and all other indentation will be left\n  alone.\n     this allows me to put things like code examples in and retain\n         their formatting.\n",
+                "Must render PRE blocks from indented paragraphs")
   end
 
   def test_createList_flat
@@ -1116,6 +1121,17 @@ class TestMetadataRenderer < ZenRendererTest
                 "TEXT\n\#{include '../include.txt'}\nTEXT",
 		"Include should inject text from files"
   end
+
+  def test_unknown
+    @doc["key1"] = 42
+    @doc["key2"] = "some string"
+
+    util_render("Glossary lookups for 42 and some string but key99 should not look up.",
+                "Glossary lookups for #\{key1} and #\{key2} but #\{key99} should not look up.",
+                "Must render metadata lookups from \#\{key\}")
+  end
+
+
 
   def test_include_strip
     util_render("TEXT\nThis is some 42\ncommon text.\nTEXT", 
@@ -1453,6 +1469,14 @@ class TestCalendarRenderer < ZenRendererTest
     input  = "<cal>
 2004-05-26: Eric's bifday!
 2004-10-27: Ryan's birfday!
+</cal>"
+    util_render(expect, input)
+  end
+
+  def test_render_empty_last_week
+    expect = "<table class=\"calendar\"><tr><td valign=\"top\"><table class=\"view y2004 m07\">\n<tr class=\"title\">\n<th colspan=7>July 2004</th>\n</tr>\n<tr class=\"weektitle\"\n<th class=\"sun\">Sun</th>\n<th class=\"mon\">Mon</th>\n<th class=\"tue\">Tue</th>\n<th class=\"wed\">Wed</th>\n<th class=\"thu\">Thu</th>\n<th class=\"fri\">Fri</th>\n<th class=\"sat\">Sat</th></tr>\n<tr class=\"days firstweek\">\n<td colspan=4>&nbsp;</td>\n<td class=\"d01 thu event\">1</td>\n<td class=\"d02 fri\">2</td>\n<td class=\"d03 sat\">3</td>\n</tr>\n<tr class=\"days\">\n<td class=\"d04 sun\">4</td>\n<td class=\"d05 mon\">5</td>\n<td class=\"d06 tue\">6</td>\n<td class=\"d07 wed\">7</td>\n<td class=\"d08 thu\">8</td>\n<td class=\"d09 fri\">9</td>\n<td class=\"d10 sat\">10</td>\n</tr>\n<tr class=\"days\">\n<td class=\"d11 sun\">11</td>\n<td class=\"d12 mon\">12</td>\n<td class=\"d13 tue\">13</td>\n<td class=\"d14 wed\">14</td>\n<td class=\"d15 thu\">15</td>\n<td class=\"d16 fri\">16</td>\n<td class=\"d17 sat\">17</td>\n</tr>\n<tr class=\"days\">\n<td class=\"d18 sun\">18</td>\n<td class=\"d19 mon\">19</td>\n<td class=\"d20 tue\">20</td>\n<td class=\"d21 wed\">21</td>\n<td class=\"d22 thu\">22</td>\n<td class=\"d23 fri\">23</td>\n<td class=\"d24 sat\">24</td>\n</tr>\n<tr class=\"days\">\n<td class=\"d25 sun\">25</td>\n<td class=\"d26 mon\">26</td>\n<td class=\"d27 tue\">27</td>\n<td class=\"d28 wed\">28</td>\n<td class=\"d29 thu\">29</td>\n<td class=\"d30 fri\">30</td>\n<td class=\"d31 sat\">31</td>\n</tr>\n</table>\n</td>\n<td class=\"eventlist\">\n<ul>\n<li>2004-07-01:\n<ul>\n<li>blah\n</ul>\n</ul>\n</td>\n</tr>\n</table>\n"
+    input  = "<cal>
+2004-07-01: blah
 </cal>"
     util_render(expect, input)
   end

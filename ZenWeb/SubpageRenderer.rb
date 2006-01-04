@@ -23,8 +23,10 @@ class SubpageRenderer < GenericRenderer
 =end
 
   def render(content)
+    skip = @document['skipsubpages'] || (@document['includesubpages'] || '') =~ /false/
+
     subpages = @document.subpages.clone
-    if (subpages.length > 0) then
+    if (not skip and subpages.length > 0) then
       push("\n\n")
       push("** Subpages:\n\n")
       subpages.each_index { | index |

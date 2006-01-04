@@ -27,6 +27,8 @@ class TextToHtmlRenderer < HtmlRenderer
 
     text = content.split($PARAGRAPH_RE)
 
+    table = div = false
+
     text.each { | p |
 
       # massage a little
@@ -57,36 +59,49 @@ class TextToHtmlRenderer < HtmlRenderer
 	"#{pre}<A HREF=\"#{url}\">#{txt}</A>"
       }
 
-      if (p =~ /^(\*\*+)\s*(.*)$/) then
+      case p
+      when /^(\*\*+)\s*(.*)$/ then
 	level = $1.length
 	push("<H#{level}>#{$2}</H#{level}>\n\n")
-      elsif (p =~ /^---+$/) then
+      when /^---+$/ then
 	push("<HR>\n\n")
-      elsif (p =~ /^===+$/) then
+      when /^===+$/ then
 	push("<HR CLASS=\"thick\">\n\n")
-      elsif (p =~ /^%[=-]/) then # FIX: needs to maintain order
-	hash, order = self.createHash(p)
-
-	if (hash) then
-	  push(self.hash2html(hash, order) + "\n")
-	end
-      elsif (p =~ /^\t*([\+=])/) then
+      when /^%%%\s*(.*)/ then # TODO: I'm not fond of this
+        rest = $1
+        close = (rest.empty? or (rest.downcase == "end"))
+        push "</div></div>\n" if div
+        push "\n" if div unless table
+        push "</td><td>\n" if table and div
+        
+        push "<div #{rest}><div>\n\n" unless close
+        div = ! div 
+      when /^%%\s*$/ then
+        if div then
+          push "</div></div>\n"
+          div = false
+        end
+        if table then
+          push "</td></tr></table>\n\n"
+        else
+          push "<table><tr><td>\n\n"
+        end
+        table = ! table
+      when /^%[=-]/ then
+        hash, order = self.createHash(p)
+        push(self.hash2html(hash, order) + "\n") if hash
+      when /^\t*([\+=])/ then
         ordered = $1 == "="
 	list = self.createList(p)
-
-	if (list) then
-	  push(self.array2html(list, ordered))
-	end
-      elsif (p =~ /^\ \ / and p !~ /^[^\ ]/) then
+        push(self.array2html(list, ordered)) if list
+      when /^\ \ / then # and p !~ /^[^\ ]/ then
 	p.gsub!(/^\ \ /, '')
 	push("<PRE>" + p + "</PRE>\n\n")
+      when /^\s*<\//, /^\s*<(?:DIV|FORM|P|TABLE|BLOCKQUOTE|H[1-7])\b/i then
+        push p
+        push "\n\n"
       else
-        case p
-        when /^\s*<\//, /^\s*<(?:DIV|FORM|P|TABLE|BLOCKQUOTE|H[1-7])\b/i then
-          push p
-        else
-          push("<P>" + p + "</P>")
-        end
+        push("<P>" + p + "</P>")
         push "\n\n"
       end
     }
