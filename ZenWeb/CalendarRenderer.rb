@@ -2,7 +2,25 @@
 # your renderer and then go fill in YYY with the appropriate content.
 
 require 'ZenWeb/GenericRenderer'
-require 'date'
+require 'date' # which requires rational
+require 'time'
+
+# class Integer
+#   alias :slowgcd :gcd
+#   def gcd(n)
+#     m = abs
+#     while n != 0
+#       m %= n
+#       tmp = m; m = n; n = tmp
+#     end
+#     m.abs
+#   end
+# end
+
+# require 'tally'
+# class Integer
+#   tally :gcd, true
+# end
 
 =begin
 
@@ -41,8 +59,8 @@ class CalendarRenderer < GenericRenderer
       else
         if line =~ /(\d\d\d\d-\d\d-\d\d):\s*(.*)/ then
           description = $2
-          date = Date.parse($1)
-          events[date] << description
+          time = Time.parse($1) # NOT Date! hellishly slow!
+          events[$1] << description
         end
       end
     end
@@ -55,9 +73,9 @@ class CalendarRenderer < GenericRenderer
     current_events = []
 
     which_year = Date.leap?(year) ? 1 : 0
-    date_start = Date.civil(year, month, 1)
-    date_end   = Date.civil(year, month, DAYS_IN_MONTH[which_year][month])
-    dow_start = date_start.wday
+    date_start = Date.civil(year, month,  1)
+    last_day = DAYS_IN_MONTH[which_year][month]
+    date_end   = Date.civil(year, month, -1)
 
     push "<table class=\"calendar\">"
     push "<tr>"
@@ -77,41 +95,44 @@ class CalendarRenderer < GenericRenderer
     push Date::ABBR_DAYNAMES.map { |d| "<th class=\"#{d.downcase}\">#{d}</th>" }.join("\n")
     push "</tr>\n"
 
+    dow_start = date_start.wday
     push "<tr class=\"days firstweek\">\n"
     push "<td colspan=#{dow_start}>&nbsp;</td>\n" unless dow_start == 0
 
     last_sunday = date_end.day - date_end.wday + 1
 
     week = 1
-    d=1
-    wday = date_start.wday
-    date_start.step(date_end, 1) do |day|
+    wday = dow_start
+
+    day_last = date_end.day
+
+    1.upto(day_last) do |day|
 
       event=""
-      if events.has_key? day then
-        current_events << "<li>#{day}:\n<ul>\n"
-        events[day].each do |description|
+      cal = Time.local(year, month, day).strftime("%Y-%m-%d")
+      if events.has_key? cal then
+        current_events << "<li>#{cal}:\n<ul>\n"
+        events[cal].each do |description|
           current_events << "<li>#{description}\n"
         end
         current_events << "</ul>\n"
         event=" event"
       end
 
-      dow = Date::ABBR_DAYNAMES[(d + dow_start - 1) % 7].downcase
-      d2 = "%02d" % d
-      push "<td class=\"d#{d2} #{dow}#{event}\">#{d}</td>\n"
+      dow = Date::ABBR_DAYNAMES[(day + dow_start - 1) % 7].downcase
+      d2 = "%02d" % day
+      push "<td class=\"d#{d2} #{dow}#{event}\">#{day}</td>\n"
 
-      if day.wday == 6 then
+      if day != day_last and wday == 6 then
         push "</tr>\n"
-        unless d == last_sunday then
+        unless day == last_sunday then
           push "<tr class=\"days\">\n"
         else
           push "<tr class=\"days lastweek\">\n"
         end
         week += 1
       end
-
-      d += 1
+      
       wday += 1
       wday = 0 if wday >= 7 # remember 0..6
     end
@@ -131,9 +152,10 @@ class CalendarRenderer < GenericRenderer
   end
 
   def generate_calendars(events, should_reverse=false)
-    active_months = events.keys.map { |d| [d.year, d.month] }.sort.uniq
+    active_months = events.keys.map { |d| d[0..6] }.sort.uniq
     active_months = active_months.reverse if should_reverse
-    active_months.each do |year, month|
+    active_months.each do |ym|
+      year, month = ym.split(/-/).map { |n| n.to_i }
       self.generate_calendar(year, month, events)
     end
   end

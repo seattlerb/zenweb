@@ -24,29 +24,29 @@ class RubyCodeRenderer < GenericRenderer
 
     text = content.split($PARAGRAPH_RE)
     
-    text.each { | p |
+    text.each do | p |
 
-      if (p =~ /^\s*\!/m) then
-
-	p.gsub!(/^[\ \t]*\!/, '')
-	
-	begin
-	  cmd = "irb --prompt xmp --noreadline 2>/dev/null"
-	  puts "Running irb for code:\n#{p}" unless $TESTING
-	  IO.popen(cmd, "r+") { |xmp|
-	    xmp.puts(p + "\nexit")
-	    result = xmp.read
-	    result.gsub!(/==>(.*)$/, '==\\><EM>\1</EM>')
-	    push result
-	  }
-	rescue Exception => something
-	  $stderr.puts "xmp: #{something}\nTrace =\n" + $@.join("\n") + "\n"
-	end
+      if p =~ /^\s*\!/m then
+        p.gsub!(/^\s*\!\s*/, '')
+        
+        begin
+          cmd = "irb --prompt xmp --noreadline 2>/dev/null"
+          puts "Running irb for code:\n#{p}" unless $TESTING
+          IO.popen(cmd, "r+") do |xmp|
+            xmp.puts(p + "\nexit")
+            result = xmp.read
+            result.gsub!(/\s+>> exit\s*\Z/, '')
+            result.gsub!(/=>(.*)\Z/m, '=><EM>\1</EM>')
+            push result
+          end
+        rescue Exception => something
+          $stderr.puts "xmp: #{something}\nTrace =\n" + $@.join("\n") + "\n"
+        end
       else
-	push(p)
+        push p
       end
-      push("\n\n")
-    }
+      push ''
+    end
     
     # put it back into line-by-line format
     @result = @result.join("\n").scan(/^.*[\n\r]+/)
@@ -54,4 +54,3 @@ class RubyCodeRenderer < GenericRenderer
     return self.result
   end
 end
-

@@ -1261,7 +1261,8 @@ class TestRubyCodeRenderer < ZenRendererTest
     # bypass it altogether...
 
     shutupwhile {
-      assert_match(/<EM>4<\/EM>/, @renderer.render("! 2+2"))
+      result = @renderer.render("! 2+2")
+      assert_equal ">> 2+2\n=><EM> 4</EM>\n", result
     }
   end
 end

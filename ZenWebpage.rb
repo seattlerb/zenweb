@@ -34,7 +34,7 @@ elsif filename == 'Makefile' then
   file.puts ""
   file.puts "clean:"
   file.puts "	rm -rf httpd.conf httpd.pid error.log access.log"
-  file.puts "	-find . -name \*~ -exec rm {} \;"
+  file.puts "	-find . -name \*~ -exec rm {} \\;"
   file.puts "	-find data -name \*.html -print0 | xargs -0 rm -f"
   file.puts ""
   file.puts "apache: all"
