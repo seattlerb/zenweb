@@ -1,7 +1,6 @@
 = ZenWeb
 
-* http://www.zenspider.com/ZSS/Products/ZenWeb/
-* support@zenspider.com
+* http://rubyforge.org/projects/zenweb/
 
 == DESCRIPTION:
   
