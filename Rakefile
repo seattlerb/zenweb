@@ -3,7 +3,7 @@
 require 'rubygems'
 require 'hoe'
 
-Hoe.spec 'ZenWeb' do
+Hoe.spec 'zenweb' do
   developer 'Ryan Davis', 'ryand-ruby@zenspider.com'
 
   clean_globs.push(*"testhtml docshtml httpd.conf httpd.pid *.log".split)
