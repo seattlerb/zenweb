@@ -1,3 +1,13 @@
+=== 2.18.1 / 2009-06-23
+
+* 1 minor enhancement:
+
+  * Switched to minitest
+
+* 1 bug fix:
+
+  * HAHA! 1.9 fixes!
+
 === 2.18.0 / 2009-06-23
 
 * 1 major enhancement:
