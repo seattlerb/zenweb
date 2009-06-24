@@ -848,33 +848,3 @@ end
 def img(url, alt, height=nil, width=nil, border=0)
   return "<IMG SRC=\"#{url}\" ALT=\"#{alt}\""+(height ? " HEIGHT=#{height}" : '')+(width ? " WIDTH=#{width}" : '')+">"
 end
-
-############################################################
-# Main:
-
-if __FILE__ == $0
-
-  puts ZenWebsite.banner() unless $TESTING
-
-  if (ARGV.size == 2) then
-    path = ARGV.shift
-    url  = ARGV.shift
-  elsif (ARGV.size == 1) then
-    path = ARGV.shift || raise(ArgumentError, "Need a sitemap path to load.")
-    url  = "/SiteMap.html"
-  else
-    raise(ArgumentError, "Usage: #{$0} datadir [sitemapurl]")
-  end
-
-  if path == "data" then
-    dest = "html"
-  else
-    dest = path + "html"
-  end
-
-  dirty = test ?d, dest
-
-  ZenWebsite.new(url, path, dest).renderSite
-  Metadata.displayBadMetadata unless dirty
-
-end

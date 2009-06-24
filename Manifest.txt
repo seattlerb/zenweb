@@ -3,8 +3,9 @@ Makefile
 Manifest.txt
 README.txt
 Rakefile
-TestZenWeb.rb
-changes.txt
+bin/zenweb
+bin/zenwebpage
+bin/zenwebsite
 design/REQUIREMENTS.txt
 design/ZENWEB_2.txt
 design/heirarchy.png
@@ -40,11 +41,8 @@ lib/ZenWeb/SubpageRenderer.rb
 lib/ZenWeb/TextToHtmlRenderer.rb
 lib/ZenWeb/TocRenderer.rb
 lib/ZenWeb/XXXRenderer.rb
-lib/ZenWebpage.rb
-lib/ZenWebsite.rb
 test/SiteMap
 test/Something
-test/TestZenWeb.rb
 test/include.txt
 test/index
 test/metadata.txt
@@ -54,3 +52,4 @@ test/ryand/blah-blah
 test/ryand/index
 test/ryand/metadata.txt
 test/ryand/stuff/index
+test/test_zenweb.rb
