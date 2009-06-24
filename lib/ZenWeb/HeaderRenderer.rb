@@ -29,18 +29,18 @@ class HeaderRenderer < GenericRenderer
     if header then
       placed = false
 
-      content.each { | line |
+      content.each_line { | line |
 
-	push(line)
+        push(line)
 
-	if (line =~ /<BODY/i) then
-	  push(header)
-	  placed = true
-	end
+        if (line =~ /<BODY/i) then
+          push(header)
+          placed = true
+        end
       }
 
       unless placed then
-	unshift(header) unless placed
+        unshift(header) unless placed
       end
     else
       push(content)

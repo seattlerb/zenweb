@@ -57,25 +57,24 @@ class RelativeRenderer < GenericRenderer
 
   def render(content)
     if $Uri_Implemented then
-      content.each { | line |
+      content.each_line { | line |
+        line.gsub!(%r%(href=\")([^\"]+)(\")%i) { |url|
+          front  = $1
+          oldurl = $2
+          back   = $3
+          newurl = convert(oldurl)
 
-	line.gsub!(%r%(href=\")([^\"]+)(\")%i) { |url| 
-	  front  = $1
-	  oldurl = $2
-	  back   = $3
-	  newurl = convert(oldurl)
+          front + newurl + back
+        }
 
-	  front + newurl + back
-	}
-
-	push(line)
+        push(line)
       }
 
       return self.result
     else
       return content
     end
-end
+  end
 
   def convert(u)
 

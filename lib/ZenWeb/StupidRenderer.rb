@@ -43,12 +43,15 @@ class StupidRenderer < GenericRenderer
     if methodname then
       method = self.method(methodname)
 
-      content.each { |line|
-	line = method.call(line)
-	push(line)
+      content.each_line { |line|
+        line = method.call(line)
+        push(line)
       }
     else
-      @result = content.to_a
+      @result = []
+      content.each_line { |line|
+        @result << line
+      }
     end
 
 

@@ -28,28 +28,28 @@ class TocRenderer < GenericRenderer
   def render(content)
 
     toc = [
-      "** <A NAME=\"0\">Contents:</A>\n",
-      "\n",
-      "+ <A HREF=\"\#0\">Contents</A>\n" ]
+           "** <A NAME=\"0\">Contents:</A>\n",
+           "\n",
+           "+ <A HREF=\"\#0\">Contents</A>\n" ]
     count = 1
 
-    content.each { | line |
+    content.each_line { | line |
       if line =~ /^(\*\*+)\s+(.*)/ then
-	header = $1
-	text = $2
+        header = $1
+        text = $2
 
-	text = text.sub(/:$/, '')
+        text = text.sub(/:$/, '')
 
-	level = header.length - 2
+        level = header.length - 2
 
-	toc.push(("\t" * level) + "+ <A HREF=\"\##{count}\">#{text}</A>\n")
+        toc.push(("\t" * level) + "+ <A HREF=\"\##{count}\">#{text}</A>\n")
 
-	push "#{header} <A NAME=\"#{count}\">#{text}</A>\n"
-	# " [<A HREF=\"\#0\">toc</A>]\n"
+        push "#{header} <A NAME=\"#{count}\">#{text}</A>\n"
+        # " [<A HREF=\"\#0\">toc</A>]\n"
 
-	count += 1
+        count += 1
       else
-	push line
+        push line
       end
     }
 
@@ -57,5 +57,4 @@ class TocRenderer < GenericRenderer
 
     return self.result
   end
-
 end
