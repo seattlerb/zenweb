@@ -1,6 +1,6 @@
 #!/usr/local/bin/ruby -w
 
-require 'ftools' # for File::* below
+require 'fileutils'
 
 $TESTING = FALSE unless defined? $TESTING
 
@@ -120,7 +120,7 @@ class ZenWebsite
     puts "Generating website..." unless $TESTING
     force = false
     unless (test(?d, self.htmldir)) then
-      File::makedirs(self.htmldir)
+      FileUtils.mkdir_p self.htmldir
     else
       # NOTE: It would be better to know what was changed and only
       # rerender them and their previous and current immediate
@@ -349,7 +349,7 @@ class ZenDocument
       dir = File.dirname(path)
       
       unless (test(?d, dir)) then
-	File::makedirs(dir)
+        FileUtils.mkdir_p dir
       end
       
       content = self.renderContent

@@ -6,8 +6,9 @@ require 'ZenWeb'
 require 'ZenWeb/SitemapRenderer'
 require 'ZenWeb/TocRenderer'
 require 'ZenWeb/StupidRenderer'
+require 'ZenWeb/FooterRenderer'
 
-require 'test/unit/testcase'
+require 'minitest/autorun'
 
 # TODO: get rid of all calls to renderContent
 
@@ -74,7 +75,7 @@ else
   alias :shutupwhile :shutupwhile_18
 end
 
-class ZenTestCase < Test::Unit::TestCase # ZenTest SKIP
+class ZenTestCase < MiniTest::Unit::TestCase # ZenTest SKIP
 
   def setup
     $stderr.puts name if $DEBUG
@@ -123,12 +124,10 @@ class TestZenWebsite < ZenTestCase
   def util_initialize(sitemap_url, data_dir, html_dir, should_fail=true)
     if (should_fail) then
       assert_raises(ArgumentError, "Must throw an ArgumentError") {
-	ZenWebsite.new(sitemap_url, data_dir, html_dir)
+        ZenWebsite.new(sitemap_url, data_dir, html_dir)
       }
     else
-      assert_nothing_raised("Must not throw any exceptions") {
-	ZenWebsite.new(sitemap_url, data_dir, html_dir)
-      }
+      ZenWebsite.new(sitemap_url, data_dir, html_dir)
     end
   end
 
@@ -136,7 +135,7 @@ class TestZenWebsite < ZenTestCase
     assert(test(?f, path),
 	   "File '#{path}' must exist")
     file = IO.readlines(path).join('')
-    assert_not_nil(file.index(expected),
+    refute_nil(file.index(expected),
 	   "File '#{path}' must have correct content")
   end
 
@@ -167,7 +166,7 @@ class TestZenWebsite < ZenTestCase
   end
 
   def test_index
-    assert_not_nil(@web.sitemap,
+    refute_nil(@web.sitemap,
 		   "index accessor must return the sitemap")
     assert_nil(@web["doesn't exist"],
 	       "index accessor must return nil for bad urls")
@@ -193,12 +192,12 @@ class TestZenWebsite < ZenTestCase
     documents = @web.documents
     assert_kind_of(Hash, documents)
     assert(documents.size > 0, "Documents better not be empty")
-    assert_not_nil(documents["/SiteMap.html"], "SiteMap must exist")
+    refute_nil(documents["/SiteMap.html"], "SiteMap must exist")
   end
 
   def test_htmldir
     htmldir = @web.htmldir
-    assert_not_nil(htmldir, "htmldir must be initialized")
+    refute_nil(htmldir, "htmldir must be initialized")
     assert_instance_of(String, htmldir)
   end
 
@@ -224,15 +223,11 @@ class TestZenDocument < ZenTestCase
   end
 
   def test_initialize_good_url
-    assert_nothing_raised {
-      ZenDocument.new("/Something.html", @web)
-    }
+    ZenDocument.new("/Something.html", @web)
   end
 
   def test_initialize_missing_ext
-    assert_nothing_raised {
-      ZenDocument.new("/Something", @web)
-    }
+    ZenDocument.new("/Something", @web)
   end
 
   def test_initialize_missing_slash
@@ -366,7 +361,7 @@ class TestZenDocument < ZenTestCase
   def test_parent
     parent = @doc.parent
 
-    assert_not_nil(parent,
+    refute_nil(parent,
 		   "Parent must not be nil")
 
     assert_equal("/index.html", parent.url,
@@ -410,7 +405,7 @@ class TestZenDocument < ZenTestCase
     assert(newpages.size == oldpages.size + 1,
 	   "Page must grow the list of subpages")
     found = newpages.find {|p| p == url }
-    assert_not_nil(found, "Page must be contained in new list")
+    refute_nil(found, "Page must be contained in new list")
   end
 
   def test_addSubpage_same
@@ -426,7 +421,7 @@ class TestZenDocument < ZenTestCase
 
   def test_content
     content = @doc.content
-    assert_not_nil(content, "Content must not be nil")
+    refute_nil(content, "Content must not be nil")
     assert_instance_of(String, content)
   end
 
@@ -434,7 +429,7 @@ class TestZenDocument < ZenTestCase
     orig_content = @doc.content
     @doc.content = "blah"
     new_content = @doc.content
-    assert_not_nil(new_content, "Content must not be nil")
+    refute_nil(new_content, "Content must not be nil")
     assert_instance_of(String, new_content)
     assert_equal("blah", new_content)
   end
@@ -455,13 +450,13 @@ class TestZenDocument < ZenTestCase
 
   def test_htmldir # same as TestZenWebsite#test_htmldir since it's a delegate
     htmldir = @doc.htmldir
-    assert_not_nil(htmldir, "htmldir must be initialized")
+    refute_nil(htmldir, "htmldir must be initialized")
     assert_instance_of(String, htmldir)
   end
 
   def test_index
     result = @doc["renderers"]
-    assert_not_nil(result, "renderers must exist for document")
+    refute_nil(result, "renderers must exist for document")
     assert_instance_of(Array, result)
   end
 
@@ -469,20 +464,20 @@ class TestZenDocument < ZenTestCase
     newrenderers = ["Something"]
     @doc["renderers"] = newrenderers
     metadata = @doc.metadata
-    assert_not_nil(metadata, "metadata must not be nil")
+    refute_nil(metadata, "metadata must not be nil")
     assert_instance_of(Metadata, metadata)
     result = metadata["renderers"]
-    assert_not_nil(result, "renderers must exist in sitemap")
+    refute_nil(result, "renderers must exist in sitemap")
     assert_instance_of(Array, result)
-    assert_not_nil(result.find {|x| x == "Something"})
+    refute_nil(result.find {|x| x == "Something"})
   end
 
   def test_metadata
     metadata = @doc.metadata
-    assert_not_nil(metadata, "metadata must not be nil")
+    refute_nil(metadata, "metadata must not be nil")
     assert_instance_of(Metadata, metadata)
     result = metadata["renderers"]
-    assert_not_nil(result, "renderers must exist in sitemap")
+    refute_nil(result, "renderers must exist in sitemap")
     assert_instance_of(Array, result)
   end
 
@@ -496,21 +491,21 @@ class TestZenDocument < ZenTestCase
     # it.
 
     assert_equal('', @doc.content)
-    assert_not_nil(@doc.metadata, 'metadata should always be non-nil')
+    refute_nil(@doc.metadata, 'metadata should always be non-nil')
     assert(@doc.content.length > 0, 'file should be parsed now')
     assert_equal(69, @doc['key4'])
   end
 
   def test_url
     url = @doc.url
-    assert_not_nil(url, "Each document must know it's url")
+    refute_nil(url, "Each document must know it's url")
     assert_kind_of(String, url)
     assert_equal(@url, url)
   end
 
   def test_website
     website = @doc.website
-    assert_not_nil(website, "Each document must know of it's website")
+    refute_nil(website, "Each document must know of it's website")
     assert_kind_of(ZenWebsite, website)
   end
 end
@@ -562,7 +557,7 @@ class TestZenSitemap < TestZenDocument
 #  def test_renderContent
 #    expected = "<H2>There are 6 pages in this website.</H2>\n<HR CLASS=\"thick\">\n\n<UL>\n  <LI><A HREF=\"/index.html\">My Website: Subtitle</A></LI>\n  <LI><A HREF=\"/SiteMap.html\">Sitemap: There are 6 pages in this website.</A></LI>\n  <LI><A HREF=\"/Something.html\">Something</A></LI>\n  <LI><A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A></LI>\n  <UL>\n    <LI><A HREF=\"/~ryand/blah.html\">blah</A></LI>\n    <LI><A HREF=\"/~ryand/stuff/index.html\">my stuff</A></LI>\n  </UL>\n</UL>"
 #
-#    assert_not_nil(@content.index(expected) > 0,
+#    refute_nil(@content.index(expected) > 0,
 #		   "Must render some form of HTML")
 #  end
 end
@@ -792,7 +787,7 @@ class TestFileAttachmentRenderer < ZenRendererTest
     dir = File.dirname(path)
     
     unless (test(?d, dir)) then
-      File::makedirs(dir)
+      FileUtils.mkdir_p dir
     end
   end
 
@@ -870,7 +865,7 @@ class TestHtmlTemplateRenderer < ZenRendererTest
 
   def test_render_html_and_head
     @content = @doc.renderContent
-    assert_not_nil(@content.index("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\">
+    refute_nil(@content.index("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\">
 <HTML>
 <HEAD>
 <TITLE>Ryan\'s Homepage: Version 2.0</TITLE>
@@ -897,7 +892,7 @@ class TestHtmlTemplateRenderer < ZenRendererTest
     @content = @doc.renderContent
     expected = "\n<HR CLASS=\"thick\">\n\n<P class=\"navbar\">\n<A HREF=\"../SiteMap.html\">Sitemap</A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan's Homepage</P>\n\n<P>This is my footer, jive turkey</P></BODY>\n</HTML>\n"
 
-    assert_not_nil(@content.index(expected),
+    refute_nil(@content.index(expected),
 		   "Must render the HTML footer")
   end
 
