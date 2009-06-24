@@ -3,6 +3,8 @@
 require 'rubygems'
 require 'hoe'
 
+Hoe.plugin :seattlerb
+
 Hoe.spec 'zenweb' do
   developer 'Ryan Davis', 'ryand-ruby@zenspider.com'
 
