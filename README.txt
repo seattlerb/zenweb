@@ -1,8 +1,9 @@
-ZenWeb
-    http://www.zenspider.com/ZSS/Products/ZenWeb/
-    support@zenspider.com
+= ZenWeb
 
-** DESCRIPTION:
+* http://www.zenspider.com/ZSS/Products/ZenWeb/
+* support@zenspider.com
+
+== DESCRIPTION:
   
 ZenWeb is a set of classes/tools for organizing and formating a
 website. It is website oriented rather than webpage oriented, unlike
@@ -19,29 +20,29 @@ which will run a private version of apache that points to the
 generated documenation. Point your browser to port 8080 of localhost
 or whatever machine you are running on.
 
-** FEATURES:
+== FEATURES:
   
-+ SiteMap oriented for a comprehensive website.
-+ Generic architecture w/ a set of plugins to extend any page or directory.
-+ Incremental page builds for very fast generation.
-+ Simple text-to-html markup makes creating large websites easy.
-+ ZenTest 1.0 compliant. http://sf.net/projects/zentest/
-+ Much much more... I should probably add that here, huh?
+* SiteMap oriented for a comprehensive website.
+* Generic architecture w/ a set of plugins to extend any page or directory.
+* Incremental page builds for very fast generation.
+* Simple text-to-html markup makes creating large websites easy.
+* ZenTest 1.0 compliant. http://sf.net/projects/zentest/
+* Much much more... I should probably add that here, huh?
 
-** REQUIREMENTS:
+== REQUIREMENTS:
 
-+ Ruby - 1.6.5-7 and 1.7.2 have been tested.
-+ Test::Unit testing framework via RAA on http://www.ruby-lang.org/.
+* Ruby - 1.6.5-7 and 1.7.2 have been tested.
+* Test::Unit testing framework via RAA on http://www.ruby-lang.org/.
 
-** INSTALL:
+== INSTALL:
 
-+ make test && sudo make install
+* make test && sudo make install
 
-** LICENSE:
+== LICENSE:
 
 (The MIT License)
 
-Copyright (c) 2001-2002 Ryan Davis, Zen Spider Software
+Copyright (c) 2001-2009 Ryan Davis, Zen Spider Software
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
