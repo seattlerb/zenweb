@@ -89,7 +89,7 @@ class ZenTestCase < MiniTest::Unit::TestCase # ZenTest SKIP
 
   def teardown
     if (test(?d, @htmldir)) then
-      `rm -rf #{@htmldir}` 
+      `rm -rf #{@htmldir}`
     end
   end
 
@@ -133,51 +133,51 @@ class TestZenWebsite < ZenTestCase
 
   def util_checkContent(path, expected)
     assert(test(?f, path),
-	   "File '#{path}' must exist")
+           "File '#{path}' must exist")
     file = IO.readlines(path).join('')
     refute_nil(file.index(expected),
-	   "File '#{path}' must have correct content")
+           "File '#{path}' must have correct content")
   end
 
   def test_renderSite
     @web.renderSite
 
     assert(test(?d, @htmldir),
-	   "HTML directory must be created by renderSite")
+           "HTML directory must be created by renderSite")
 
     util_checkContent(@htmldir + "/index.html",
-		      "this is the url: /index.html")
+                      "this is the url: /index.html")
 
     util_checkContent(@htmldir + "/SiteMap.html",
-		      "/~ryand/stuff/index.html")
+                      "/~ryand/stuff/index.html")
 
     util_checkContent(@htmldir + "/Something.html",
-		      "this is the url: /Something.html")
+                      "this is the url: /Something.html")
 
     util_checkContent(@htmldir + "/ryand/index.html",
-		      "Everything is separated by paragraphs")
+                      "Everything is separated by paragraphs")
 
     util_checkContent(@htmldir + "/ryand/blah.html",
-		      "this is the url: /~ryand/blah.html")
+                      "this is the url: /~ryand/blah.html")
 
     util_checkContent(@htmldir + "/ryand/stuff/index.html",
- 		      "this is the url: /~ryand/stuff/index.html")
+                      "this is the url: /~ryand/stuff/index.html")
 
   end
 
   def test_index
     refute_nil(@web.sitemap,
-		   "index accessor must return the sitemap")
+                   "index accessor must return the sitemap")
     assert_nil(@web["doesn't exist"],
-	       "index accessor must return nil for bad urls")
+               "index accessor must return nil for bad urls")
   end
 
   def test_datadir
     datadir = @web.datadir
     assert(datadir.instance_of?(String),
-	   "ZenWebsite's htmldir must be instantiated")
+           "ZenWebsite's htmldir must be instantiated")
     assert(test(?d, datadir),
-	   "ZenWebsite's datadir must be a directory")
+           "ZenWebsite's datadir must be a directory")
   end
 
   # WARN: I think these tests are too prescriptive
@@ -204,7 +204,7 @@ class TestZenWebsite < ZenTestCase
   def test_sitemap
     sitemap = @web.sitemap
     assert(sitemap.instance_of?(ZenSitemap),
-	   "ZenWebsite's Sitemap must be instantiated")
+           "ZenWebsite's Sitemap must be instantiated")
   end
 
 end
@@ -252,7 +252,7 @@ class TestZenDocument < ZenTestCase
     @web.renderSite
     @doc = @web[@url]
     assert_equal(@expected_subpages,
-		 @doc.subpages.sort)
+                 @doc.subpages.sort)
   end
 
   def test_render
@@ -271,7 +271,7 @@ class TestZenDocument < ZenTestCase
     @doc['renderers'] = [ 'NonExistantRenderer' ]
 
     assert_raises(NotImplementedError,
-		  "renderContent must throw a NotImplementedError") {
+                  "renderContent must throw a NotImplementedError") {
       @doc.renderContent
     }
   end
@@ -287,8 +287,8 @@ class TestZenDocument < ZenTestCase
       File.delete(@doc.htmlpath)
     end
 
-    assert(@doc.newerThanTarget, 
-	   "doc must be newer because target is missing")
+    assert(@doc.newerThanTarget,
+           "doc must be newer because target is missing")
   end
 
   def test_newerThanTarget_yes
@@ -307,14 +307,14 @@ class TestZenDocument < ZenTestCase
   def util_newerThanTarget(page_is_newer, sitemap_is_newer=false)
 
     @web.renderSite
-    
+
     doc_htmlpath = @doc.htmlpath
     doc_datapath = @doc.datapath
 
     assert(test(?f, doc_htmlpath),
-	   "htmlpath must exist at #{doc_htmlpath}")
+           "htmlpath must exist at #{doc_htmlpath}")
     assert(test(?f, doc_datapath),
-	   "datapath must exist at #{doc_datapath}")
+           "datapath must exist at #{doc_datapath}")
 
     time_old = '01010000'
     time_new = '01020000'
@@ -328,10 +328,10 @@ class TestZenDocument < ZenTestCase
     # test
     if (page_is_newer) then
       assert(@doc.newerThanTarget,
-	     "doc must be newer: #{page_is_newer} #{sitemap_is_newer}")
+             "doc must be newer: #{page_is_newer} #{sitemap_is_newer}")
     else
       assert(! @doc.newerThanTarget,
-	     "doc must not be newer")
+             "doc must not be newer")
     end
   end
 
@@ -362,10 +362,10 @@ class TestZenDocument < ZenTestCase
     parent = @doc.parent
 
     refute_nil(parent,
-		   "Parent must not be nil")
+                   "Parent must not be nil")
 
     assert_equal("/index.html", parent.url,
-		  "Parent url must be correct")
+                  "Parent url must be correct")
   end
 
   def test_dir
@@ -385,7 +385,7 @@ class TestZenDocument < ZenTestCase
 
     @doc = ZenDocument.new("/Something.html", @web)
     assert_equal(['StandardRenderer', 'RelativeRenderer'],
-		 @doc['renderers'])
+                 @doc['renderers'])
   end
 
   def test_addSubpage_bad
@@ -403,7 +403,7 @@ class TestZenDocument < ZenTestCase
     @doc.addSubpage(url)
     newpages = @doc.subpages
     assert(newpages.size == oldpages.size + 1,
-	   "Page must grow the list of subpages")
+           "Page must grow the list of subpages")
     found = newpages.find {|p| p == url }
     refute_nil(found, "Page must be contained in new list")
   end
@@ -414,7 +414,7 @@ class TestZenDocument < ZenTestCase
     @doc.addSubpage(url)
     newpages = @doc.subpages
     assert(newpages.size == oldpages.size,
-	   "Page must NOT grow the list of subpages")
+           "Page must NOT grow the list of subpages")
     found = newpages.find {|p| p == url }
     assert_nil(found, "Page must be contained in new list")
   end
@@ -437,9 +437,9 @@ class TestZenDocument < ZenTestCase
   def test_datadir # same as TestZenWebsite#test_datadir since it's a delegate
     datadir = @web.datadir
     assert(datadir.instance_of?(String),
-	   "ZenWebsite's htmldir must be instantiated")
+           "ZenWebsite's htmldir must be instantiated")
     assert(test(?d, datadir),
-	   "ZenWebsite's datadir must be a directory")
+           "ZenWebsite's datadir must be a directory")
   end
 
   def test_fulltitle
@@ -527,11 +527,11 @@ class TestZenSitemap < TestZenDocument
     @expected_subpages = []
 
     @expected_docs = ([ "/index.html",
-			"/SiteMap.html",
-			"/Something.html",
-			"/~ryand/index.html",
-			"/~ryand/blah.html",
-			"/~ryand/stuff/index.html"])
+                        "/SiteMap.html",
+                        "/Something.html",
+                        "/~ryand/index.html",
+                        "/~ryand/blah.html",
+                        "/~ryand/stuff/index.html"])
   end
 
   def test_documents
@@ -539,18 +539,18 @@ class TestZenSitemap < TestZenDocument
 
     @expected_docs.each { | url |
       assert(docs.has_key?(url),
-	     "Sitemap's documents must include #{url}")
+             "Sitemap's documents must include #{url}")
 
       assert_equal(url != "/SiteMap.html" ? ZenDocument : ZenSitemap,
-		   docs[url].class,
-		   "Document #{url} must be the correct class")
+                   docs[url].class,
+                   "Document #{url} must be the correct class")
     }
   end
 
   def test_doc_order
     assert_equal(@expected_docs,
-		 @doc.doc_order,
-		 "Sitemap's document order must be correct")
+                 @doc.doc_order,
+                 "Sitemap's document order must be correct")
   end
 
 # HACK: relocate to SitemapRenderer
@@ -558,7 +558,7 @@ class TestZenSitemap < TestZenDocument
 #    expected = "<H2>There are 6 pages in this website.</H2>\n<HR CLASS=\"thick\">\n\n<UL>\n  <LI><A HREF=\"/index.html\">My Website: Subtitle</A></LI>\n  <LI><A HREF=\"/SiteMap.html\">Sitemap: There are 6 pages in this website.</A></LI>\n  <LI><A HREF=\"/Something.html\">Something</A></LI>\n  <LI><A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A></LI>\n  <UL>\n    <LI><A HREF=\"/~ryand/blah.html\">blah</A></LI>\n    <LI><A HREF=\"/~ryand/stuff/index.html\">my stuff</A></LI>\n  </UL>\n</UL>"
 #
 #    refute_nil(@content.index(expected) > 0,
-#		   "Must render some form of HTML")
+#                  "Must render some form of HTML")
 #  end
 end
 
@@ -610,7 +610,7 @@ class TestMetadata < ZenTestCase
   end
 
   def test_load
-    # initial load should be 
+    # initial load should be
     @hash = Metadata.new("test")
     assert_equal(24, @hash["key1"])
     @hash.load("test/ryand/metadata.txt")
@@ -627,7 +627,7 @@ class TestMetadata < ZenTestCase
   def test_index_parent
     # this is defined in the parent, but not the child
     assert_equal([ 'StandardRenderer', 'RelativeRenderer' ],
-		 @hash["renderers"])
+                 @hash["renderers"])
   end
 
 end
@@ -739,9 +739,9 @@ class TestCompositeRenderer < ZenRendererTest
     newRenderers = renderer.renderers
 
     assert(originalRenderers.size + 1 == newRenderers.size,
-	   "Renderer addition must have grown array")
+           "Renderer addition must have grown array")
     assert_equal(newRenderer, newRenderers.last,
-		"Renderer must be in array")
+                "Renderer must be in array")
   end
 
   def test_render_empty
@@ -785,7 +785,7 @@ class TestFileAttachmentRenderer < ZenRendererTest
     super
     path = @doc.htmlpath
     dir = File.dirname(path)
-    
+
     unless (test(?d, dir)) then
       FileUtils.mkdir_p dir
     end
@@ -824,30 +824,30 @@ class TestHtmlRenderer < ZenRendererTest
 
   def test_array2html_one_level
     assert_equal("<UL>\n  <LI>line 1</LI>\n  <LI>line 2</LI>\n</UL>\n",
-		 @renderer.array2html(["line 1", "line 2"]))
+                 @renderer.array2html(["line 1", "line 2"]))
   end
 
   def test_array2html_multi_level
     assert_equal($html_list_data.uberstrip,
-		 @renderer.array2html($array_list_data).uberstrip)
+                 @renderer.array2html($array_list_data).uberstrip)
   end
 
   def test_array2html_one_level_ordered
     assert_equal("<OL>\n  <LI>line 1</LI>\n  <LI>line 2</LI>\n</OL>\n",
-		 @renderer.array2html(["line 1", "line 2"], true))
+                 @renderer.array2html(["line 1", "line 2"], true))
   end
 
   def test_array2html_multi_level_ordered
     assert_equal($html_list_data.gsub("UL", "OL").uberstrip,
-		 @renderer.array2html($array_list_data, true).uberstrip)
+                 @renderer.array2html($array_list_data, true).uberstrip)
   end
 
   def test_hash2html
     assert_equal("<DL>\n  <DT>key3</DT>\n  <DD>val3</DD>\n\n  <DT>key2</DT>\n  <DD>val2</DD>\n\n  <DT>key1</DT>\n  <DD>val1</DD>\n\n</DL>\n",
-		 @renderer.hash2html({ 'key3' => 'val3',
-				       'key2' => 'val2',
-				       'key1' => 'val1' },
-				     [ 'key3', 'key2', 'key1' ]))
+                 @renderer.hash2html({ 'key3' => 'val3',
+                                       'key2' => 'val2',
+                                       'key1' => 'val1' },
+                                     [ 'key3', 'key2', 'key1' ]))
   end
 
   def test_render
@@ -885,7 +885,7 @@ class TestHtmlTemplateRenderer < ZenRendererTest
 <H1>Ryan\'s Homepage</H1>
 <H2>Version 2.0</H2>
 <HR CLASS=\"thick\""),
-		   "Must render the HTML header and all appropriate metadata")
+                   "Must render the HTML header and all appropriate metadata")
   end
 
   def test_render_foot
@@ -893,13 +893,13 @@ class TestHtmlTemplateRenderer < ZenRendererTest
     expected = "\n<HR CLASS=\"thick\">\n\n<P class=\"navbar\">\n<A HREF=\"../SiteMap.html\">Sitemap</A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan's Homepage</P>\n\n<P>This is my footer, jive turkey</P></BODY>\n</HTML>\n"
 
     refute_nil(@content.index(expected),
-		   "Must render the HTML footer")
+                   "Must render the HTML footer")
   end
 
   def test_navbar
     @content = @doc.renderContent
     assert(@content =~ %r%<A HREF=\"../SiteMap.html\">Sitemap</A> || <A HREF=\"../index.html\">My Website</A>\n / Ryan\'s Homepage</P>\n%,
-	   "Must render navbar correctly")
+           "Must render navbar correctly")
   end
 
 end
@@ -911,11 +911,11 @@ class TestSubpageRenderer < ZenRendererTest
     result = @renderer.render('')
 
     assert_equal([ "\n\n",
-		   "** Subpages:\n\n",
-		   "+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
-		   "+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n",
-		   "\n" ].join(''),
-		 result)
+                   "** Subpages:\n\n",
+                   "+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
+                   "+ <A HREF=\"/~ryand/stuff/index.html\">my stuff</A>\n",
+                   "\n" ].join(''),
+                 result)
   end
 
 end
@@ -978,7 +978,7 @@ class TestTextToHtmlRenderer < ZenRendererTest
   def test_render_ul2
     util_render("<UL>\n  <LI>Another List \(should have a sub list\).\n    <UL>\n      <LI>With a sub-list</LI>\n      <LI>another item</LI>\n    </UL>\n  </LI>\n</UL>\n",
                  "+ Another List (should have a sub list).\n\t+ With a sub-list\n\t+ another item\n",
-		       "Must render compound list from indented +'s")
+                       "Must render compound list from indented +'s")
   end
 
   def test_render_ol1
@@ -996,7 +996,7 @@ class TestTextToHtmlRenderer < ZenRendererTest
     r = MetadataRenderer.new(@doc)
     result = r.render("blah #\{1+1\} blah")
     assert_equal("blah 2 blah", result,
-		 "MetadataRenderer must evaluate ruby expressions")
+                 "MetadataRenderer must evaluate ruby expressions")
   end
 
   def test_render_rule_small
@@ -1006,13 +1006,13 @@ class TestTextToHtmlRenderer < ZenRendererTest
 
   def test_render_rule_big
     util_render(%Q(<HR CLASS="thick">\n\n), "===",
-		       "Must render big rule from ===")
+                       "Must render big rule from ===")
   end
 
   def test_render_paragraph
     util_render("<P>Paragraphs can contain <A HREF=\"http://www.ZenSpider.com/ZSS/ZenWeb/\">www.ZenSpider.com /ZSS /ZenWeb</A> and <A HREF=\"mailto:zss@ZenSpider.com\">zss@ZenSpider.com</A> and they will automatically be converted. Don't forget less-than \"&lt;\" &amp; greater-than \"&gt;\", but only if backslashed.</P>\n\n",
                 "Paragraphs can contain http://www.ZenSpider.com/ZSS/ZenWeb/ and mailto:zss@ZenSpider.com and they will automatically be converted. Don't forget less-than \"\\<\" \\& greater-than \"\\>\", but only if backslashed.\n",
-		       "Must render paragraph from a single line")
+                       "Must render paragraph from a single line")
   end
 
   def test_render_paragraph_2_lines_and_embedded
@@ -1056,13 +1056,13 @@ class TestTextToHtmlRenderer < ZenRendererTest
 
   def test_createList_flat
     assert_equal(["line 1", "line 2"],
-		 @renderer.createList("line 1\nline 2\n"))
+                 @renderer.createList("line 1\nline 2\n"))
   end
 
   def test_createList_deep
     assert_equal($array_list_data,
                  @renderer.createList($text_list_data),
-		 "createList must create the correct array from the text")
+                 "createList must create the correct array from the text")
   end
 
   def test_createHash_simple
@@ -1105,7 +1105,7 @@ class TestHeaderRenderer < ZenRendererTest
 end
 
 class TestMetadataRenderer < ZenRendererTest
-  
+
   def test_render
     @doc['nothing'] = 'you'
     util_render 'I hate you', 'I hate #{nothing}', 'metadata must be accessed from @doc'
@@ -1114,7 +1114,7 @@ class TestMetadataRenderer < ZenRendererTest
   def test_include
     util_render "TEXT\n#metadata = false\nThis is some 42\ncommon text.\nTEXT",
                 "TEXT\n\#{include '../include.txt'}\nTEXT",
-		"Include should inject text from files"
+                "Include should inject text from files"
   end
 
   def test_unknown
@@ -1129,7 +1129,7 @@ class TestMetadataRenderer < ZenRendererTest
 
 
   def test_include_strip
-    util_render("TEXT\nThis is some 42\ncommon text.\nTEXT", 
+    util_render("TEXT\nThis is some 42\ncommon text.\nTEXT",
                 "TEXT\n\#{include '../include.txt', true}\nTEXT",
                 "Include should inject text from files")
   end
@@ -1163,7 +1163,7 @@ class TestSitemapRenderer < ZenRendererTest
 
     expected = [
       "+ <A HREF=\"/index.html\">My Website: Subtitle</A>\n",
-      "+ <A HREF=\"/SiteMap.html\">Sitemap: There are 6 pages in this website.</A>\n", 
+      "+ <A HREF=\"/SiteMap.html\">Sitemap: There are 6 pages in this website.</A>\n",
       "+ <A HREF=\"/Something.html\">Something</A>\n",
       "+ <A HREF=\"/~ryand/index.html\">Ryan's Homepage: Version 2.0</A>\n",
       "\t+ <A HREF=\"/~ryand/blah.html\">blah</A>\n",
@@ -1236,16 +1236,16 @@ class TestRelativeRenderer < ZenRendererTest
   def test_convert
 
     assert_equal('http://www.yahoo.com/blah/blah.html',
-		 @renderer.convert('http://www.yahoo.com/blah/blah.html'))
+                 @renderer.convert('http://www.yahoo.com/blah/blah.html'))
 
     assert_equal('../something.html',
-		 @renderer.convert('/something.html'))
+                 @renderer.convert('/something.html'))
 
     assert_equal('../subdir/',
-		 @renderer.convert('/subdir/'))
+                 @renderer.convert('/subdir/'))
 
     assert_equal('blah.html',
-		 @renderer.convert('/~ryand/blah.html'))
+                 @renderer.convert('/~ryand/blah.html'))
   end
 end
 
