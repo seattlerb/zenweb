@@ -100,7 +100,7 @@ class ZenWebsite
       parentURL = doc.parentURL
       parentDoc = self[parentURL]
       if (parentDoc and parentURL != url) then
-	parentDoc.addSubpage(doc.url)
+        parentDoc.addSubpage(doc.url)
       end
     }
 
@@ -166,7 +166,7 @@ class ZenWebsite
     Returns a string containing the ZenWeb banner including the version.
 
 =end
-  
+
   def ZenWebsite.banner()
     return "ZenWeb v. #{ZenWebsite::VERSION} http://www.zenspider.com/ZSS/Products/ZenWeb/"
   end
@@ -258,19 +258,19 @@ class ZenDocument
       count += 1
       # REFACTOR: class Metadata also has this.
       if (line =~ /^\#\s*(\"(?:\\.|[^\"]+)\"|[^=]+)\s*=\s*(.*?)\s*$/) then
-	begin
-	  key = $1
-	  val = $2
+        begin
+          key = $1
+          val = $2
 
-	  key = eval(key)
-	  val = eval(val)
-	rescue Exception
-	  $stderr.puts "#{self.datapath}:#{count}: eval failed: #{line}"
-	else
-	  self[key] = val
-	end
+          key = eval(key)
+          val = eval(val)
+        rescue Exception
+          $stderr.puts "#{self.datapath}:#{count}: eval failed: #{line}"
+        else
+          self[key] = val
+        end
       else
-	page.push(line)
+        page.push(line)
       end
     }
 
@@ -309,17 +309,17 @@ class ZenDocument
       renderer = nil
       begin
 
-	# try to find ZenWeb/blah.rb first, then just blah.rb.
-	begin
-	  require "ZenWeb/#{rendererName}"
-	rescue LoadError => loaderr
-	  require "#{rendererName}" # FIX: ruby requires the quotes?!?!
-	end 
+        # try to find ZenWeb/blah.rb first, then just blah.rb.
+        begin
+          require "ZenWeb/#{rendererName}"
+        rescue LoadError => loaderr
+          require "#{rendererName}" # FIX: ruby requires the quotes?!?!
+        end
 
-	theClass = Module.const_get(rendererName)
-	renderer = theClass.send("new", self)
+        theClass = Module.const_get(rendererName)
+        renderer = theClass.send("new", self)
       rescue LoadError, NameError => err
-	raise NotImplementedError, "Renderer #{rendererName} is not implemented or loaded (#{err})"
+        raise NotImplementedError, "Renderer #{rendererName} is not implemented or loaded (#{err})"
       end
 
       # 4.2) Pass entire file contents to renderer and replace w/ result.
@@ -347,11 +347,11 @@ class ZenDocument
 
       path = self.htmlpath
       dir = File.dirname(path)
-      
+
       unless (test(?d, dir)) then
         FileUtils.mkdir_p dir
       end
-      
+
       content = self.renderContent
       out = File.new(self.htmlpath, "w")
       out.print(content)
@@ -404,7 +404,7 @@ class ZenDocument
 =end
 
   def addSubpage(url)
-    raise ArgumentError, "url must be a string" unless url.instance_of? String 
+    raise ArgumentError, "url must be a string" unless url.instance_of? String
     if (url != self.url) then
       self.subpages.push(url)
     end
@@ -537,7 +537,7 @@ class ZenDocument
       @metadata = Metadata.new(self.dir, self.datadir)
       self.parseMetadata
     end
-    
+
     return @metadata
   end
 
@@ -618,18 +618,18 @@ class ZenSitemap < ZenDocument
       next if f == ""
 
       if f =~ /^\s*([\/-_~\.\w]+)$/
-	url = $1
+        url = $1
 
-	if (url == self.url) then
-	  doc = self
-	else
-	  doc = ZenDocument.new(url, @website)
-	end
+        if (url == self.url) then
+          doc = self
+        else
+          doc = ZenDocument.new(url, @website)
+        end
 
-	self.documents[url] = doc
-	self.doc_order.push(url)
+        self.documents[url] = doc
+        self.doc_order.push(url)
       else
-	$stderr.puts "WARNING on line #{count}: syntax error: '#{f}'"
+        $stderr.puts "WARNING on line #{count}: syntax error: '#{f}'"
       end
     }
 
@@ -677,9 +677,9 @@ class Metadata < Hash
     @@metadata.each do |file, metadata|
       puts "File = #{file}"
       metadata.each_key do |key|
-	count = @@count[key]
-	good_key[key] = true
-	puts "  #{key}" unless count > 0
+        count = @@count[key]
+        good_key[key] = true
+        puts "  #{key}" unless count > 0
       end
     end
 
@@ -790,28 +790,28 @@ class Metadata < Hash
       hash = {}
 
       IO.foreach(file) { | line |
-	count += 1
-	if (line =~ /^\s*(\"(?:\\.|[^\"]+)\"|[^=]+)\s*=\s*(.*?)\s*$/) then
+        count += 1
+        if (line =~ /^\s*(\"(?:\\.|[^\"]+)\"|[^=]+)\s*=\s*(.*?)\s*$/) then
 
-	  # REFACTEE: this is duplicated from above
-	  begin
-	    key = $1
-	    val = $2
+          # REFACTEE: this is duplicated from above
+          begin
+            key = $1
+            val = $2
 
-	    key = eval(key)
-	    val = eval(val)
-	  rescue Exception
-	    $stderr.puts "WARNING on line #{count}: eval failed: #{line}: #{$!}"
-	  else
-	    hash[key] = val
-	  end
-	elsif (line =~ /^\s*$/) then
-	  # ignore
-	elsif (line =~ /^\#.*$/) then
-	  # ignore
-	else
-	  $stderr.puts "WARNING on line #{count}: cannot parse: #{line}"
-	end
+            key = eval(key)
+            val = eval(val)
+          rescue Exception
+            $stderr.puts "WARNING on line #{count}: eval failed: #{line}: #{$!}"
+          else
+            hash[key] = val
+          end
+        elsif (line =~ /^\s*$/) then
+          # ignore
+        elsif (line =~ /^\#.*$/) then
+          # ignore
+        else
+          $stderr.puts "WARNING on line #{count}: cannot parse: #{line}"
+        end
       }
       @@metadata[file] = hash
     end
