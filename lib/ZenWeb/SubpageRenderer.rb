@@ -30,11 +30,11 @@ class SubpageRenderer < GenericRenderer
       push("\n\n")
       push("** Subpages:\n\n")
       subpages.each_index { | index |
-	url      = subpages[index]
-	doc      = @website[url]
-	title    = doc.fulltitle
+        url      = subpages[index]
+        doc      = @website[url]
+        title    = doc.fulltitle
 
-	push("+ <A HREF=\"#{url}\">#{title}</A>\n")
+        push("+ <A HREF=\"#{url}\">#{title}</A>\n")
       }
       push("\n")
     end

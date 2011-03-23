@@ -48,25 +48,25 @@ class TextToHtmlRenderer < HtmlRenderer
 
       # url substitutions
       p.gsub!(/([^=\"])((http|ftp|mailto):(\S+))/) {
-	pre = $1
-	url = $2
-	txt = $4
+        pre = $1
+        url = $2
+        txt = $4
 
-	txt.gsub!(/\//, " ")
-	txt.strip!
-	txt.gsub!(/ /, " /")
+        txt.gsub!(/\//, " ")
+        txt.strip!
+        txt.gsub!(/ /, " /")
 
-	"#{pre}<A HREF=\"#{url}\">#{txt}</A>"
+        "#{pre}<A HREF=\"#{url}\">#{txt}</A>"
       }
 
       case p
       when /^(\*\*+)\s*(.*)$/ then
-	level = $1.length
-	push("<H#{level}>#{$2}</H#{level}>\n\n")
+        level = $1.length
+        push("<H#{level}>#{$2}</H#{level}>\n\n")
       when /^---+$/ then
-	push("<HR>\n\n")
+        push("<HR>\n\n")
       when /^===+$/ then
-	push("<HR CLASS=\"thick\">\n\n")
+        push("<HR CLASS=\"thick\">\n\n")
       when /^%%%\s*(.*)/ then # TODO: I'm not fond of this
         rest = $1
         close = (rest.empty? or (rest.downcase == "end"))
@@ -92,11 +92,11 @@ class TextToHtmlRenderer < HtmlRenderer
         push(self.hash2html(hash, order) + "\n") if hash
       when /^\t*([\+=])/ then
         ordered = $1 == "="
-	list = self.createList(p)
+        list = self.createList(p)
         push(self.array2html(list, ordered)) if list
       when /^\ \ / then # and p !~ /^[^\ ]/ then
-	p.gsub!(/^\ \ /, '')
-	push("<PRE>" + p + "</PRE>\n\n")
+        p.gsub!(/^\ \ /, '')
+        push("<PRE>" + p + "</PRE>\n\n")
       when /^\s*<\//, /^\s*<(?:DIV|FORM|P|TABLE|BLOCKQUOTE|H[1-7])\b/i then
         push p
         push "\n\n"
@@ -143,27 +143,27 @@ class TextToHtmlRenderer < HtmlRenderer
     while (i < len)
       if (min == -1) then
 
-	# looking for initial match:
-	if (data[i] =~ /^\t(\t*.*)/) then
+        # looking for initial match:
+        if (data[i] =~ /^\t(\t*.*)/) then
 
-	  # replace w/ one less tab, and record that we have a match
-	  data[i] = $1
-	  min = i
-	end
+          # replace w/ one less tab, and record that we have a match
+          data[i] = $1
+          min = i
+        end
       else
 
-	# found match, looking for mismatch
-	if (data[i] !~ /^\t(\t*.*)/ or i == len) then
+        # found match, looking for mismatch
+        if (data[i] !~ /^\t(\t*.*)/ or i == len) then
 
-	  # found mismatch, replacing w/ sublist
-	  data[min..i-1] = [ createList(data[min..i-1]) ]
-	  # resetting appropriate values
-	  len = data.size
-	  i = min
-	  min = -1
-	else
-	  data[i] = $1
-	end
+          # found mismatch, replacing w/ sublist
+          data[min..i-1] = [ createList(data[min..i-1]) ]
+          # resetting appropriate values
+          len = data.size
+          i = min
+          min = -1
+        else
+          data[i] = $1
+        end
       end
       i += 1
     end
@@ -198,18 +198,18 @@ class TextToHtmlRenderer < HtmlRenderer
     key = nil
     data.each { |line|
       if (line =~ /^\s*%-\s*(.*)/) then
-	key = $1
+        key = $1
       elsif (line =~ /^\s*%=\s*(.*)/) then
-	val = $1
+        val = $1
 
-	if (key) then
-	  # WARN: maybe do something if already defined?
-	  result[key] = val
-	  order << key
-	end
+        if (key) then
+          # WARN: maybe do something if already defined?
+          result[key] = val
+          order << key
+        end
 
       else
-	# nothing
+        # nothing
       end
     }
 

@@ -51,7 +51,7 @@ class HtmlRenderer < GenericRenderer
         result.push indent2 unless x =~ /^\s+/
         result.push x
       else
-	result.push(indent2, "<LI>", l.to_s, "</LI>\n")
+        result.push(indent2, "<LI>", l.to_s, "</LI>\n")
       end
     }
     result << "#{indent1}</#{tag}>\n"
@@ -65,9 +65,9 @@ class HtmlRenderer < GenericRenderer
     if (hash) then
       result += "<DL>\n"
       order.each { | key |
-	val = hash[key] or raise "Key '#{key}' is missing!"
-	result += "  <DT>#{key}</DT>\n"
-	result += "  <DD>#{val}</DD>\n\n"
+        val = hash[key] or raise "Key '#{key}' is missing!"
+        result += "  <DT>#{key}</DT>\n"
+        result += "  <DD>#{val}</DD>\n\n"
       }
       result += "</DL>\n"
     else

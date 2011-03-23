@@ -82,11 +82,11 @@ class RelativeRenderer < GenericRenderer
       oldurl = URI.parse(u)
 
       if oldurl.relative? then
-	oldurl = @base + oldurl
-	scheme = oldurl.scheme
-	newurl = oldurl - @docurl
+        oldurl = @base + oldurl
+        scheme = oldurl.scheme
+        newurl = oldurl - @docurl
       else
-	newurl = u
+        newurl = u
       end
       return newurl.to_s
     else

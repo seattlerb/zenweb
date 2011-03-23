@@ -39,11 +39,11 @@ class FileAttachmentRenderer < GenericRenderer
         raise "name is undefined, add name= attribute" if name.nil?
         dir = File.dirname @document.htmlpath
         path = File.join(dir, name)
-	push "\n"
+        push "\n"
         push "<A HREF=\"#{name}\">Download #{name}</A>\n"
-	File.open(path, "w") do |file|
-	  file.print file_content.join('')
-	end
+        File.open(path, "w") do |file|
+          file.print file_content.join('')
+        end
         file_content = []
       else
         file_content.push line

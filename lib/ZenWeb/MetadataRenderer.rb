@@ -32,23 +32,23 @@ class MetadataRenderer < GenericRenderer
       
       # otherwise try to eval it. If that fails, just give text.
       unless (val) then
-	begin
-	  # this allows evals that fail (expensive) to be cached, 
-	  # and good code to be eval'd every time.
-	  # I think this is a good balance.
-	  if @@cache[key] then
-	    val = @@cache[key]
-	  else
-	    val = eval(key)
-	  end
-	rescue NameError => err
-	  val = key
-	  @@cache[key] = key
-	rescue Exception => err
-	  $stderr.puts "eval failed in MetadataRenderer for #{@document.datapath}: #{err}. Code = '#{key}'"
-	  val = key
-	  @@cache[key] = key
-	end
+        begin
+          # this allows evals that fail (expensive) to be cached, 
+          # and good code to be eval'd every time.
+          # I think this is a good balance.
+          if @@cache[key] then
+            val = @@cache[key]
+          else
+            val = eval(key)
+          end
+        rescue NameError => err
+          val = key
+          @@cache[key] = key
+        rescue Exception => err
+          $stderr.puts "eval failed in MetadataRenderer for #{@document.datapath}: #{err}. Code = '#{key}'"
+          val = key
+          @@cache[key] = key
+        end
       end
       
       val

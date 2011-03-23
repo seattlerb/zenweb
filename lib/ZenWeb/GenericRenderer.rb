@@ -46,10 +46,10 @@ class GenericRenderer
       @result.push(*stuff) unless stuff.empty?
     else
       if false then
-	@result.push(obj.to_s)
+        @result.push(obj.to_s)
       else
-	@result.push(obj)
-      end	
+        @result.push(obj)
+      end       
     end
   end
 
@@ -64,7 +64,7 @@ class GenericRenderer
   def unshift(obj)
     if obj.is_a?(Array) then
       obj.reverse.each { | item |
-	self.unshift(item)
+        self.unshift(item)
       }
     else
       @result.unshift(obj.to_s)
@@ -110,7 +110,7 @@ class GenericRenderer
       if block =~ pattern then
         yield(block)
       else
-	push block
+        push block
       end
     end
   end
@@ -122,18 +122,18 @@ class GenericRenderer
       # TODO: detect nesting and freak
       if l =~ region_start then
         matching = true
-	$stderr.puts :START, l.inspect if $DEBUG
+        $stderr.puts :START, l.inspect if $DEBUG
         yield(l, :START)
         matching = false if l =~ region_end
       elsif l =~ region_end then
         matching = false
-	$stderr.puts :END, l.inspect if $DEBUG
+        $stderr.puts :END, l.inspect if $DEBUG
         yield(l, :END)
       elsif matching then
-	$stderr.puts :MIDDLE, l.inspect if $DEBUG
+        $stderr.puts :MIDDLE, l.inspect if $DEBUG
         yield(l, :MIDDLE)
       else
-	$stderr.puts :IGNORED, l.inspect if $DEBUG
+        $stderr.puts :IGNORED, l.inspect if $DEBUG
         push l
       end
     end

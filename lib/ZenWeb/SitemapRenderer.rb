@@ -41,7 +41,7 @@ class SitemapRenderer < GenericRenderer
       indent.gsub!(/[^\/]+\//, "\t")
 
       if indent =~ /^(\t*).*/ then
-	indent = $1
+        indent = $1
       end
 
       doc      = @website[url]

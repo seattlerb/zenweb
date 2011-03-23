@@ -76,12 +76,12 @@ class StupidRenderer < GenericRenderer
     re = /(\#\{[^\}]+\})/
     new_s.split(re).each { |chunk|
       if (chunk =~ re) then
-	result.push(chunk)
+        result.push(chunk)
       else
-	chunk.gsub!(/./) { |char|
-	  $Transcode[char.downcase] || char
-	}
-	result.push(chunk)
+        chunk.gsub!(/./) { |char|
+          $Transcode[char.downcase] || char
+        }
+        result.push(chunk)
       end
     }
 

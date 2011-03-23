@@ -28,7 +28,7 @@ class FooterRenderer < GenericRenderer
 
     if footer then
       content.sub!(/(<\/BODY>|\z)/i) {
-	footer + $1
+        footer + $1
       }
     end
 
