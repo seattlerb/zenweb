@@ -35,6 +35,7 @@ class RubyCodeRenderer < GenericRenderer
           IO.popen(cmd, "r+") do |xmp|
             xmp.puts(p + "\nexit")
             result = xmp.read
+            result.gsub!(/Switch to .*inspect mode.\n/, '')
             result.gsub!(/\s+>> exit\s*\Z/, '')
             result.gsub!(/=>(.*)\Z/m, '=><EM>\1</EM>')
             push result
