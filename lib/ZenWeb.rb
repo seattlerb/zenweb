@@ -292,7 +292,7 @@ class ZenDocument
 
     # FIX this is mainly here to force the rendering of the metadata,
     # which also forces the population of @content.
-    title = self['title']
+    _ = self['title']
 
     # contents already preparsed for metadata
     result = self.content
@@ -312,7 +312,7 @@ class ZenDocument
         # try to find ZenWeb/blah.rb first, then just blah.rb.
         begin
           require "ZenWeb/#{rendererName}"
-        rescue LoadError => loaderr
+        rescue LoadError
           require "#{rendererName}" # FIX: ruby requires the quotes?!?!
         end
 
@@ -617,7 +617,7 @@ class ZenSitemap < ZenDocument
 
       next if f == ""
 
-      if f =~ /^\s*([\/-_~\.\w]+)$/
+      if f =~ /^\s*([-\/~\.\w]+)$/
         url = $1
 
         if (url == self.url) then

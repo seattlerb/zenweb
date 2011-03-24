@@ -426,7 +426,6 @@ class TestZenDocument < ZenTestCase
   end
 
   def test_content=()
-    orig_content = @doc.content
     @doc.content = "blah"
     new_content = @doc.content
     refute_nil(new_content, "Content must not be nil")

@@ -58,8 +58,8 @@ class CalendarRenderer < GenericRenderer
         self.generate_calendars(events, reverse)
       else
         if line =~ /(\d\d\d\d-\d\d-\d\d):\s*(.*)/ then
-          description = $2
-          time = Time.parse($1) # NOT Date! hellishly slow!
+          time, description = $1, $2
+          raise "bad date: #{time}" unless Time.parse time
           events[$1] << description
         end
       end
@@ -72,9 +72,7 @@ class CalendarRenderer < GenericRenderer
 
     current_events = []
 
-    which_year = Date.leap?(year) ? 1 : 0
     date_start = Date.civil(year, month,  1)
-    last_day = DAYS_IN_MONTH[which_year][month]
     date_end   = Date.civil(year, month, -1)
 
     push "<table class=\"calendar\">"
@@ -85,7 +83,6 @@ class CalendarRenderer < GenericRenderer
     push "<table class=\"view y#{year} m#{m2}\">\n"
 
     long_month_name = Date::MONTHNAMES[month]
-    month_name = Date::ABBR_MONTHNAMES[month].downcase
 
     push "<tr class=\"title\">\n"
     push "<th colspan=7>#{long_month_name} #{year}</th>\n"

@@ -83,7 +83,6 @@ class RelativeRenderer < GenericRenderer
 
       if oldurl.relative? then
         oldurl = @base + oldurl
-        scheme = oldurl.scheme
         newurl = oldurl - @docurl
       else
         newurl = u

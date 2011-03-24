@@ -132,7 +132,7 @@ class TextToHtmlRenderer < HtmlRenderer
 
     if (data.is_a?(String)) then
       # TODO: at some time we'll want to support different types of lists
-      data = data.gsub(/^(\t*)([\+=])\s*(.*)$/) { type=$2; $1 + $3 }
+      data = data.gsub(/^(\t*)([\+=])\s*(.*)$/) { $1 + $3 }
       data = data.split($/)
     end
 
