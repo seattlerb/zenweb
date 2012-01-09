@@ -4,19 +4,17 @@ require 'rubygems'
 require 'hoe'
 
 Hoe.plugin :seattlerb
+Hoe.plugin :isolate
 
 Hoe.spec 'zenweb' do
   developer 'Ryan Davis', 'ryand-ruby@zenspider.com'
 
-  clean_globs.push(*"testhtml docshtml httpd.conf httpd.pid *.log".split)
+  dependency 'rake',       '~> 0.9', :development
+  dependency 'less',       '~> 1.2'
+  dependency 'coderay',    '~> 1.0'
+  dependency 'kramdown',   '~> 0.13'
+  dependency 'rb-fsevent', '~> 0.4'
+  # dependency 'rack',       '~> 0.9' # TODO
 end
-
-task :docs do
-  ruby "-w -Ilib bin/zenweb docs"
-end
-
-# TODO:
-# apache: docs
-# grep -v CustomLog $$(httpd -V | grep SERVER_CONFIG_FILE | cut -f 2 -d= | cut -f 2 -d\") > httpd.conf; httpd -X -d $$PWD/docshtml -f $$PWD/httpd.conf  -c "PidFile $$PWD/httpd.pid" -c "Port 8080" -c "ErrorLog $$PWD/error.log" -c "TransferLog $$PWD/access.log" -c "DocumentRoot $$PWD/docshtml"
 
 # vim: syntax=ruby
