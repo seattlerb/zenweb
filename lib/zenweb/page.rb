@@ -145,7 +145,12 @@ module Zenweb
     end
 
     def date
-      config['date'] || File.stat(path).mtime
+      config['date'] || date_from_path || File.stat(path).mtime
+    end
+
+    def date_from_path
+      date = path[/\d\d\d\d-\d\d-\d\d/]
+      Time.local(*date.split(/-/).map(&:to_i)) if date
     end
 
     def include path

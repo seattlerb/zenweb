@@ -1,0 +1,5 @@
+<li>
+    <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+    <h3 class="date">{{ post.date | date_to_s }}</h3>
+    {% if post.summary %} <p>{{ post.summary }}</p> {% endif %}
+</li>

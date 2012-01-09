@@ -1,0 +1,12 @@
+#!/usr/bin/env rake
+
+require "rubygems"
+
+load ".isolate.rb"
+
+$: << "../lib"
+Rake.application.rake_require "zenweb/tasks"
+
+task :push do
+  sh "rsync -rv --del .site/ /Library/WebServer/Documents/"
+end

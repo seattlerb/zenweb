@@ -1,0 +1,27 @@
+---
+title: Example Website
+layout: site
+header: example.com
+---
+
+{% pages  = site.categories.blog %}
+{% latest = pages.shift %}
+
+<div class="post">
+  <h1 class="title">
+    <a href="{{ latest.url }}">{{ latest.title }}</a>
+  </h1>
+  <h3 class="date">{{ latest.date.clean }}</h3>
+
+  {{ latest.subrender }}
+
+  <a class="readmore" href="{{ latest.url }}">read more &raquo;</a>
+</div>
+
+<h1 class="section">Pages</h1>
+
+<ul id="recent_pages" class="activity">
+  {% for page in pages %}
+    <li><a href="{{ page.url }}">{{ page.title }}</a>
+  {% end %}
+</ul>

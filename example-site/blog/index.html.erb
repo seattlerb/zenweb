@@ -1,0 +1,19 @@
+---
+title: example.com
+layout: site
+---
+
+<h1 class="section top">Post Archive</h1>
+
+{% for page in site.categories.blog %}
+<div class="post">
+    <h1 class="title">
+        <a href="{{ page.url }}">{{ page.title }}</a>
+    </h1>
+    <h3 class="date">{{ page.date.clean }}</h3>
+
+    {% if page["excerpt"] %} <p>{{ markdown page.excerpt }}</p> {% end %}
+
+    <a class="readmore" href="{{ page.url }}">read more &raquo;</a>
+</div>
+{% end %}

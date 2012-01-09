@@ -1,0 +1,39 @@
+---
+layout: site
+header: example.com projects
+---
+
+<div class="project">
+    <h1 class="title">{{ page.title }}</h1>
+    <h2 class="subtitle">{{ page.subtitle }}</h2>
+
+    {{ content }}
+
+    <!-- get the code -->
+    <h1 class="section">Get The Code</h1>
+    {% if page.gem %}
+    If you just want to use {{ page.title }}, you can install it via RubyGems:
+    <pre>gem install {{ page.gem }}</pre>
+    {% end %}
+
+    {% if page.github %}
+    <a href="http://github.com/{{ page.github }}">
+        <img style="position: absolute; top: 80px; right: 0; border: 0;" 
+             src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" 
+             alt="Fork me on GitHub"
+        />
+    </a>
+
+    If you want to hack on {{ page.title }}, clone it from GitHub:
+    <pre>git clone git://github.com/{{ page.github }}</pre>
+
+    <!-- Recent Activity -->
+    <h1 class="section">Recent Activity</h1>
+    <ul id="recent_activity" class="activity">
+        <h3>Loading...</h3>
+    </ul>
+    <script type="text/javascript">
+        fetch_recent_github_activity( "{{ page.github }}" );
+    </script>
+    {% end %}
+</div>

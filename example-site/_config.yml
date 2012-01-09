@@ -1,0 +1,3 @@
+exclude: ["Rakefile", "tmp"]
+google_ua: UA-1234567-8
+header: Example Website

@@ -1,0 +1,171 @@
+.highlight  { background: #ffffff; }
+.highlight .c { color: #999988; font-style: italic } /* Comment */
+.highlight .err { color: #a61717; background-color: #e3d2d2 } /* Error */
+.highlight .k { font-weight: bold } /* Keyword */
+.highlight .o { font-weight: bold } /* Operator */
+.highlight .cm { color: #999988; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #999999; font-weight: bold } /* Comment.Preproc */
+.highlight .c1 { color: #999988; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #999999; font-weight: bold; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #000000; background-color: #ffdddd } /* Generic.Deleted */
+.highlight .gd .x { color: #000000; background-color: #ffaaaa } /* Generic.Deleted.Specific */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .gr { color: #aa0000 } /* Generic.Error */
+.highlight .gh { color: #999999 } /* Generic.Heading */
+.highlight .gi { color: #000000; background-color: #ddffdd } /* Generic.Inserted */
+.highlight .gi .x { color: #000000; background-color: #aaffaa } /* Generic.Inserted.Specific */
+.highlight .go { color: #888888 } /* Generic.Output */
+.highlight .gp { color: #555555 } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #aaaaaa } /* Generic.Subheading */
+.highlight .gt { color: #aa0000 } /* Generic.Traceback */
+.highlight .kc { font-weight: bold } /* Keyword.Constant */
+.highlight .kd { font-weight: bold } /* Keyword.Declaration */
+.highlight .kp { font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #445588; font-weight: bold } /* Keyword.Type */
+.highlight .m { color: #009999 } /* Literal.Number */
+.highlight .s { color: #d14 } /* Literal.String */
+.highlight .na { color: #008080 } /* Name.Attribute */
+.highlight .nb { color: #0086B3 } /* Name.Builtin */
+.highlight .nc { color: #445588; font-weight: bold } /* Name.Class */
+.highlight .no { color: #008080 } /* Name.Constant */
+.highlight .ni { color: #800080 } /* Name.Entity */
+.highlight .ne { color: #990000; font-weight: bold } /* Name.Exception */
+.highlight .nf { color: #990000; font-weight: bold } /* Name.Function */
+.highlight .nn { color: #555555 } /* Name.Namespace */
+.highlight .nt { color: #000080 } /* Name.Tag */
+.highlight .nv { color: #008080 } /* Name.Variable */
+.highlight .ow { font-weight: bold } /* Operator.Word */
+.highlight .w { color: #bbbbbb } /* Text.Whitespace */
+.highlight .mf { color: #009999 } /* Literal.Number.Float */
+.highlight .mh { color: #009999 } /* Literal.Number.Hex */
+.highlight .mi { color: #009999 } /* Literal.Number.Integer */
+.highlight .mo { color: #009999 } /* Literal.Number.Oct */
+.highlight .sb { color: #d14 } /* Literal.String.Backtick */
+.highlight .sc { color: #d14 } /* Literal.String.Char */
+.highlight .sd { color: #d14 } /* Literal.String.Doc */
+.highlight .s2 { color: #d14 } /* Literal.String.Double */
+.highlight .se { color: #d14 } /* Literal.String.Escape */
+.highlight .sh { color: #d14 } /* Literal.String.Heredoc */
+.highlight .si { color: #d14 } /* Literal.String.Interpol */
+.highlight .sx { color: #d14 } /* Literal.String.Other */
+.highlight .sr { color: #009926 } /* Literal.String.Regex */
+.highlight .s1 { color: #d14 } /* Literal.String.Single */
+.highlight .ss { color: #990073 } /* Literal.String.Symbol */
+.highlight .bp { color: #999999 } /* Name.Builtin.Pseudo */
+.highlight .vc { color: #008080 } /* Name.Variable.Class */
+.highlight .vg { color: #008080 } /* Name.Variable.Global */
+.highlight .vi { color: #008080 } /* Name.Variable.Instance */
+.highlight .il { color: #009999 } /* Literal.Number.Integer.Long */
+
+
+.CodeRay {
+  background-color: hsl(0,0%,95%);
+  border: 1px solid silver;
+  color: black;
+}
+.CodeRay pre {
+  margin: 0px;
+}
+
+span.CodeRay { white-space: pre; border: 0px; padding: 2px; }
+
+table.CodeRay { border-collapse: collapse; width: 100%; padding: 2px; }
+table.CodeRay td { padding: 2px 4px; vertical-align: top; }
+
+.CodeRay .line-numbers {
+  background-color: hsl(180,65%,90%);
+  color: gray;
+  text-align: right;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.CodeRay .line-numbers a {
+  background-color: hsl(180,65%,90%) !important;
+  color: gray !important;
+  text-decoration: none !important;
+}
+
+.CodeRay .line-numbers a:target       { color: blue !important; }
+.CodeRay .line-numbers .highlighted   { color: red !important; }
+.CodeRay .line-numbers .highlighted a { color: red !important; }
+
+.CodeRay span.line-numbers { padding: 0px 4px; }
+.CodeRay .line             { display: block; float: left; width: 100%; }
+.CodeRay .code             { width: 100%; }
+
+.CodeRay .debug { color: white !important; background: blue !important; }
+
+.CodeRay .annotation          { color:#007 }
+.CodeRay .attribute-name      { color:#b48 }
+.CodeRay .attribute-value     { color:#700 }
+.CodeRay .binary              { color:#509 }
+.CodeRay .char .content       { color:#D20 }
+.CodeRay .char .delimiter     { color:#710 }
+.CodeRay .char                { color:#D20 }
+.CodeRay .class               { color:#B06; font-weight:bold }
+.CodeRay .class-variable      { color:#369 }
+.CodeRay .color               { color:#0A0 }
+.CodeRay .comment             { color:#777 }
+.CodeRay .comment .char       { color:#444 }
+.CodeRay .comment .delimiter  { color:#444 }
+.CodeRay .complex             { color:#A08 }
+.CodeRay .constant            { color:#036; font-weight:bold }
+.CodeRay .decorator           { color:#B0B }
+.CodeRay .definition          { color:#099; font-weight:bold }
+.CodeRay .delimiter           { color:black }
+.CodeRay .directive           { color:#088; font-weight:bold }
+.CodeRay .doc                 { color:#970 }
+.CodeRay .doc-string          { color:#D42; font-weight:bold }
+.CodeRay .doctype             { color:#34b }
+.CodeRay .entity              { color:#800; font-weight:bold }
+.CodeRay .error               { color:#F00; background-color:#FAA }
+.CodeRay .escape              { color:#666 }
+.CodeRay .exception           { color:#C00; font-weight:bold }
+.CodeRay .float               { color:#60E }
+.CodeRay .function            { color:#06B; font-weight:bold }
+.CodeRay .global-variable     { color:#d70 }
+.CodeRay .hex                 { color:#02b }
+.CodeRay .imaginary           { color:#f00 }
+.CodeRay .include             { color:#B44; font-weight:bold }
+.CodeRay .inline              { background-color: hsla(0,0%,0%,0.07); color: black }
+.CodeRay .inline-delimiter    { font-weight: bold; color: #666 }
+.CodeRay .instance-variable   { color:#33B }
+.CodeRay .integer             { color:#00D }
+.CodeRay .key .char           { color: #60f }
+.CodeRay .key .delimiter      { color: #404 }
+.CodeRay .key                 { color: #606 }
+.CodeRay .keyword             { color:#080; font-weight:bold }
+.CodeRay .label               { color:#970; font-weight:bold }
+.CodeRay .local-variable      { color:#963 }
+.CodeRay .namespace           { color:#707; font-weight:bold }
+.CodeRay .octal               { color:#40E }
+.CodeRay .operator            { }
+.CodeRay .predefined          { color:#369; font-weight:bold }
+.CodeRay .predefined-constant { color:#069 }
+.CodeRay .predefined-type     { color:#0a5; font-weight:bold }
+.CodeRay .preprocessor        { color:#579 }
+.CodeRay .pseudo-class        { color:#00C; font-weight:bold }
+.CodeRay .regexp .content     { color:#808 }
+.CodeRay .regexp .delimiter   { color:#404 }
+.CodeRay .regexp .modifier    { color:#C2C }
+.CodeRay .regexp              { background-color:hsla(300,100%,50%,0.06); }
+.CodeRay .reserved            { color:#080; font-weight:bold }
+.CodeRay .shell .content      { color:#2B2 }
+.CodeRay .shell .delimiter    { color:#161 }
+.CodeRay .shell               { background-color:hsla(120,100%,50%,0.06); }
+.CodeRay .string .char        { color: #b0b }
+.CodeRay .string .content     { color: #D20 }
+.CodeRay .string .delimiter   { color: #710 }
+.CodeRay .string .modifier    { color: #E40 }
+.CodeRay .string              { background-color:hsla(0,100%,50%,0.05); }
+.CodeRay .symbol .content     { color:#A60 }
+.CodeRay .symbol .delimiter   { color:#630 }
+.CodeRay .symbol              { color:#A60 }
+.CodeRay .tag                 { color:#070 }
+.CodeRay .type                { color:#339; font-weight:bold }
+.CodeRay .value               { color: #088; }
+.CodeRay .variable            { color:#037 }

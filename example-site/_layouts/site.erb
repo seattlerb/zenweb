@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+  <head>
+    <title>
+      {% if page.title %} {{ page.title }} | {% end %} {{ page.header }}
+    </title>
+
+    <!-- atom feed -->
+    <link href="http://blog.example.com/atom.xml" rel="alternate" title="{{ page.title }}" type="application/atom+xml" />
+
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="/css/styles.css" type="text/css" />
+    <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+
+    <!-- site javascript -->
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/site.js"></script>
+
+    <!-- typekit -->
+    <script type="text/javascript" src="http://use.typekit.com/sic1xhc.js"></script>
+    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+  </head>
+
+  <body>
+    {{ include "analytics.html" }}
+
+    <div id="header">
+      <h1><a href="/">{{ page.header }}</a></h1>
+
+      <ul>
+        <li><a href="/">home</a></li>
+        <li><a href="/posts">blog</a></li>
+        <li><a href="/projects">projects</a></li>
+        <li><a href="/releases">releases</a></li>
+        <li><a href="/pages">pages</a></li>
+        <li><a href="/about">about</a></li>
+      </ul>
+    </div>
+
+    <div id="container">
+      {{ content }}
+    </div>
+
+    <div id="footer">
+      <div id="contact">
+        John Doe<br />
+        john.doe@example.com<br />
+      </div>
+
+      <div id="presence">
+        <a href="http://blog.example.com">nerd blog</a><br />
+        <a href="http://github.com/seattlerb">github.com/seattlerb</a>
+      </div>
+
+      <div id="copyright">
+        All content &copy; John Doe
+      </div>
+    </div>
+  </body>
+</html>

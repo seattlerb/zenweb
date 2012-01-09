@@ -1,0 +1,223 @@
+/* @override http://localhost:4000/css/styles.css */
+
+@import url(/css/colors.css);
+
+/* @group Basics */
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-image: url(/img/bg.png);
+    background-repeat: repeat-x;
+    font-family: 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 15px;
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+pre, code {
+    font-family: Monaco, Courier, monospace;
+}
+
+div#container {
+    padding: 2em;
+    margin-bottom: 2em;
+}
+
+td { padding: 1em; }
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+h1, h2, h3 {
+    font-weight: 300;
+}
+
+ul {
+  // list-style: none;
+}
+/* @end */
+
+
+/* @group header */
+#header {
+    position: relative;
+
+    margin-top: 12px;
+    margin-bottom: 1em;
+}
+
+#header h1 {
+    font-size: 2.5em;
+}
+
+#header h1 a:hover {
+    text-decoration: none;
+}
+
+#header ul {
+    position: absolute;
+    right: 0;
+    bottom: 20px;
+    padding-top: 0.5em;
+}
+
+#header ul li {
+    display: inline;
+}
+
+#header ul li {
+    display: inline;
+    border-left-style: solid;
+    border-left-width: 2px;
+    padding: 0 8px;
+}
+
+#header ul li:first-child {
+    border-left: none;
+    padding-left: 0;
+}
+
+#header ul li:last-child {
+    padding-right: 0;
+}
+/* @end */
+
+
+/* @group footer */
+div#footer {
+    border-top-style: solid;
+    border-top-width: 1px;
+    padding-top: 0.5em;
+    line-height: 1.2em;
+}
+
+div#contact, div#presence {
+    width: 50%;
+    float: left;
+}
+
+div#presence {
+    text-align: right;
+}
+
+div#copyright {
+    margin-top: 5em;
+    margin-bottom: 2em;
+    text-align: center;
+}
+/* @end */
+
+
+/* @group posts */
+h1.section {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+h1.top {
+    margin-top: 0;
+}
+
+h1.title {
+    font-size: 2.5em;
+}
+
+h3.date {
+    font-size: 1.1em;
+}
+
+a.readmore {
+    display: block;
+    text-align: right;
+}
+
+p {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    text-align: justify;
+}
+
+p, ul {
+    line-height: 1.5em;
+}
+
+div.post h2 {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    margin-top: 0.7em;
+}
+/* @end */
+
+
+/* @group code snippets */
+pre, code {
+    outline-width: 1px;
+    outline-style: solid;
+}
+
+pre {
+    padding: 1em;
+    overflow: auto;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+}
+
+code {
+    padding: 0 3px 1px 3px;
+    /* don't break code across lines */
+    white-space: nowrap;
+}
+
+/* syntax highlight blocks */
+pre code {
+    padding: 0;
+    outline: 0;
+    white-space: pre;
+}
+/* @end */
+
+
+/* @group activity list */
+ul.activity li {
+    position: relative;
+}
+
+ul.activity li h2 {
+    font-size: 1.1em;
+    margin-bottom: 0.2em;
+}
+
+ul.activity li h3.date {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+ul.activity li p {
+    margin-top: 0;
+    margin-right: 7em;
+}
+
+ul#recent_posts li {
+    margin-top: 1em;
+}
+
+ul#recent_activity li a {
+    font-family: monospace;
+}
+
+ul#recent_activity li p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+/* @end */

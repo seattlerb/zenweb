@@ -13,7 +13,7 @@ module Zenweb
     attr_reader :pages, :configs
 
     def self.load_plugins
-      Gem.find_files("zenweb/plugins/*").each do |path|
+      Gem.find_files("zenweb/plugins/*.rb").each do |path|
         require path
       end
     end
@@ -25,8 +25,14 @@ module Zenweb
       @configs = Hash.new { |h,k| h[k] = Config.new self, k }
     end
 
+    def config
+      configs["_config.yml"]
+    end
+
     def scan
-      top = Dir["*"] - %w(tmp _site)
+      excludes = Array(config["exclude"])
+
+      top = Dir["*"] - excludes
       files, dirs = top.partition { |path| File.file? path }
       files += Dir["{#{top.join(",")}}/**/*"].reject { |f| not File.file? f }
 
@@ -44,7 +50,7 @@ module Zenweb
           next
         when /\.yml$/ then
           Config.new self, path
-        when /(?:~|\.ru|Rakefile)$/
+        when /(?:~|#{excludes.join '|'})$/
           # ignore
         when /\.(?:html|css|js|png|jpg)$/, renderers_re then # HACK
           Page.new self, path
@@ -76,11 +82,7 @@ module Zenweb
     end
 
     def pages_by_date
-      pages.values.select {|p| p["title"] && p["date"] }.sort_by(&:date).reverse
-    end
-
-    def time # HACK: no clue what this is for, see sitemap.xml
-      pages_by_date.first.date
+      pages.values.select {|p| p["title"] && p.date }.sort_by(&:date).reverse
     end
 
     def categories

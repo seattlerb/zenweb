@@ -26,8 +26,5 @@ class Zenweb::Page
 
     Kramdown::Document.new(content, KRAMDOWN_CONFIG).to_html
   end
-
-
-  alias :textilize :markdown # HACK
 end # markdown
 

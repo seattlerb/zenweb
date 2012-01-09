@@ -1,0 +1,27 @@
+---
+layout: nil
+---
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+ <title>example.com</title>
+ <link href="http://example.com/atom.xml" rel="self"/>
+ <link href="http://example.com/"/>
+ <updated>{{ site.pages_by_date.first.date }}</updated>
+ <id>http://example.com/</id>
+ <author>
+   <name>John Doe</name>
+   <email>john.doe@example.com</email>
+ </author>
+
+ {% for post in site.pages_by_date.first(30) %}
+ <entry>
+   <title>{{ post.title }}</title>
+   <link href="http://example.com{{ post.url }}"/>
+   <updated>{{ post.date.xmlschema }}</updated>
+   <id>http://example.com{{ post.url }}</id>
+   <content type="html">{{ xml_escape post.content }}</content>
+ </entry>
+ {% end %}
+
+</feed>

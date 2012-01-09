@@ -6,7 +6,7 @@ def File.each_parent dir, file
 end
 
 class Time
-  def clean
-    strftime "%Y-%m-%d @ %H:%M"
+  def clean fmt = "%Y-%m-%d @ %H:%M"
+    strftime fmt
   end
 end

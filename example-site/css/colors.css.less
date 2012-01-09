@@ -1,0 +1,71 @@
+@background: #eee;
+@links: #0a0;
+@headers: #888;
+@accent_lines: #caa;
+@divider_lines: #aaa;
+
+body {
+    background-color: @background;
+}
+
+div#container {
+    background: @background + #333;
+}
+
+a {
+    color: @links;
+}
+
+h1.section {
+    border-bottom-color: @divider_lines;
+}
+
+h1.title a {
+    color: black;
+}
+
+h1.title a:hover {
+    text-decoration: none;
+}
+
+h3.date {
+    color: @headers;
+}
+
+pre, code {
+    outline-color: @divider_lines;
+    background: @background;
+}
+
+#header h1 a {
+    color: #000;
+}
+
+#header h1 a:hover {
+    color: #000;
+}
+
+#header a {
+    color: @headers;
+}
+
+#header a:hover {
+    color: @links;
+}
+
+#header ul li {
+    border-left-color: @accent_lines;
+}
+
+div.post h2 {
+    border-bottom-color: @divider_lines;
+}
+
+div#footer {
+    color: @headers;
+    border-top-color: @accent_lines;
+}
+
+div#copyright {
+    color: @background - #222;
+}
