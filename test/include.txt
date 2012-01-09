@@ -1,3 +1,0 @@
-#metadata = false
-This is some #{key1}
-common text.
