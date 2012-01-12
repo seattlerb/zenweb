@@ -56,7 +56,7 @@ module Zenweb
           Config.new self, path
         when /(?:~|#{excludes.join '|'})$/
           # ignore
-        when /\.(?:html|css|js|png|jpg)$/, renderers_re then # HACK
+        when /\.(?:txt|html|css|js|png|jpg|gif|eot|svg|ttf|woff|ico)$/, renderers_re then # HACK
           Page.new self, path
         else
           warn "unknown file type: #{path}" if Rake.application.options.trace
