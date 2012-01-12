@@ -78,10 +78,11 @@ module Zenweb
       task :site => url_path
     end
 
-    def depends_on deps, *except
+    def depends_on deps
       deps = deps.values if Hash === deps
+      deps = Array(deps)
 
-      task self.url_path => deps.map(&:url_path) - [url_path] - except
+      task self.url_path => deps.map(&:url_path) - [url_path]
     end
 
     def self.renderer_extensions
