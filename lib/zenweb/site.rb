@@ -25,6 +25,10 @@ module Zenweb
       @configs = Hash.new { |h,k| h[k] = Config.new self, k }
     end
 
+    def inspect
+      "Site[#{pages.size} pages, #{configs.size - pages.size} configs]"
+    end
+
     def config
       configs["_config.yml"]
     end
@@ -75,6 +79,9 @@ module Zenweb
       pages.each do |path, page|
         page.wire
       end
+
+      $website = self # HACK
+      task(:extra_wirings).invoke
     end
 
     def generate
