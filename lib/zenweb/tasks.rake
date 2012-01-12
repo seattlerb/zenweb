@@ -3,10 +3,10 @@ require 'zenweb'
 task :default => :generate
 
 def website
-  site = Zenweb::Site.new
-  site.scan
-  site.wire
-  site
+  $website = Zenweb::Site.new
+  $website.scan
+  $website.wire
+  $website
 rescue RuntimeError => e
   p e
   puts e.backtrace.join "\n"
