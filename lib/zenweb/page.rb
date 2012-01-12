@@ -48,16 +48,16 @@ module Zenweb
       return if @wired
       @wired = true
 
-      file self
+      file self.path
 
       conf = self.config
       conf = conf.parent if self.path == conf.path
 
-      file self => conf
+      file self.path => conf.path if conf.path
       conf.wire
 
       if self.layout then
-        file self => self.layout
+        file self.path => self.layout.path
         self.layout.wire
       end
 
@@ -73,9 +73,15 @@ module Zenweb
       # rebuild if a config file up the dep tree is rebuilt. This is
       # currently needed because a source file isn't rebuilt if one of
       # it's dependent configs is modified.
-      file(url_path).enhance task(self).prerequisites
+      file(url_path).enhance task(self.path).prerequisites
 
       task :site => url_path
+    end
+
+    def depends_on deps, *except
+      deps = deps.values if Hash === deps
+
+      task self.url_path => deps.map(&:url_path) - [url_path] - except
     end
 
     def self.renderer_extensions
