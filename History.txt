@@ -1,9 +1,8 @@
-=== 3.0.0 / YYYY-MM-DD
+=== 3.0.0b1 / 2012-01-10
 
 * 1 major enhancement:
 
-  * Complete Rewrite
-  * DOC
+  * Complete Rewrite! Not backwards compatible at all! Clean! Pretty! Woot!
 
 === 2.18.1 / 2009-06-23
 

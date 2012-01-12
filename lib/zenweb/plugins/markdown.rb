@@ -11,6 +11,7 @@ class Zenweb::Page
     :coderay_tab_width          => 4,
     :coderay_bold_every         => 10,
     :coderay_css                => 'class',
+    # TODO: turn off smart quotes
   }
 
   def render_md page, content

@@ -14,7 +14,6 @@ Hoe.spec 'zenweb' do
   dependency 'coderay',    '~> 1.0'
   dependency 'kramdown',   '~> 0.13'
   dependency 'rb-fsevent', '~> 0.4'
-  # dependency 'rack',       '~> 0.9' # TODO
 end
 
 # vim: syntax=ruby

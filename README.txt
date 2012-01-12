@@ -1,28 +1,50 @@
 = ZenWeb
 
-* http://rubyforge.org/projects/zenweb/
+* https://github.com/seattlerb/zenweb/
 
 == DESCRIPTION:
   
-DOC
+Zenweb is a set of classes/tools for organizing and formating a
+website. It is website oriented rather than webpage oriented, unlike
+most rendering tools. It is content oriented, rather than style
+oriented, unlike most rendering tools. It uses a rubygems plugin
+system to provide a very flexible, and powerful system.
+
+Zenweb 3 was inspired by jekyll. The filesystem layout is similar to
+jekyll's layout, but zenweb isn't focused on blogs. It can do any sort
+of website just fine.
+
+Zenweb uses rake to handle dependencies. As a result, scanning a
+website and regenerating incrementally is not just possible, it is
+blazingly fast.
 
 == FEATURES:
   
-* DOC
+* Uses rake to do intelligent incremental builds.
+* Uses rubygems to provide a flexible plugin system.
+* Provides plugins for less, markdown, and erb out of the box.
+* Uses a hierarchical config/variable system making pages cleaner.
+* Has syntax highlighting via coderay.
+* Blazingly fast.
+* Stupidly flexible.
 
 == REQUIREMENTS:
 
-* DOC
+* rubygems
+* rake
+* kramdown
+* coderay
+* rb-fsevent
 
 == INSTALL:
 
-* DOC
+* gem install zenweb
 
 == LICENSE:
 
 (The MIT License)
 
-Copyright (c) Ryan Davis, Zen Spider Software
+Copyright (c) Ryan Davis, Seattle.rb
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
