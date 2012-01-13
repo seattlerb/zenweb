@@ -85,6 +85,16 @@ module Zenweb
       task self.url_path => deps.map(&:url_path) - [url_path]
     end
 
+    def depended_on_by from_deps
+      from_deps = from_deps.values if Hash === from_deps
+      from_deps = Array(from_deps)
+
+      from_deps.each do |dep|
+        next if self.url_path == dep.url_path
+        task dep.url_path => self.url_path
+      end
+    end
+
     def self.renderer_extensions
       @ext ||=
         instance_methods.grep(/^render_/).map { |s| s.sub(/render_/, '') }
