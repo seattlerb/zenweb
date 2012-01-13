@@ -46,6 +46,8 @@ module Zenweb
 
       files.each do |path|
         case path
+        when /(?:~|#{excludes.join '|'})$/
+          # ignore
         when /^_layout/ then
           ext = File.extname path
           name = File.basename path, ext
@@ -54,8 +56,6 @@ module Zenweb
           next
         when /\.yml$/ then
           Config.new self, path
-        when /(?:~|#{excludes.join '|'})$/
-          # ignore
         when /\.(?:txt|html|css|js|png|jpg|gif|eot|svg|ttf|woff|ico)$/, renderers_re then # HACK
           Page.new self, path
         else
