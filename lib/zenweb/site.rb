@@ -108,12 +108,12 @@ module Zenweb
           pages.each do |url, page|
             dir = url.split(/\//).first
             next unless File.directory? dir and dir !~ /^_/
-            next if url =~ /index.html/
+            next if url =~ /index.html/ or url !~ /html/
             h[dir] << page
           end
 
           h.keys.each do |dir|
-            h[dir] = h[dir].sort_by(&:date).reverse
+            h[dir] = h[dir].sort_by { |p| [-p.date.to_i, p.title ] }
           end
 
           h
