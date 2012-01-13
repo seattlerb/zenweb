@@ -46,10 +46,12 @@ task :dev do
                                    :Port => 8000,
                                    :MimeTypes => mime_types)
 
+  system "rake clean generate"
+
   fsevent = FSEvent.new
   fsevent.watch Dir.pwd do |directories|
     directories.reject! { |d| d =~ /\.site/ }
-    system "rake" unless directories.empty?
+    system "rake clean generate" unless directories.empty?
   end
 
   threads = []
