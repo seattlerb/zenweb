@@ -17,7 +17,13 @@ website if ENV['ALL']
 
 desc "Generate the website"
 task :generate do
-  website.generate
+  site = website
+
+  site.generate
+
+  found = Dir[".site/**/*"].select { |f| File.file? f }.sort
+  known = site.pages.values.map { |p| p.url_path }.sort
+  rm found - known
 end
 
 desc "Push changes to the site"
@@ -31,41 +37,46 @@ task :clean do
   rm_rf Dir["**/*~"]
 end
 
-desc "remove generated directories"
+desc "remove generated .site directory"
 task :realclean => :clean do
   rm_rf ".site"
 end
 
 task :dev do
-  require 'rb-fsevent'
   require 'webrick'
 
-  mime_types = WEBrick::HTTPUtils::DefaultMimeTypes.dup
+  class ZenwebBuilder < WEBrick::HTTPServlet::FileHandler
+    def service req, res
+      url = req.path
+      target_path = File.join(@root, url)
 
-  server = WEBrick::HTTPServer.new(:DocumentRoot => ".site",
-                                   :Port => 8000,
-                                   :MimeTypes => mime_types)
+      source_file = req.path.gsub(/(\d\d\d\d)\/(\d\d)\/(\d\d)\//, '\1-\2-\3-')
 
-  system "rake clean generate"
+      if File.directory? File.join(@root, url) then
+        source_file += "index.html"
+        target_path += "index.html"
+      end
 
-  fsevent = FSEvent.new
-  fsevent.watch Dir.pwd do |directories|
-    directories.reject! { |d| d =~ /\.site/ }
-    system "rake clean generate" unless directories.empty?
+      sources = Dir[".#{source_file}*"]
+
+      newer = sources.find { |p|
+        ! File.exist?(target_path) or File.mtime(p) > File.mtime(target_path)
+      }
+
+      system "rake clean generate" if newer
+
+      super
+    end
   end
 
-  threads = []
-  threads << Thread.new { server.start }
-  threads << Thread.new { fsevent.run }
+  server = WEBrick::HTTPServer.new :Port => 8000
+  server.mount '/', ZenwebBuilder, ".site"
 
   trap 'INT' do
     server.shutdown
-    fsevent.stop
   end
 
-  threads.each do |t|
-    t.join
-  end
+  server.start
 end
 
 task :debug do
