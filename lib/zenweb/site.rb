@@ -52,6 +52,7 @@ module Zenweb
           ext = File.extname path
           name = File.basename path, ext
           @layouts[name] = Page.new self, path
+          @pages.delete path
         when /^_/ then
           next
         when /\.yml$/ then
