@@ -7,24 +7,24 @@ require "zenweb/page"
 
 describe File do
   def test_class_each_parent
-    flunk "not yet"
+    skip "not yet"
   end
 end
 
 describe Time do
   def test_date
-    flunk "not yet"
+    skip "not yet"
   end
 
   def test_time
-    flunk "not yet"
+    skip "not yet"
   end
 
   def test_datetime
-    flunk "not yet"
+    skip "not yet"
   end
 
   def test_clean
-    flunk "not yet"
+    skip "not yet"
   end
 end

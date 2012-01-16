@@ -20,7 +20,7 @@ layout: nil
    <link href="http://example.com{{ post.url }}"/>
    <updated>{{ post.date.xmlschema }}</updated>
    <id>http://example.com{{ post.url }}</id>
-   <content type="html">{{ xml_escape post.content }}</content>
+   <content type="html">{{ h post.content }}</content>
  </entry>
  {% end %}
 
