@@ -7,6 +7,7 @@ class Zenweb::Page
 
   def erb content, source, binding = TOPLEVEL_BINDING
     require 'erb'
+    extend ERB::Util
 
     content = content.
       gsub(/\{\{/, "<%=").

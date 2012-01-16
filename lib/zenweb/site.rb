@@ -21,6 +21,7 @@ module Zenweb
     self.load_plugins
 
     def initialize
+      @layouts = {}
       @pages = {}
       @configs = Hash.new { |h,k| h[k] = Config.new self, k }
     end
@@ -40,8 +41,6 @@ module Zenweb
       files, dirs = top.partition { |path| File.file? path }
       files += Dir["{#{top.join(",")}}/**/*"].reject { |f| not File.file? f }
 
-      @layouts = {}
-
       renderers_re = Page.renderers_re
 
       files.each do |path|
@@ -52,13 +51,12 @@ module Zenweb
           ext = File.extname path
           name = File.basename path, ext
           @layouts[name] = Page.new self, path
-          @pages.delete path
         when /^_/ then
           next
         when /\.yml$/ then
-          Config.new self, path
+          @configs[path] = Config.new self, path
         when /\.(?:txt|html|css|js|png|jpg|gif|eot|svg|ttf|woff|ico)$/, renderers_re then # HACK
-          Page.new self, path
+          @pages[path] = Page.new self, path
         else
           warn "unknown file type: #{path}" if Rake.application.options.trace
         end
@@ -91,6 +89,10 @@ module Zenweb
 
     def pages_by_date
       pages.values.select {|p| p["title"] && p.date }.sort_by(&:date).reverse
+    end
+
+    def method_missing msg, *args
+      config[msg.to_s] || warn("#{self.inspect} does not define #{msg}")
     end
 
     def categories

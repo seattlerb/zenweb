@@ -1,5 +1,4 @@
 require "rubygems"
-require "yaml"
 require "time"
 
 module Zenweb

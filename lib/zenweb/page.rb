@@ -11,7 +11,6 @@ module Zenweb
 
     def initialize site, path
       @site, @path = site, path
-      site.pages[path] = self
     end
 
     def config
@@ -137,7 +136,7 @@ module Zenweb
     end
 
     def subrender page = self, content = nil
-      filetypes.inject(content) { |cont, type|
+      page.filetypes.inject(content) { |cont, type|
         send "render_#{type}", page, cont
       } || self.content
     end
@@ -171,6 +170,7 @@ module Zenweb
     end
 
     def include path
+      # HACK needs to subrender to allow variables
       File.read File.join("_includes", path)
     end
 
@@ -183,11 +183,6 @@ module Zenweb
       File.open url_path, "w" do |f|
         f.puts content
       end
-    end
-
-    def xml_escape content
-      require 'cgi'
-      CGI.escapeHTML content
     end
   end # class Page
 end

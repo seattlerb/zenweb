@@ -1,3 +1,8 @@
+require "yaml"
+
+gem "rake"
+require "rake"
+
 module Zenweb
   class Config
     include Rake::DSL
@@ -6,7 +11,6 @@ module Zenweb
 
     def initialize site, path
       @site, @path, @parent = site, path, nil
-      site.configs[path] = self
 
       File.each_parent path, "_config.yml" do |config|
         next unless File.file? config
@@ -42,7 +46,9 @@ module Zenweb
       end
     end
 
-    alias :to_s :path
+    def to_s
+      "Config[#{path.inspect}]"
+    end
   end # class Config
 
   Config::Null = Class.new Config do
