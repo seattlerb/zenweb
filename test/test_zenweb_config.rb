@@ -7,22 +7,19 @@ require "rake"
 require "minitest/autorun"
 
 require "zenweb/site"
+require "test/helper"
 
-describe Zenweb::Config do
+class TestZenwebConfig < MiniTest::Unit::TestCase
+  include ChdirTest("example-site")
+
   attr_accessor :site, :config
 
   def setup
-    @old_dir = Dir.pwd
-    Dir.chdir "example-site"
+    super
 
     self.site = Zenweb::Site.new
-    site.scan
-
-    self.config = site.pages["blog/2012-01-02-page1.html.md"].config
-  end
-
-  def teardown
-    Dir.chdir @old_dir
+    page = Zenweb::Page.new site, "blog/2012-01-02-page1.html.md"
+    self.config = page.config
   end
 
   def test_h
@@ -60,6 +57,17 @@ describe Zenweb::Config do
   end
 
   def test_wire
-    skip 'not yet'
+    Rake.application = Rake::Application.new
+    site.scan
+    self.config = site.pages["blog/2012-01-02-page1.html.md"].config
+    rake = Rake.application
+
+    config.wire
+
+    assert_tasks do
+      assert_task ""
+      assert_task config.path, %w[blog/_config.yml]
+      assert_task "blog/_config.yml", %w[_config.yml]
+    end
   end
 end

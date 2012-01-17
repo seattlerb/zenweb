@@ -4,23 +4,21 @@ require "rubygems"
 require "minitest/autorun"
 
 require "zenweb/site"
+require "test/helper"
 
 class Zenweb::Site
   attr_accessor :layouts
 end
 
-describe Zenweb::Site do
+class TestZenwebSite < MiniTest::Unit::TestCase
+  include ChdirTest("example-site")
+
   attr_accessor :site
 
   def setup
-    @old_dir = Dir.pwd
-    Dir.chdir "example-site"
+    super
 
     self.site = Zenweb::Site.new
-  end
-
-  def teardown
-    Dir.chdir @old_dir
   end
 
   def test_categories
@@ -118,41 +116,82 @@ describe Zenweb::Site do
   end
 
   def test_wire
+    Rake.application = Rake::Application.new
     site.scan
     site.wire
+    rake = Rake.application
+    tasks = rake.tasks
 
-    app = Rake.application
-    tasks = app.tasks
+    # HACK: seems there might be a bug in rake w/o this
+    Rake::Task.define_task ""
 
-    exp = [Rake::FileCreationTask, Rake::FileTask, Rake::Task]
-    assert_equal exp, tasks.map(&:class).uniq.sort_by { |k| k.name }
+    assert_tasks do
+      assert_task ""
+      assert_task ".site"
+      assert_task ".site/about"
+      assert_task ".site/blog"
+      assert_task ".site/blog/2012"
+      assert_task ".site/blog/2012/01"
+      assert_task ".site/blog/2012/01/02"
+      assert_task ".site/blog/2012/01/03"
+      assert_task ".site/blog/2012/01/04"
+      assert_task ".site/css"
+      assert_task ".site/img"
+      assert_task ".site/js"
+      assert_task ".site/pages"
+      assert_task ".site/projects"
+      assert_task "extra_wirings"
 
-    assert_equal "site", Rake.application[:site].name
+      # stupid simple deps
+      assert_task "_layouts/site.erb",                %w[_config.yml]
+      assert_task "atom.xml.erb",                     %w[_config.yml]
+      assert_task "blog/_config.yml",                 %w[_config.yml]
+      assert_task "css/colors.css.less",              %w[_config.yml]
+      assert_task "css/styles.css",                   %w[_config.yml]
+      assert_task "css/syntax.css",                   %w[_config.yml]
+      assert_task "img/bg.png",                       %w[_config.yml]
+      assert_task "js/jquery.js",                     %w[_config.yml]
+      assert_task "js/site.js",                       %w[_config.yml]
+      assert_task "sitemap.xml.erb",                  %w[_config.yml]
 
-    exp = %w[.site
-             .site/_layouts/post
-             .site/_layouts/project
-             .site/_layouts/site
-             .site/about/index.html
-             .site/atom.xml
-             .site/blog/2012/01/02/page1.html
-             .site/blog/2012/01/03/page2.html
-             .site/blog/2012/01/04/page3.html
-             .site/blog/index.html
-             .site/css/colors.css
-             .site/css/styles.css
-             .site/css/syntax.css
-             .site/img/bg.png
-             .site/index.html
-             .site/js/jquery.js
-             .site/js/site.js
-             .site/pages/index.html
-             .site/pages/nonblogpage.html
-             .site/projects/index.html
-             .site/projects/zenweb.html
-             .site/sitemap.xml]
+      assert_task ".site/about/index.html",           %w[.site/about           about/index.html.md           _config.yml      _layouts/site.erb].sort
+      assert_task ".site/atom.xml",                   %w[.site                 atom.xml.erb                  _config.yml].sort
+      assert_task ".site/blog/2012/01/02/page1.html", %w[.site/blog/2012/01/02 blog/2012-01-02-page1.html.md blog/_config.yml _layouts/post.erb].sort
+      assert_task ".site/blog/2012/01/03/page2.html", %w[.site/blog/2012/01/03 blog/2012-01-03-page2.html.md blog/_config.yml _layouts/post.erb].sort
+      assert_task ".site/blog/2012/01/04/page3.html", %w[.site/blog/2012/01/04 blog/2012-01-04-page3.html.md blog/_config.yml _layouts/post.erb].sort
+      assert_task ".site/blog/index.html",            %w[.site/blog            blog/index.html.erb           blog/_config.yml _layouts/site.erb].sort
+      assert_task ".site/css/colors.css",             %w[.site/css             css/colors.css.less           _config.yml].sort
+      assert_task ".site/css/styles.css",             %w[.site/css             css/styles.css                _config.yml].sort
+      assert_task ".site/css/syntax.css",             %w[.site/css             css/syntax.css                _config.yml].sort
+      assert_task ".site/img/bg.png",                 %w[.site/img             img/bg.png                    _config.yml].sort
+      assert_task ".site/index.html",                 %w[.site                 index.html.erb                _config.yml      _layouts/site.erb].sort
+      assert_task ".site/js/jquery.js",               %w[.site/js              js/jquery.js                  _config.yml].sort
+      assert_task ".site/js/site.js",                 %w[.site/js              js/site.js                    _config.yml].sort
+      assert_task ".site/pages/index.html",           %w[.site/pages           pages/index.html.erb          _config.yml      _layouts/site.erb].sort
+      assert_task ".site/pages/nonblogpage.html",     %w[.site/pages           pages/nonblogpage.html.md     _config.yml      _layouts/site.erb].sort
+      assert_task ".site/projects/index.html",        %w[.site/projects        projects/index.html.erb       _config.yml      _layouts/site.erb].sort
+      assert_task ".site/projects/zenweb.html",       %w[.site/projects        projects/zenweb.html.erb      _config.yml      _layouts/project.erb].sort
+      assert_task ".site/sitemap.xml",                %w[.site                 sitemap.xml.erb               _config.yml].sort
 
-    # HACK: _layouts shouldn't be in there... fix that
-    assert_equal exp, Rake.application[:site].prerequisites.sort
+      assert_task "_layouts/post.erb",                %w[_config.yml      _layouts/site.erb]
+      assert_task "_layouts/project.erb",             %w[_config.yml      _layouts/site.erb]
+      assert_task "about/index.html.md",              %w[_config.yml      _layouts/site.erb]
+      assert_task "blog/2012-01-02-page1.html.md",    %w[blog/_config.yml _layouts/post.erb].sort
+      assert_task "blog/2012-01-03-page2.html.md",    %w[blog/_config.yml _layouts/post.erb].sort
+      assert_task "blog/2012-01-04-page3.html.md",    %w[blog/_config.yml _layouts/post.erb].sort
+      assert_task "blog/index.html.erb",              %w[blog/_config.yml _layouts/site.erb].sort
+      assert_task "index.html.erb",                   %w[_config.yml      _layouts/site.erb]
+      assert_task "pages/index.html.erb",             %w[_config.yml      _layouts/site.erb]
+      assert_task "pages/nonblogpage.html.md",        %w[_config.yml      _layouts/site.erb]
+      assert_task "projects/index.html.erb",          %w[_config.yml      _layouts/site.erb]
+      assert_task "projects/zenweb.html.erb",         %w[_config.yml      _layouts/project.erb]
+
+      assert_task "site",                             %w[.site .site/js/site.js .site/_layouts/site .site/pages/nonblogpage.html .site/css/colors.css .site/pages/index.html .site/atom.xml .site/css/syntax.css .site/img/bg.png .site/css/styles.css .site/blog/index.html .site/index.html .site/_layouts/project .site/projects/zenweb.html .site/projects/index.html .site/_layouts/post .site/blog/2012/01/04/page3.html .site/blog/2012/01/02/page1.html .site/sitemap.xml .site/blog/2012/01/03/page2.html .site/js/jquery.js .site/about/index.html].sort
+
+      # TODO: remove these
+      assert_task ".site/_layouts/post",              %w[_config.yml _layouts/site.erb]
+      assert_task ".site/_layouts/project",           %w[_config.yml _layouts/site.erb]
+      assert_task ".site/_layouts/site",              %w[_config.yml]
+    end
   end
 end

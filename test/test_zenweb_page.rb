@@ -4,22 +4,18 @@ require "rubygems"
 require "minitest/autorun"
 
 require "zenweb/site"
+require "test/helper"
 
-describe Zenweb::Page do
+class TestZenwebPage < MiniTest::Unit::TestCase
+  include ChdirTest("example-site")
+
   attr_accessor :site, :page
 
   def setup
-    @old_dir = Dir.pwd
-    Dir.chdir "example-site"
+    super
 
     self.site = Zenweb::Site.new
-    site.scan
-
-    self.page = site.pages["blog/2012-01-02-page1.html.md"]
-  end
-
-  def teardown
-    Dir.chdir @old_dir
+    self.page = Zenweb::Page.new site, "blog/2012-01-02-page1.html.md"
   end
 
   def test_body
@@ -130,8 +126,41 @@ describe Zenweb::Page do
   end
 
   def test_wire
-    skip 'not yet'
-    assert_equal 42, page.wire
-    flunk 'not yet'
+    Rake.application = Rake::Application.new
+    site.scan
+    self.page = site.pages["blog/2012-01-02-page1.html.md"]
+    rake = Rake.application
+
+    page.wire
+
+    # HACK: seems there might be a bug in rake w/o this
+    Rake::Task.define_task ""
+
+    assert_tasks do
+      assert_task ""
+      assert_task ".site"
+      assert_task ".site/blog"
+      assert_task ".site/blog/2012"
+      assert_task ".site/blog/2012/01"
+      assert_task ".site/blog/2012/01/02"
+
+      deps = %w[.site/blog/2012/01/02 _layouts/post.erb
+              blog/2012-01-02-page1.html.md blog/_config.yml]
+      assert_task ".site/blog/2012/01/02/page1.html", deps
+      assert_task "_layouts/post.erb", %w[_config.yml _layouts/site.erb]
+      assert_task "_layouts/site.erb", %w[_config.yml]
+
+      deps = %w[_layouts/post.erb blog/_config.yml]
+      assert_task "blog/2012-01-02-page1.html.md", deps
+
+      assert_task "blog/_config.yml", %w[_config.yml]
+
+      # TODO: remove these
+      assert_task ".site/_layouts/post", %w[_config.yml _layouts/site.erb]
+      assert_task ".site/_layouts/site", %w[_config.yml]
+      deps = %w[.site/_layouts/post .site/_layouts/site
+              .site/blog/2012/01/02/page1.html]
+      assert_task "site", deps
+    end
   end
 end
