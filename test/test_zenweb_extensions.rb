@@ -3,28 +3,32 @@
 require "rubygems"
 require "minitest/autorun"
 
-require "zenweb/page"
+require "zenweb/extensions"
 
 describe File do
   def test_class_each_parent
-    skip "not yet"
+    a = []
+
+    Dir.chdir "example-site" do
+      File.each_parent "blog/index.html.erb", "_config.yml" do |f|
+        a << f
+      end
+    end
+
+    assert_equal %w[blog/_config.yml _config.yml], a
   end
 end
 
 describe Time do
   def test_date
-    skip "not yet"
+    assert_equal "1969-12-31",         Time.at(0).date
   end
 
   def test_time
-    skip "not yet"
+    assert_equal "16:00",              Time.at(0).time
   end
 
   def test_datetime
-    skip "not yet"
-  end
-
-  def test_clean
-    skip "not yet"
+    assert_equal "1969-12-31 @ 16:00", Time.at(0).datetime
   end
 end
