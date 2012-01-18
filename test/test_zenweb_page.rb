@@ -41,16 +41,36 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     assert_equal Time.local(2012, 1, 2), page.date_from_path
   end
 
+  def setup_deps
+    Rake.application = Rake::Application.new
+    site.scan
+
+    assert_empty Rake.application.tasks
+
+    p1 = site.pages["blog/2012-01-02-page1.html.md"]
+    p2 = site.pages["blog/2012-01-03-page2.html.md"]
+
+    return p1, p2
+  end
+
   def test_depended_on_by
-    skip 'not yet'
-    assert_equal 42, page.depended_on_by
-    flunk 'not yet'
+    p1, p2 = setup_deps
+
+    p1.depended_on_by p2
+
+    assert_tasks do
+      assert_task p2.url_path, [p1.url_path]
+    end
   end
 
   def test_depends_on
-    skip 'not yet'
-    assert_equal 42, page.depends_on
-    flunk 'not yet'
+    p1, p2 = setup_deps
+
+    p1.depends_on p2
+
+    assert_tasks do
+      assert_task p1.url_path, [p2.url_path]
+    end
   end
 
   def test_filetype
@@ -137,15 +157,14 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     Rake::Task.define_task ""
 
     assert_tasks do
-      assert_task ""
+      assert_task "", nil, Rake::Task
       assert_task ".site"
       assert_task ".site/blog"
       assert_task ".site/blog/2012"
       assert_task ".site/blog/2012/01"
       assert_task ".site/blog/2012/01/02"
 
-      deps = %w[.site/blog/2012/01/02 _layouts/post.erb
-              blog/2012-01-02-page1.html.md blog/_config.yml]
+      deps = %w[.site/blog/2012/01/02 blog/2012-01-02-page1.html.md]
       assert_task ".site/blog/2012/01/02/page1.html", deps
       assert_task "_layouts/post.erb", %w[_config.yml _layouts/site.erb]
       assert_task "_layouts/site.erb", %w[_config.yml]
@@ -154,13 +173,13 @@ class TestZenwebPage < MiniTest::Unit::TestCase
       assert_task "blog/2012-01-02-page1.html.md", deps
 
       assert_task "blog/_config.yml", %w[_config.yml]
+      assert_task "_config.yml"
 
       # TODO: remove these
-      assert_task ".site/_layouts/post", %w[_config.yml _layouts/site.erb]
-      assert_task ".site/_layouts/site", %w[_config.yml]
-      deps = %w[.site/_layouts/post .site/_layouts/site
-              .site/blog/2012/01/02/page1.html]
-      assert_task "site", deps
+      # assert_task ".site/_layouts/post", %w[_config.yml _layouts/site.erb]
+      # assert_task ".site/_layouts/site", %w[_config.yml]
+      deps = %w[.site/blog/2012/01/02/page1.html]
+      assert_task "site", deps, Rake::Task
     end
   end
 end

@@ -7,18 +7,39 @@ end
 
 class Time
   def date
-    clean "%Y-%m-%d"
+    strftime "%Y-%m-%d"
   end
 
   def time
-    clean "%H:%M"
+    strftime "%H:%M"
   end
 
   def datetime
-    clean "%Y-%m-%d @ %H:%M"
+    strftime "%Y-%m-%d @ %H:%M"
+  end
+end
+
+gem "rake"
+require 'rake'
+
+class Rake::FileTask
+  alias old_needed? needed?
+  def needed?
+    x = ! File.exist?(name) || timestamp > real_timestamp
   end
 
-  def clean fmt
-    strftime fmt
+  def real_timestamp
+    File.exist?(name) && File.mtime(name.to_s) || Rake::EARLY
+  end
+
+  alias old_timestamp timestamp
+  def timestamp
+    if File.exist?(name)
+      a = File.mtime(name.to_s)
+      b = super unless prerequisites.empty?
+      [a, b].compact.max
+    else
+      Rake::EARLY
+    end
   end
 end

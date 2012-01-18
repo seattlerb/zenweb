@@ -14,10 +14,13 @@ class MiniTest::Unit::TestCase
     end
   end
 
-  def assert_task name, deps = nil
+  def assert_task name, deps = nil, type = Rake::FileTask
     @tasks << name
     assert_operator Rake::Task, :task_defined?, name
-    assert_equal deps, Rake.application[name].prerequisites.sort, name if deps
+
+    task = Rake.application[name]
+    assert_kind_of type, task
+    assert_equal deps, task.prerequisites.sort, name if deps
   end
 
   def assert_tasks

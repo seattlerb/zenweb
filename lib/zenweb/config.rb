@@ -34,7 +34,10 @@ module Zenweb
       return if @wired
       @wired = true
 
+      file self.path
+
       file self.path => self.parent.path if self.parent.path # HACK
+
       self.parent.wire
     end
 

@@ -66,22 +66,16 @@ module Zenweb
         file url_path => path do
           self.generate
         end
+
+        task :site => url_path
       end
-
-      # This flattens out the deps so that the html file will be
-      # rebuild if a config file up the dep tree is rebuilt. This is
-      # currently needed because a source file isn't rebuilt if one of
-      # it's dependent configs is modified.
-      file(url_path).enhance task(self.path).prerequisites
-
-      task :site => url_path
     end
 
     def depends_on deps
       deps = deps.values if Hash === deps
       deps = Array(deps)
 
-      task self.url_path => deps.map(&:url_path) - [url_path]
+      file self.url_path => deps.map(&:url_path) - [url_path]
     end
 
     def depended_on_by from_deps
@@ -90,7 +84,7 @@ module Zenweb
 
       from_deps.each do |dep|
         next if self.url_path == dep.url_path
-        task dep.url_path => self.url_path
+        file dep.url_path => self.url_path
       end
     end
 
