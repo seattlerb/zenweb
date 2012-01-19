@@ -81,6 +81,11 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     assert_equal %w[md], page.filetypes
   end
 
+  def test_filetypes_odd
+    page = Zenweb::Page.new site, "blah.wtf"
+    assert_equal %w[], page.filetypes
+  end
+
   def test_generate
     page = Zenweb::Page.new site, "blah"
 
@@ -120,6 +125,20 @@ class TestZenwebPage < MiniTest::Unit::TestCase
 
   def test_method_missing
     assert_equal page["title"], page.method_missing("title")
+  end
+
+  def test_method_missing_odd
+    err = "Page[\"blog/2012-01-02-page1.html.md\"] does not define wtf\n"
+    assert_output "", err do
+      assert_nil page.method_missing("wtf")
+    end
+  end
+
+  def test_method_missing_render
+    err = "Page[\"blog/2012-01-02-page1.html.md\"] does not define wtf\n"
+    assert_raises NoMethodError do
+      assert_nil page.render_wtf
+    end
   end
 
   def test_path

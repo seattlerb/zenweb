@@ -32,12 +32,30 @@ class TestZenwebConfig < MiniTest::Unit::TestCase
   end
 
   def test_inspect
-    exp = ["Config[\"blog/2012-01-02-page1.html.md\"",
-           "Config[\"blog/_config.yml\"",
-           "Config[\"_config.yml\"",
-           "Config::Null]]]"
+    exp = ['Config["blog/2012-01-02-page1.html.md"',
+           'Config["blog/_config.yml"',
+           'Config["_config.yml"',
+           'Config::Null]]]'
           ].join ", "
     assert_equal exp, config.inspect
+  end
+
+  def test_inspect_trace
+    exp = ['Config["blog/2012-01-02-page1.html.md"',
+           'Config["blog/_config.yml"',
+           'Config["_config.yml"',
+           'Config::Null',
+           '"header"=>"Example Website"',
+           '"exclude"=>["Rakefile", "tmp"]',
+           '"google_ua"=>"UA-1234567-8"]',
+           '"layout"=>"post"]',
+           '"title"=>"Example Page 1"]'].join ", "
+
+    assert_nil Rake.application.options.trace
+    Rake.application.options.trace = true
+    assert_equal exp, config.inspect
+  ensure
+    Rake.application.options.trace = nil
   end
 
   def test_parent

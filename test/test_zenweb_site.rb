@@ -35,6 +35,21 @@ class TestZenwebSite < MiniTest::Unit::TestCase
     assert_equal exp, cats.values.map { |a| a.map(&:path).sort }
   end
 
+  def test_categories_method_missing
+    site.scan
+    cats = site.categories
+
+    exp = ["blog/2012-01-02-page1.html.md",
+           "blog/2012-01-03-page2.html.md",
+           "blog/2012-01-04-page3.html.md"]
+
+    assert_equal exp, cats.blog.map(&:path).sort
+
+    assert_raises NoMethodError do
+      cats.wtf
+    end
+  end
+
   def test_config
     assert_equal "_config.yml", site.config.path
   end
