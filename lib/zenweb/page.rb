@@ -174,7 +174,7 @@ module Zenweb
 
       content = self.render
 
-      File.open url_path, "w" do |f|
+      open url_path, "w" do |f|
         f.puts content
       end
     end
