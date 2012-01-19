@@ -27,7 +27,7 @@ module Zenweb
     end
 
     def inspect
-      "Site[#{pages.size} pages, #{configs.size - pages.size} configs]"
+      "Site[#{pages.size} pages, #{configs.size} configs]"
     end
 
     def config
