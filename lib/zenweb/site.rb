@@ -88,7 +88,8 @@ module Zenweb
     end
 
     def pages_by_date
-      pages.values.select {|p| p["title"] && p.date }.sort_by(&:date).reverse
+      pages.values.select {|page| page["title"] && page.date }.
+        sort_by { |page| [-page.date.to_i, page.title] }
     end
 
     def method_missing msg, *args
