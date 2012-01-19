@@ -185,11 +185,7 @@ class TestZenwebPage < MiniTest::Unit::TestCase
 
     page.wire
 
-    # HACK: seems there might be a bug in rake w/o this
-    Rake::Task.define_task ""
-
     assert_tasks do
-      assert_task "", nil, Rake::Task
       assert_task ".site"
       assert_task ".site/blog"
       assert_task ".site/blog/2012"

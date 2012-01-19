@@ -83,7 +83,6 @@ class TestZenwebConfig < MiniTest::Unit::TestCase
     config.wire
 
     assert_tasks do
-      assert_task "", nil, Rake::Task # HACK
       assert_task "_config.yml"
       assert_task "blog/_config.yml", %w[_config.yml]
       assert_task config.path, %w[blog/_config.yml]

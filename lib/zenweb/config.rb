@@ -55,17 +55,10 @@ module Zenweb
   end # class Config
 
   Config::Null = Class.new Config do
-    def initialize; end
-    def [] k;       end
+    def initialize;              end
+    def [] k;                    end
     def inspect; "Config::Null"; end
-
-    def wire # HACK? honestly... I don't know. blame rake
-      @wired ||= false # HACK
-      return if @wired
-      @wired = true
-
-      task ""
-    end
+    def wire;                    end
   end.new
 end
 

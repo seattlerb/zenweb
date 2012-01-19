@@ -155,11 +155,7 @@ class TestZenwebSite < MiniTest::Unit::TestCase
     rake = Rake.application
     tasks = rake.tasks
 
-    # HACK: seems there might be a bug in rake w/o this
-    Rake::Task.define_task ""
-
     assert_tasks do
-      assert_task "", nil, Rake::Task
       assert_task ".site"
       assert_task ".site/about"
       assert_task ".site/blog"
