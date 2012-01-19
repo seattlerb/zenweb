@@ -25,7 +25,7 @@ require 'rake'
 class Rake::FileTask
   alias old_needed? needed?
   def needed?
-    x = ! File.exist?(name) || timestamp > real_timestamp
+    ! File.exist?(name) || timestamp > real_timestamp
   end
 
   def real_timestamp
