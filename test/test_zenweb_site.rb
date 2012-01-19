@@ -51,12 +51,25 @@ class TestZenwebSite < MiniTest::Unit::TestCase
   end
 
   def test_generate
-    skip 'not yet'
+    Rake.application = Rake::Application.new
+    extend Rake::DSL
+
+    ran = false
+    task(:site) do
+      ran = true
+    end
+
+    site.generate
+
+    assert ran, "Site#generate needs to call the site task"
   end
 
   def test_inspect
-    # we haven't scanned yet, so fast, but boring
     assert_equal "Site[0 pages, 0 configs]", site.inspect
+
+    site.scan
+
+    assert_equal "Site[18 pages, 2 configs]", site.inspect
   end
 
   def test_layout

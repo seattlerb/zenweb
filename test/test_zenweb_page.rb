@@ -82,9 +82,22 @@ class TestZenwebPage < MiniTest::Unit::TestCase
   end
 
   def test_generate
-    skip 'not yet'
-    assert_equal 42, page.generate
-    flunk 'not yet'
+    page = Zenweb::Page.new site, "blah"
+
+    def page.render
+      "woot"
+    end
+
+    def page.open path, mode
+      yield $stdout
+    end
+
+    out = "woot\n"
+    err = "Rendering blah\n       to .site/blah\n"
+
+    assert_output out, err do
+      page.generate
+    end
   end
 
   def test_include
