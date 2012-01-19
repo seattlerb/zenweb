@@ -99,16 +99,21 @@ class TestZenwebSite < MiniTest::Unit::TestCase
   end
 
   def test_pages_by_date
-    skip "this is a serious bitch of a test to write"
     site.scan
 
-    exp = Dir["**/*.html.*"].
-      reject! { |p| p =~ /(^|\/)_/ }.
-      sort_by { |p| YAML.load_file(p)["date"] || File.mtime(p) }
+    srand 24
+    site.pages.values.each do |x|
+      def x.date
+        Time.at rand(100)
+      end
+    end
 
-    assert_equal exp, site.pages_by_date.map(&:path)
+    exp = ["example.com", "About example.com", "Some regular page",
+           "zenweb", "Example Page 2", "Example Page 1",
+           "example.com projects", "Example Website", "example.com pages",
+           "Example Page 3"]
 
-    flunk 'not yet'
+    assert_equal exp, site.pages_by_date.map(&:title)
   end
 
   def test_scan # the rest is tested via the other tests
