@@ -42,7 +42,7 @@ task :realclean => :clean do
   rm_rf ".site"
 end
 
-task :dev do
+task :run do
   require 'webrick'
 
   class ZenwebBuilder < WEBrick::HTTPServlet::FileHandler
