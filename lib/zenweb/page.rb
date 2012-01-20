@@ -164,8 +164,7 @@ module Zenweb
     end
 
     def include path
-      # HACK needs to subrender to allow variables
-      File.read File.join("_includes", path)
+      Page.new(site, File.join("_includes", path)).subrender
     end
 
     def generate

@@ -106,9 +106,9 @@ class TestZenwebPage < MiniTest::Unit::TestCase
   end
 
   def test_include
-    fragment = page.include("analytics.html")
+    fragment = page.include("analytics.html.erb")
     assert_match(/UA-\d+/, site.config["google_ua"])
-    # assert_match site.config["google_ua"], fragment # HACK
+    assert_match site.config["google_ua"], fragment
   end
 
   def test_index
