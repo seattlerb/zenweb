@@ -186,28 +186,23 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     page.wire
 
     assert_tasks do
+      # dirs
       assert_task ".site"
       assert_task ".site/blog"
       assert_task ".site/blog/2012"
       assert_task ".site/blog/2012/01"
       assert_task ".site/blog/2012/01/02"
 
-      deps = %w[.site/blog/2012/01/02 blog/2012-01-02-page1.html.md]
-      assert_task ".site/blog/2012/01/02/page1.html", deps
+      # aux
       assert_task "_layouts/post.erb", %w[_config.yml _layouts/site.erb]
       assert_task "_layouts/site.erb", %w[_config.yml]
-
-      deps = %w[_layouts/post.erb blog/_config.yml]
-      assert_task "blog/2012-01-02-page1.html.md", deps
-
       assert_task "blog/_config.yml", %w[_config.yml]
       assert_task "_config.yml"
 
-      # TODO: remove these
-      # assert_task ".site/_layouts/post", %w[_config.yml _layouts/site.erb]
-      # assert_task ".site/_layouts/site", %w[_config.yml]
-      deps = %w[.site/blog/2012/01/02/page1.html]
-      assert_task "site", deps, Rake::Task
+      # page down to site
+      assert_task page.path, %w[_layouts/post.erb blog/_config.yml]
+      assert_task page.url_path, [page.url_dir, page.path]
+      assert_task "site", [page.url_path], Rake::Task
     end
   end
 end
