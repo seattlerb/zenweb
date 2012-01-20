@@ -149,10 +149,6 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     assert_equal "<p>Not really much here to see.</p>\n", page.render
   end
 
-  def test_renderer_extensions # FIX: this should be a class method
-    assert_equal %w(erb less md), page.renderer_extensions.sort
-  end
-
   def test_site
     assert_equal site, page.site
   end
