@@ -26,12 +26,61 @@ module Zenweb
       @configs = Hash.new { |h,k| h[k] = Config.new self, k }
     end
 
-    def inspect
-      "Site[#{pages.size} pages, #{configs.size} configs]"
+    def categories
+      @categories ||=
+        begin
+          h = Hash.new { |h,k| h[k] = [] }
+
+          def h.method_missing msg, *args
+            if self.has_key? msg.to_s then
+              self[msg.to_s]
+            else
+              super
+            end
+          end
+
+          pages.each do |url, page|
+            dir = url.split(/\//).first
+            next unless File.directory? dir and dir !~ /^_/
+            next if url =~ /index.html/ or url !~ /html/
+            h[dir] << page
+          end
+
+          h.keys.each do |dir|
+            h[dir] = h[dir].sort_by { |p| [-p.date.to_i, p.title ] }
+          end
+
+          h
+        end
     end
 
     def config
       configs["_config.yml"]
+    end
+
+    def generate
+      task(:site).invoke
+    end
+
+    def html_pages
+      self.pages.values.select { |p| p.url_path =~ /\.html/ }
+    end
+
+    def inspect
+      "Site[#{pages.size} pages, #{configs.size} configs]"
+    end
+
+    def layout name
+      @layouts[name]
+    end
+
+    def method_missing msg, *args
+      config[msg.to_s] || warn("#{self.inspect} does not define #{msg}")
+    end
+
+    def pages_by_date
+      pages.values.select {|page| page["title"] && page.date }.
+        sort_by { |page| [-page.date.to_i, page.title] }
     end
 
     def scan
@@ -63,10 +112,6 @@ module Zenweb
       end
     end
 
-    def layout name
-      @layouts[name]
-    end
-
     def wire
       directory ".site"
       task :site => ".site"
@@ -81,51 +126,6 @@ module Zenweb
 
       $website = self # HACK
       task(:extra_wirings).invoke
-    end
-
-    def generate
-      task(:site).invoke
-    end
-
-    def pages_by_date
-      pages.values.select {|page| page["title"] && page.date }.
-        sort_by { |page| [-page.date.to_i, page.title] }
-    end
-
-    def method_missing msg, *args
-      config[msg.to_s] || warn("#{self.inspect} does not define #{msg}")
-    end
-
-    def html_pages
-      self.pages.values.select { |p| p.url_path =~ /\.html/ }
-    end
-
-    def categories
-      @categories ||=
-        begin
-          h = Hash.new { |h,k| h[k] = [] }
-
-          def h.method_missing msg, *args
-            if self.has_key? msg.to_s then
-              self[msg.to_s]
-            else
-              super
-            end
-          end
-
-          pages.each do |url, page|
-            dir = url.split(/\//).first
-            next unless File.directory? dir and dir !~ /^_/
-            next if url =~ /index.html/ or url !~ /html/
-            h[dir] << page
-          end
-
-          h.keys.each do |dir|
-            h[dir] = h[dir].sort_by { |p| [-p.date.to_i, p.title ] }
-          end
-
-          h
-        end
     end
   end # class Site
 end

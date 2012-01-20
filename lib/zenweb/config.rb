@@ -21,24 +21,12 @@ module Zenweb
       @parent ||= Config::Null
     end
 
-    def h
-      @h ||= YAML.load(File.read path) || {}
-    end
-
     def [] k
       h[k] or parent[k]
     end
 
-    def wire
-      @wired ||= false # HACK
-      return if @wired
-      @wired = true
-
-      file self.path
-
-      file self.path => self.parent.path if self.parent.path # HACK
-
-      self.parent.wire
+    def h
+      @h ||= YAML.load(File.read path) || {}
     end
 
     def inspect
@@ -52,11 +40,23 @@ module Zenweb
     def to_s
       "Config[#{path.inspect}]"
     end
+
+    def wire
+      @wired ||= false # HACK
+      return if @wired
+      @wired = true
+
+      file self.path
+
+      file self.path => self.parent.path if self.parent.path # HACK
+
+      self.parent.wire
+    end
   end # class Config
 
   Config::Null = Class.new Config do
-    def initialize;              end
     def [] k;                    end
+    def initialize;              end
     def inspect; "Config::Null"; end
     def wire;                    end
   end.new

@@ -143,11 +143,6 @@ class TestZenwebSite < MiniTest::Unit::TestCase
     refute_empty site.layouts
   end
 
-  def normalize_path p
-    p.sub(/(?:\.(md|erb|less))+$/, '').
-      sub(/(\d\d\d\d)-(\d\d)-(\d\d)-/, '\1/\2/\3/')
-  end
-
   def test_wire
     Rake.application = Rake::Application.new
     site.scan

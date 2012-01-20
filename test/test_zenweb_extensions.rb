@@ -2,10 +2,9 @@
 
 require "rubygems"
 require "minitest/autorun"
-
 require "zenweb/extensions"
 
-describe File do
+class TestFile < MiniTest::Unit::TestCase
   def test_class_each_parent
     a = []
 
@@ -19,16 +18,16 @@ describe File do
   end
 end
 
-describe Time do
+class TestTime < MiniTest::Unit::TestCase
   def test_date
     assert_equal "1969-12-31",         Time.at(0).date
   end
 
-  def test_time
-    assert_equal "16:00",              Time.at(0).time
-  end
-
   def test_datetime
     assert_equal "1969-12-31 @ 16:00", Time.at(0).datetime
+  end
+
+  def test_time
+    assert_equal "16:00",              Time.at(0).time
   end
 end

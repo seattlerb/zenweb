@@ -10,12 +10,12 @@ class Time
     strftime "%Y-%m-%d"
   end
 
-  def time
-    strftime "%H:%M"
-  end
-
   def datetime
     strftime "%Y-%m-%d @ %H:%M"
+  end
+
+  def time
+    strftime "%H:%M"
   end
 end
 
@@ -24,6 +24,8 @@ require 'rake'
 
 class Rake::FileTask
   alias old_needed? needed?
+  alias old_timestamp timestamp
+
   def needed?
     ! File.exist?(name) || timestamp > real_timestamp
   end
@@ -32,7 +34,6 @@ class Rake::FileTask
     File.exist?(name) && File.mtime(name.to_s) || Rake::EARLY
   end
 
-  alias old_timestamp timestamp
   def timestamp
     if File.exist?(name)
       a = File.mtime(name.to_s)

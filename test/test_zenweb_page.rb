@@ -18,6 +18,18 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     self.page = Zenweb::Page.new site, "blog/2012-01-02-page1.html.md"
   end
 
+  def setup_deps
+    Rake.application = Rake::Application.new
+    site.scan
+
+    assert_empty Rake.application.tasks
+
+    p1 = site.pages["blog/2012-01-02-page1.html.md"]
+    p2 = site.pages["blog/2012-01-03-page2.html.md"]
+
+    return p1, p2
+  end
+
   def test_body
     assert_equal "Not really much here to see.", page.body
   end
@@ -39,18 +51,6 @@ class TestZenwebPage < MiniTest::Unit::TestCase
 
   def test_date_from_path
     assert_equal Time.local(2012, 1, 2), page.date_from_path
-  end
-
-  def setup_deps
-    Rake.application = Rake::Application.new
-    site.scan
-
-    assert_empty Rake.application.tasks
-
-    p1 = site.pages["blog/2012-01-02-page1.html.md"]
-    p2 = site.pages["blog/2012-01-03-page2.html.md"]
-
-    return p1, p2
   end
 
   def test_depended_on_by
