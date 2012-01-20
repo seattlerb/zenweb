@@ -1,3 +1,7 @@
+##
+# Walk each parent directory of dir looking for file. Yield each file
+# found to caller.
+
 def File.each_parent dir, file
   until dir == "." do
     dir = File.dirname dir
@@ -6,18 +10,29 @@ def File.each_parent dir, file
 end
 
 class Time
+  ##
+  # Format as YYYY-MM-DD
+
   def date
     strftime "%Y-%m-%d"
   end
+
+  ##
+  # Format as YYYY-MM-DD @ HH:MM
 
   def datetime
     strftime "%Y-%m-%d @ %H:%M"
   end
 
+  ##
+  # Format as HH:MM
+
   def time
     strftime "%H:%M"
   end
 end
+
+# :stopdoc:
 
 gem "rake"
 require 'rake'
@@ -44,3 +59,5 @@ class Rake::FileTask
     end
   end
 end
+
+# :startdoc:

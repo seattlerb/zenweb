@@ -7,10 +7,19 @@ require "zenweb/config"
 require "zenweb/extensions"
 
 module Zenweb
+
+  ##
+  # Holder for the entire website. Everything gets driven from here.
+  #
+  # TODO: describe expected filesystem layout and dependency mgmt.
+
   class Site
     include Rake::DSL
 
     attr_reader :pages, :configs
+
+    ##
+    # Loads all files matching "zenweb/plugins/*.rb".
 
     def self.load_plugins
       Gem.find_files("zenweb/plugins/*.rb").each do |path|
@@ -20,11 +29,18 @@ module Zenweb
 
     self.load_plugins
 
-    def initialize
+    def initialize # :nodoc:
       @layouts = {}
       @pages = {}
       @configs = Hash.new { |h,k| h[k] = Config.new self, k }
     end
+
+    ##
+    # Returns a magic hash that groups up all the pages by category
+    # (directory). The hash has extra accessor methods on it to make
+    # grabbing what you want a bit cleaner. eg:
+    #
+    #    site.categories.blog # => [Page[blog/...], ...]
 
     def categories
       @categories ||=
@@ -54,34 +70,61 @@ module Zenweb
         end
     end
 
+    ##
+    # Return the top level config.
+
     def config
       configs["_config.yml"]
     end
+
+    ##
+    # Generates the website by invoking the 'site' task.
 
     def generate
       task(:site).invoke
     end
 
+    ##
+    # Returns a list of all known html pages.
+
     def html_pages
       self.pages.values.select { |p| p.url_path =~ /\.html/ }
     end
 
-    def inspect
+    def inspect # :nodoc:
       "Site[#{pages.size} pages, #{configs.size} configs]"
     end
+
+    ##
+    # Returns a layout named +name+.
 
     def layout name
       @layouts[name]
     end
 
+    ##
+    # Proxy object for the config. Returns a config item at +msg+.
+
     def method_missing msg, *args
       config[msg.to_s] || warn("#{self.inspect} does not define #{msg}")
     end
+
+    ##
+    # Returns all pages (with titles) sorted by date.
+    #
+    # TODO: should this use html_pages?
 
     def pages_by_date
       pages.values.select {|page| page["title"] && page.date }.
         sort_by { |page| [-page.date.to_i, page.title] }
     end
+
+    ##
+    # Scans the directory tree and finds all relevant pages, configs,
+    # layouts, etc.
+    #
+    # TODO: talk about expected directory structure and extra
+    # naming enhancements.
 
     def scan
       excludes = Array(config["exclude"])
@@ -111,6 +154,10 @@ module Zenweb
         end
       end
     end
+
+    ##
+    # Wire up all the configs and pages. Invokes :extra_wirings to
+    # allow you to add extra manual dependencies.
 
     def wire
       directory ".site"

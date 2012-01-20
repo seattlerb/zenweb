@@ -4,22 +4,53 @@ gem "rake"
 require "rake"
 
 module Zenweb
+
+  ##
+  # Page represents pretty much any type of file that goes on your
+  # website or is needed by other pages to build your website. Each
+  # page can have a YAML header that contains configuration data or
+  # variables used in the page.
+
   class Page
     include Rake::DSL
 
     attr_reader :site, :path
 
-    def initialize site, path
+    ##
+    # Returns a regexp that will match file extensions for all known
+    # renderer types.
+
+    def self.renderers_re
+      @renderers_re ||=
+        begin
+          ext = instance_methods.grep(/^render_/).map {|s| s.sub(/render_/, '')}
+          /(?:\.(#{ext.join "|"}))+$/
+        end
+    end
+
+    def initialize site, path # :nodoc:
       @site, @path = site, path
     end
+
+    ##
+    # Helper method to access the config value named +k+.
 
     def [] k
       config[k.to_s]
     end
 
+    ##
+    # Returns the actual content of the file minus the optional YAML header.
+
     def body
+      # TODO: add a test for something with --- without a yaml header.
       @body ||= content.split(/^---$/, 3).last.strip
     end
+
+    ##
+    # Returns the closest Config instance for this file. That could be
+    # the YAML prefix in the file or it could be a _config.yml file in
+    # the file's directory or above.
 
     def config
       unless defined? @config then
@@ -29,18 +60,38 @@ module Zenweb
       @config
     end
 
+    ##
+    # Returns the entire (raw) content of the file.
+
     def content
       @content ||= File.read path
     end
+
+    ##
+    # Returns either:
+    #
+    # + The value of the +date+ config value
+    # + The date embedded in the filename itself (eg: 2012-01-02-blah.html).
+    # + The last modified timestamp of the file itself.
 
     def date
       config['date'] || date_from_path || File.stat(path).mtime
     end
 
-    def date_from_path
+    def date_from_path # :nodoc:
       date = path[/\d\d\d\d-\d\d-\d\d/]
       Time.local(*date.split(/-/).map(&:to_i)) if date
     end
+
+    ##
+    # Wires up additional dependents on this Page. +from_deps+ may be
+    # a Hash (eg site.pages), an Array (eg. site.categories.blog), or
+    # a single page.
+    #
+    # This is the opposite of #depends_on and I'm not sure it is
+    # actually needed.
+    #
+    # TODO: remove me?
 
     def depended_on_by from_deps
       from_deps = from_deps.values if Hash === from_deps
@@ -52,6 +103,11 @@ module Zenweb
       end
     end
 
+    ##
+    # Wires up additional dependencies for this Page. +from_deps+ may
+    # be a Hash (eg site.pages), an Array (eg. site.categories.blog),
+    # or a single page.
+
     def depends_on deps
       deps = deps.values if Hash === deps
       deps = Array(deps)
@@ -59,15 +115,32 @@ module Zenweb
       file self.url_path => deps.map(&:url_path) - [url_path]
     end
 
+    ##
+    # Returns the extension (without the '.') of +name+, defaulting to
+    # +self.path+.
+
     def filetype name = self.path
       File.extname(name)[1..-1]
     end
+
+    ##
+    # Returns an array of extensions (in reverse order) of this page
+    # that match known renderers. For example:
+    #
+    # Given renderer methods +render_erb+ and +render_md+, the file
+    # "index.html.md.erb" would return %w[erb md], but the file
+    # "index.html" would return [].
+    #
+    # Additional renderers can be added via Site.load_plugins.
 
     def filetypes
       @filetypes ||= path[self.class.renderers_re].split(/\./)[1..-1].reverse
     rescue
       []
     end
+
+    ##
+    # Render and write the result to #url_path.
 
     def generate
       warn "Rendering #{path}"
@@ -80,15 +153,25 @@ module Zenweb
       end
     end
 
-    def include path
-      Page.new(site, File.join("_includes", path)).subrender
+    ##
+    # Render a named file from +_includes+.
+    #
+    # category: XXX
+
+    def include name
+      Page.new(site, File.join("_includes", name)).subrender
     end
 
-    def inspect
+    def inspect # :nodoc:
       "Page[#{path.inspect}]"
     end
 
-    alias :to_s :inspect
+    alias :to_s :inspect # :nodoc:
+
+    ##
+    # Return a layout Page named in the config key +layout+.
+    #
+    # TODO: expand
 
     def layout
       unless defined? @layout then
@@ -97,7 +180,12 @@ module Zenweb
       @layout
     end
 
-    def method_missing msg, *args
+    ##
+    # Access a config variable and only warn if it isn't accessible.
+    # If +msg+ starts with render, go ahead and pass that up to the
+    # default method_missing.
+
+    def method_missing msg, *args # :nodoc:
       case msg.to_s
       when /^render_/ then
         super
@@ -105,6 +193,10 @@ module Zenweb
         self[msg] || warn("#{self.inspect} does not define #{msg}")
       end
     end
+
+    ##
+    # Render this page as a whole. This includes rendering the page's
+    # content into a layout if one has been specified via config.
 
     def render page = self, content = nil
       content = subrender page, content
@@ -115,24 +207,23 @@ module Zenweb
       content
     end
 
-    def renderer_extensions # HACK remove me as we refactor to classes
-      self.class.renderer_extensions
-    end
-
-    def self.renderer_extensions
-      @ext ||=
-        instance_methods.grep(/^render_/).map { |s| s.sub(/render_/, '') }
-    end
-
-    def self.renderers_re # HACK
-      @renderers_re ||= /(?:\.(#{renderer_extensions.join "|"}))+$/
-    end
+    ##
+    # Render a Page instance based on its filetypes. For example,
+    # index.html.md.erb will essentially call:
+    #
+    #     render_md(render_erb(content))
 
     def subrender page = self, content = nil
       page.filetypes.inject(content) { |cont, type|
         send "render_#{type}", page, cont
       } || self.content
     end
+
+    ##
+    # Return the url for this page. The url is based entirely on its
+    # location in the file-system.
+    #
+    # TODO: expand
 
     def url
       self.path.
@@ -141,13 +232,34 @@ module Zenweb
         gsub(self.class.renderers_re, '')
     end
 
+    ##
+    # The directory portion of the url.
+
     def url_dir
       File.dirname url_path
     end
 
+    ##
+    # The real file path for the generated file.
+
     def url_path
       @url_path ||= File.join(".site", self.url)
     end
+
+    ##
+    # Wire up this page to the rest of the rake dependencies. If you
+    # have extra dependencies for this file (ie, an index page that
+    # links to many other pages) you can add them by creating a rake
+    # task named +:extra_wirings+ and using #depends_on. Eg:
+    #
+    #     task :extra_wirings do |x|
+    #       site = $website
+    #       page = site.pages
+    #
+    #       page["sitemap.xml.erb"].    depends_on site.html_pages
+    #       page["atom.xml.erb"].       depends_on site.pages_by_date.first(30)
+    #       page["blog/index.html.erb"].depends_on site.categories.blog
+    #     end
 
     def wire
       @wired ||= false # HACK
