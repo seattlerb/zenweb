@@ -14,7 +14,15 @@ module Zenweb
   class Page
     include Rake::DSL
 
-    attr_reader :site, :path
+    ##
+    # The shared site instance.
+
+    attr_reader :site
+
+    ##
+    # The path to this source file.
+
+    attr_reader :path
 
     ##
     # Returns a regexp that will match file extensions for all known

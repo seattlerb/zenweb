@@ -9,7 +9,7 @@ def File.each_parent dir, file
   end
 end
 
-class Time
+class Time # :nodoc:
   ##
   # Format as YYYY-MM-DD
 
@@ -37,7 +37,8 @@ end
 gem "rake"
 require 'rake'
 
-class Rake::FileTask
+module Rake
+class FileTask
   alias old_needed? needed?
   alias old_timestamp timestamp
 
@@ -58,6 +59,7 @@ class Rake::FileTask
       Rake::EARLY
     end
   end
+end
 end
 
 # :startdoc:

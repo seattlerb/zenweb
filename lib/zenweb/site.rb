@@ -16,7 +16,15 @@ module Zenweb
   class Site
     include Rake::DSL
 
-    attr_reader :pages, :configs
+    ##
+    # Returns all pages found via #scan
+
+    attr_reader :pages
+
+    ##
+    # Returns all configs found via #scan
+
+    attr_reader :configs
 
     ##
     # Loads all files matching "zenweb/plugins/*.rb".

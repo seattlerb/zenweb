@@ -15,7 +15,20 @@ module Zenweb
   class Config
     include Rake::DSL
 
-    attr_reader :site, :path, :parent
+    ##
+    # The shared site instance
+
+    attr_reader :site
+
+    ##
+    # The path to this config's file
+
+    attr_reader :path
+
+    ##
+    # The parent to this config or nil if we're at the top level _config.yml.
+
+    attr_reader :parent
 
     ##
     # Create a new Config for site at a given path.
