@@ -96,6 +96,10 @@ module Zenweb
       config[msg.to_s] || warn("#{self.inspect} does not define #{msg}")
     end
 
+    def html_pages
+      self.pages.values.select { |p| p.url_path =~ /\.html/ }
+    end
+
     def categories
       @categories ||=
         begin
