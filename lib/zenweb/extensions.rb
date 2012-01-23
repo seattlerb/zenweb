@@ -17,6 +17,10 @@ class Time # :nodoc:
     strftime "%Y-%m-%d"
   end
 
+  def ym
+    strftime "%Y-%m"
+  end
+
   ##
   # Format as YYYY-MM-DD @ HH:MM
 

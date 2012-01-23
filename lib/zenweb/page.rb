@@ -120,7 +120,7 @@ module Zenweb
       deps = deps.values if Hash === deps
       deps = Array(deps)
 
-      file self.url_path => deps.map(&:url_path) - [url_path]
+      file self.url_path => deps.map(&:url_path) - [self.url_path]
     end
 
     ##
@@ -233,7 +233,7 @@ module Zenweb
     def subrender page = self, content = nil
       self.filetypes.inject(content) { |cont, type|
         send "render_#{type}", page, cont
-      } || self.content
+      } || self.body
     end
 
     ##

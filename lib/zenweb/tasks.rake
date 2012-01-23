@@ -82,7 +82,7 @@ end
 task :debug do
   site = website
 
-  path = ENV['PAGE'] || "index.html.erb"
+  path = ENV['PAGE'] || ENV['PATH'] || ENV['FILE'] || "index.html.erb"
 
   if path then
     page = site.pages[path]

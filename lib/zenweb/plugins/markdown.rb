@@ -36,5 +36,46 @@ class Zenweb::Page
 
     Kramdown::Document.new(content, KRAMDOWN_CONFIG).to_html
   end
+
+  ############################################################
+  # Helper Methods:
+
+  def dated_sitemap index, group = :ym, stamp = :date
+    olddate = nil
+
+    index.map { |post|
+      extra = "{:.day}\n## #{ olddate = post.date.send group }\n\n" if
+        olddate != post.date.send(group)
+      "#{extra}* [#{post.date.send stamp} ~ #{post.title}](#{post.url})\n"
+    }.join "\n"
+  end
+
+  def sitemap index
+    dirs = Hash.new { |h,k| h[k] = [] }
+
+    sorted = index.sort_by { |p|
+      p.path =~ /index.html/ ? File.dirname(p.path) : p.path
+    }
+
+    sorted.each do |page|
+      dir = File.dirname page.url.sub(%r%\d\d\d\d/\d\d/%, "")
+      dirs[dir] << page
+    end
+
+    dirs.sort.map { |(dir, pages)|
+      length = dir[1..-1].split(/\//).length
+      pages.map { |page|
+        bonus = 0
+        bonus = length > 0 && page.url =~ /index.html/ ? -1 : 0
+        indent = "  " * (length+bonus)
+
+        "#{indent}* [#{page.title}](#{page.url})"
+      }
+    }.flatten.join "\n"
+  end
+
+  def toc
+    "* \n{:toc}\n"
+  end
 end # markdown
 

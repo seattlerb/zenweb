@@ -105,6 +105,26 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     end
   end
 
+  def test_generate_via_invoke
+    Rake.application = Rake::Application.new
+    site.scan
+    site.wire
+    self.page = site.pages["blog/2012-01-02-page1.html.md"]
+    Rake.application[page.url_path].clear_prerequisites # no mkdir, thanks
+
+    def page.generate
+      raise "no generate"
+    end
+
+    e = assert_raises RuntimeError do
+      Rake.application[page.url_path].invoke
+    end
+
+    assert_equal "no generate", e.message
+  ensure
+    FileUtils.rm_rf ".site"
+  end
+
   def test_include
     # test via a layout page so we can test indirect access of page vars
     layout = Zenweb::Page.new(site, "_layouts/site.erb")
