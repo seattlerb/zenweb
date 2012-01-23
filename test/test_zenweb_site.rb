@@ -79,6 +79,31 @@ class TestZenwebSite < MiniTest::Unit::TestCase
     assert ran, "Site#generate needs to call the site task"
   end
 
+  def test_html_pages
+    site.scan
+
+    exp = %w[about/index.html.md
+             blog/2012-01-02-page1.html.md
+             blog/2012-01-03-page2.html.md
+             blog/2012-01-04-page3.html.md
+             blog/index.html.erb
+             index.html.erb
+             pages/index.html.erb
+             pages/nonblogpage.html.md
+             projects/index.html.erb
+             projects/zenweb.html.erb]
+
+    assert_equal exp, site.html_pages.map(&:path).sort
+
+    diff = site.pages.values - site.html_pages
+
+    exp = %w[atom.xml.erb css/colors.css.less css/styles.css
+             css/syntax.css img/bg.png js/jquery.js js/site.js
+             sitemap.xml.erb]
+
+    assert_equal exp, diff.map(&:path).sort
+  end
+
   def test_inspect
     assert_equal "Site[0 pages, 0 configs]", site.inspect
 
