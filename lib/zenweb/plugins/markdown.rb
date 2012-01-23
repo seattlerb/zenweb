@@ -3,7 +3,7 @@ class Zenweb::Page
     :auto_ids      => true,
     :footnote_nr   => 1,
     :entity_output => 'as_char',
-    :toc_levels    => '1..6',
+    :toc_levels    => '2..4',
 
     :coderay_wrap               => 'div',
     :coderay_line_numbers       => 'inline',
