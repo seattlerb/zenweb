@@ -8,7 +8,7 @@ layout: nil
 
     <url>
       <loc>http://www.example.com/</loc>
-      <lastmod>{{ site.pages_by_date.first.date.clean '%Y-%m-%d' }}</lastmod>
+      <lastmod>{{ site.pages_by_date.first.date.date }}</lastmod>
       <changefreq>daily</changefreq>
       <priority>1.0</priority>
     </url>
@@ -16,7 +16,7 @@ layout: nil
     {% for page in site.pages.values %}
     <url>
       <loc>http://www.example.com{{ page.url }}</loc>
-      <lastmod>{{ page.date.clean '%Y-%m-%d' }}</lastmod>
+      <lastmod>{{ page.date.date }}</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.8</priority>
     </url>

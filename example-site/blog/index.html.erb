@@ -10,7 +10,7 @@ layout: site
     <h1 class="title">
         <a href="{{ page.url }}">{{ page.title }}</a>
     </h1>
-    <h3 class="date">{{ page.date.clean }}</h3>
+    <h3 class="date">{{ page.date.datetime }}</h3>
 
     {% if page["excerpt"] %} <p>{{ markdown page.excerpt }}</p> {% end %}
 
