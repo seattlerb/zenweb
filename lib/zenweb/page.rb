@@ -148,6 +148,14 @@ module Zenweb
     end
 
     ##
+    # Format a date string +s+ using the config value +date_fmt+ or YYYY/MM/DD.
+
+    def format_date s
+      fmt = self["date_fmt"] || "%Y/%m/%d/"
+      Time.local(*s.split(/-/).map(&:to_i)).strftime(fmt)
+    end
+
+    ##
     # Render and write the result to #url_path.
 
     def generate
@@ -166,8 +174,9 @@ module Zenweb
     #
     # category: XXX
 
-    def include name
-      Page.new(site, File.join("_includes", name)).subrender
+    def include name, page
+      incl = Page.new(site, File.join("_includes", name))
+      incl.subrender page
     end
 
     def inspect # :nodoc:
@@ -222,7 +231,7 @@ module Zenweb
     #     render_md(render_erb(content))
 
     def subrender page = self, content = nil
-      page.filetypes.inject(content) { |cont, type|
+      self.filetypes.inject(content) { |cont, type|
         send "render_#{type}", page, cont
       } || self.content
     end
@@ -236,7 +245,7 @@ module Zenweb
     def url
       self.path.
         sub(/^/, '/').
-        sub(/(\d\d\d\d)-(\d\d)-(\d\d)-/, '\1/\2/\3/').
+        sub(/(\d\d\d\d)-(\d\d)-(\d\d)-/) { |s| format_date s }.
         gsub(self.class.renderers_re, '')
     end
 

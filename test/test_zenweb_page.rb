@@ -106,9 +106,18 @@ class TestZenwebPage < MiniTest::Unit::TestCase
   end
 
   def test_include
-    fragment = page.include("analytics.html.erb")
+    # test via a layout page so we can test indirect access of page vars
+    layout = Zenweb::Page.new(site, "_layouts/site.erb")
+    fragment = layout.include("analytics.html.erb", page)
     assert_match(/UA-\d+/, site.config["google_ua"])
     assert_match site.config["google_ua"], fragment
+  end
+
+  def test_include_page_var
+    # test via a layout page so we can test indirect access of page vars
+    layout = Zenweb::Page.new(site, "_layouts/site.erb")
+    fragment = layout.include("header.html.erb", page)
+    assert_match "Example Page 1 ~ Example Website", fragment
   end
 
   def test_index
@@ -163,6 +172,12 @@ class TestZenwebPage < MiniTest::Unit::TestCase
 
   def test_url
     assert_equal "/blog/2012/01/02/page1.html", page.url
+
+    page.config.h["date_fmt"] = "%Y/%m/"
+    assert_equal "/blog/2012/01/page1.html", page.url
+
+    page = Zenweb::Page.new site, "blog/blah.html"
+    assert_equal "/blog/blah.html", page.url
   end
 
   def test_url_dir
