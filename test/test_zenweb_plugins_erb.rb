@@ -25,13 +25,6 @@ class TestZenwebPageErb < MiniTest::Unit::TestCase
     assert_equal exp, act
   end
 
-  def test_render_erb_content
-    act = page.render_erb page, "other content"
-    exp = "other content"
-
-    assert_equal exp, act
-  end
-
   def test_erb
     act = page.erb "this is some content", page
     exp = "this is some content"

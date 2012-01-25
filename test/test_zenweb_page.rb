@@ -157,7 +157,7 @@ class TestZenwebPage < MiniTest::Unit::TestCase
   end
 
   def test_method_missing_odd
-    err = "Page[\"blog/2012-01-02-page1.html.md\"] does not define wtf\n"
+    err = "Page[\"blog/2012-01-02-page1.html.md\"] does not define \"wtf\"\n"
     assert_output "", err do
       assert_nil page.method_missing("wtf")
     end
