@@ -123,7 +123,8 @@ module Zenweb
     # TODO: should this use html_pages?
 
     def pages_by_date
-      pages.values.select {|page| page["title"] && page.date }.
+      # page.config["title"] avoids the warning
+      pages.values.select {|page| page.config["title"] && page.date }.
         sort_by { |page| [-page.date.to_i, page.title] }
     end
 

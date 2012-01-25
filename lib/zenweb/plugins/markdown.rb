@@ -1,16 +1,11 @@
 class Zenweb::Page
   KRAMDOWN_CONFIG = { # :nodoc:
-    :auto_ids      => true,
-    :footnote_nr   => 1,
-    :entity_output => 'as_char',
     :toc_levels    => '2..4',
 
-    :coderay_wrap               => 'div',
-    :coderay_line_numbers       => 'inline',
-    :coderay_line_number_start  => 1,
+    :coderay_wrap               => :div,
+    :coderay_line_numbers       => :table,
     :coderay_tab_width          => 4,
-    :coderay_bold_every         => 10,
-    :coderay_css                => 'class',
+    :coderay_css                => :class,
     # TODO: turn off smart quotes
   }
 
@@ -76,6 +71,21 @@ class Zenweb::Page
 
   def toc
     "* \n{:toc}\n"
+  end
+
+  ##
+  # This is just here during the transition of my site. I'll nuke it soon.
+
+  def link(url, title) # :nodoc:
+    warn "link called from #{self.inspect}"
+    "[#{title}](#{url})"
+  end
+
+  ##
+  # This is just here during the transition of my site. I'll nuke it soon.
+
+  def img(*) # :nodoc:
+    raise "no!"
   end
 end # markdown
 

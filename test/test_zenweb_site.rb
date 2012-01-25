@@ -80,6 +80,7 @@ class TestZenwebSite < MiniTest::Unit::TestCase
   end
 
   def test_html_pages
+    Rake.application = Rake::Application.new
     site.scan
 
     exp = %w[about/index.html.md

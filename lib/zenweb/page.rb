@@ -44,7 +44,7 @@ module Zenweb
     # Helper method to access the config value named +k+.
 
     def [] k
-      config[k.to_s]
+      config[k.to_s] or warn("#{self.inspect} doesn't define #{k.inspect}")
     end
 
     ##
