@@ -2,13 +2,13 @@ class MiniTest::Unit::TestCase
   def self.ChdirTest path
     Module.new do
       define_method :setup do
-        super
+        super()
         @old_dir = Dir.pwd
         Dir.chdir path
       end
 
       define_method :teardown do
-        super
+        super()
         Dir.chdir @old_dir
       end
     end
@@ -28,4 +28,24 @@ class MiniTest::Unit::TestCase
     yield
     assert_empty Rake.application.tasks.map(&:name) - @tasks
   end
+
+  def build_fake_site(*paths)
+    paths.flatten.compact.each do |path|
+      page = Zenweb::Page.new(site, path)
+      page.content = "Content for #{path}"
+      page.config = Zenweb::Config.new site, path
+      page.config.h = {
+        "title" => "Title for #{path}"
+      }
+      site.pages[path] = page
+    end
+  end
+end
+
+class Zenweb::Page
+  attr_writer :content, :config
+end
+
+class Zenweb::Config
+  attr_writer :h
 end
