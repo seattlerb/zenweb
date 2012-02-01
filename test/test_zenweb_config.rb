@@ -45,11 +45,11 @@ class TestZenwebConfig < MiniTest::Unit::TestCase
            'Config["blog/_config.yml"',
            'Config["_config.yml"',
            'Config::Null',
-           '"header"=>"Example Website"',
-           '"exclude"=>["Rakefile", "tmp"]',
-           '"google_ua"=>"UA-1234567-8"]',
-           '"layout"=>"post"]',
-           '"title"=>"Example Page 1"]'].join ", "
+           '"exclude" => ["Rakefile", "tmp"]',
+           '"google_ua" => "UA-1234567-8"',
+           '"header" => "Example Website"]',
+           '"layout" => "post"]',
+           '"title" => "Example Page 1"]'].join ", "
 
     assert_nil Rake.application.options.trace
     Rake.application.options.trace = true
