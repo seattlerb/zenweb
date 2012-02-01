@@ -182,10 +182,11 @@ class TestZenwebPage < MiniTest::Unit::TestCase
   end
 
   def test_method_missing_render
-    err = "Page[\"blog/2012-01-02-page1.html.md\"] does not define wtf\n"
-    assert_raises NoMethodError do
+    e = assert_raises NoMethodError do
       assert_nil page.render_wtf
     end
+    err = "undefined method `render_wtf' for Page"
+    assert_includes e.message, err
   end
 
   def test_path
@@ -243,7 +244,6 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     Rake.application = Rake::Application.new
     site.scan
     self.page = site.pages["blog/2012-01-02-page1.html.md"]
-    rake = Rake.application
 
     page.wire
 

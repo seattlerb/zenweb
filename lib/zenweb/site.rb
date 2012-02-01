@@ -53,7 +53,7 @@ module Zenweb
     def categories
       @categories ||=
         begin
-          h = Hash.new { |h,k| h[k] = [] }
+          h = Hash.new { |h2,k| h2[k] = [] }
 
           def h.method_missing msg, *args
             if self.has_key? msg.to_s then
@@ -137,7 +137,7 @@ module Zenweb
       excludes = Array(config["exclude"])
 
       top = Dir["*"] - excludes
-      files, dirs = top.partition { |path| File.file? path }
+      files = top.select { |path| File.file? path }
       files += Dir["{#{top.join(",")}}/**/*"].reject { |f| not File.file? f }
 
       renderers_re = Page.renderers_re

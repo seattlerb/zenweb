@@ -78,7 +78,6 @@ class TestZenwebConfig < MiniTest::Unit::TestCase
     Rake.application = Rake::Application.new
     site.scan
     self.config = site.pages["blog/2012-01-02-page1.html.md"].config
-    rake = Rake.application
 
     config.wire
 

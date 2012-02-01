@@ -185,8 +185,6 @@ class TestZenwebSite < MiniTest::Unit::TestCase
     Rake.application = Rake::Application.new
     site.scan
     site.wire
-    rake = Rake.application
-    tasks = rake.tasks
 
     assert_tasks do
       assert_task ".site"
