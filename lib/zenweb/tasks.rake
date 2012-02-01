@@ -50,7 +50,9 @@ task :run do
       url = req.path
       target_path = File.join(@root, url)
 
-      source_file = req.path.gsub(/(\d\d\d\d)\/(\d\d)\/(\d\d)\//, '\1-\2-\3-')
+      source_file = req.path.
+        gsub(/(\d\d\d\d)\/(\d\d)\/(\d\d)\//, '\1-\2-\3-').
+        gsub(/(\d\d\d\d)\/(\d\d)\//, '\1-\2-')
 
       if File.directory? File.join(@root, url) then
         source_file += "index.html"
