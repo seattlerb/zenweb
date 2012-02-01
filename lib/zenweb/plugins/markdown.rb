@@ -57,12 +57,14 @@ class Zenweb::Page
       dirs[dir] << page
     end
 
+    original = [self.clean_url.sub(/^\//, '').split(/\//).length - 1, 0].max
+
     dirs.sort.map { |(dir, pages)|
       length = dir[1..-1].split(/\//).length
       pages.map { |page|
         bonus = 0
         bonus = length > 0 && page.url =~ /index.html/ ? -1 : 0
-        indent = "  " * (length+bonus)
+        indent = "  " * (length+bonus-original)
 
         "#{indent}* [#{page.title}](#{page.url})"
       }
