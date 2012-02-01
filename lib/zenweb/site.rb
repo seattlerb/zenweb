@@ -119,12 +119,10 @@ module Zenweb
 
     ##
     # Returns all pages (with titles) sorted by date.
-    #
-    # TODO: should this use html_pages?
 
     def pages_by_date
       # page.config["title"] avoids the warning
-      pages.values.select {|page| page.config["title"] && page.date }.
+      html_pages.select {|page| page.config["title"] && page.date }.
         sort_by { |page| [-page.date.to_i, page.title] }
     end
 
@@ -156,7 +154,11 @@ module Zenweb
           next
         when /\.yml$/ then
           @configs[path] = Config.new self, path
-        when /\.(?:txt|html|css|js|png|jpg|gif|eot|svg|ttf|woff|ico)$/, renderers_re then # HACK
+        when /\.(?:png|jpg|gif|eot|svg|ttf|woff|ico)$/ then # HACK
+          page = Page.new self, path
+          page.config = self.config
+          @pages[path] = page  # HACK
+        when /\.(?:txt|html|css|js)$/, renderers_re then # HACK
           @pages[path] = Page.new self, path
         else
           warn "unknown file type: #{path}" if Rake.application.options.trace
