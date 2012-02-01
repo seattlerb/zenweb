@@ -13,6 +13,6 @@ Autotest.add_hook :initialize do |at|
   at.extra_class_map["Zenweb::Page"]   = "lib/zenweb/page.rb"
   at.extra_class_map["Zenweb::Config"] = "lib/zenweb/config.rb"
   at.extra_class_map["TestZenwebPageErb"]  = "test/test_zenweb_plugins_erb.rb"
-  # at.extra_class_map["Time"]           = "lib/zenweb/extensions.rb"
-  # at.extra_class_map["File"]           = "lib/zenweb/extensions.rb"
+  at.extra_class_map["TestZenwebPageMarkdown"]  = "test/test_zenweb_plugins_markdown.rb"
+  at.extra_class_map["TestZenwebPageLess"]  = "test/test_zenweb_plugins_less.rb"
 end
