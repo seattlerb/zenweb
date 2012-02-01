@@ -53,12 +53,17 @@ module Zenweb
     end
 
     def h # :nodoc:
-      @h ||= YAML.load(File.read path) || {}
+      @h ||= begin
+               body = File.read(path)
+               body = body.split(/^---$/, 3)[0..1].join("---")
+               YAML.load(body) || {}
+             end
     end
 
     def inspect # :nodoc:
       if Rake.application.options.trace then
-        "Config[#{path.inspect}, #{parent.inspect}, #{h.inspect[1..-2]}]"
+        hash = h.sort.map { |k,v| "#{k.inspect} => #{v.inspect}" }.join ", "
+        "Config[#{path.inspect}, #{parent.inspect}, #{hash}]"
       else
         "Config[#{path.inspect}, #{parent.inspect}]"
       end
