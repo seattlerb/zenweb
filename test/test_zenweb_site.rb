@@ -29,10 +29,10 @@ class TestZenwebSite < MiniTest::Unit::TestCase
     exp = [["blog/2012-01-02-page1.html.md",
             "blog/2012-01-03-page2.html.md",
             "blog/2012-01-04-page3.html.md"],
-           ["projects/zenweb.html.erb"],
-           ["pages/nonblogpage.html.md"]]
+           ["pages/nonblogpage.html.md"],
+           ["projects/zenweb.html.erb"]]
 
-    assert_equal exp, cats.values.map { |a| a.map(&:path).sort }
+    assert_equal exp, cats.values.map { |a| a.map(&:path).sort }.sort
   end
 
   def test_categories_method_missing
@@ -142,19 +142,31 @@ class TestZenwebSite < MiniTest::Unit::TestCase
   def test_pages_by_date
     site.scan
 
-    srand 24
+    srand 42
+    $dates = {}
+
+    site.html_pages.sort_by(&:title).each do |x|
+      $dates[x.path] = rand(100)
+    end
+
     site.pages.values.each do |x|
       def x.date
-        Time.at rand(100)
+        $dates[self.path]
       end
     end
 
-    exp = ["example.com", "About example.com", "Some regular page",
-           "zenweb", "Example Page 2", "Example Page 1",
-           "example.com projects", "Example Website", "example.com pages",
-           "Example Page 3"]
+    exp = [[-92, "Example Page 1"],
+           [-86, "example.com pages"],
+           [-82, "example.com"],
+           [-74, "example.com projects"],
+           [-74, "zenweb"],
+           [-71, "Example Page 3"],
+           [-60, "Example Website"],
+           [-51, "About example.com"],
+           [-20, "Some regular page"],
+           [-14, "Example Page 2"]]
 
-    assert_equal exp, site.pages_by_date.map(&:title)
+    assert_equal exp, site.pages_by_date.map { |x| [-x.date.to_i, x.title] }
   end
 
   def test_scan # the rest is tested via the other tests
