@@ -46,8 +46,7 @@ class TestZenwebPageErb < MiniTest::Unit::TestCase
 
     assert_equal "no", e.message
 
-    exp = ['Page["blog/2012-01-02-page1.html.md"]:1']
-    assert_equal exp, e.backtrace
+    assert e.backtrace.grep('Page["blog/2012-01-02-page1.html.md"]:1')
   end
 
   def test_erb_syntax_error
@@ -56,7 +55,6 @@ class TestZenwebPageErb < MiniTest::Unit::TestCase
     end
 
     assert_includes e.message, "concat(( 1 + ).to_s)"
-    exp = ['Page["blog/2012-01-02-page1.html.md"]:1']
-    assert_equal exp, e.backtrace
+    assert e.backtrace.grep('Page["blog/2012-01-02-page1.html.md"]:1')
   end
 end
