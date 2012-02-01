@@ -221,7 +221,7 @@ module Zenweb
 
     def method_missing msg, *args # :nodoc:
       case msg.to_s
-      when /^render_/ then
+      when /^render_|^to_a(?:ry)?$/ then # to_a/ry for 1.9 only. :(
         super
       else
         self[msg]
