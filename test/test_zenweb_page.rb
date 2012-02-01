@@ -34,6 +34,19 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     assert_equal "Not really much here to see.", page.body
   end
 
+  def test_clean_url
+    act = page.clean_url
+    exp = "/blog/2012/01/02/page1.html"
+
+    assert_equal exp, act
+
+    page = Zenweb::Page.new site, "a/b/index.html"
+    act = page.clean_url
+    exp = "/a/b"
+
+    assert_equal exp, act
+  end
+
   def test_config
     exp = {"title" => "Example Page 1"}
 
@@ -156,6 +169,11 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     assert_equal page["title"], page.method_missing("title")
   end
 
+  def test_meta
+    exp = '<meta name="title" content="Example Page 1">'
+    assert_equal exp, page.meta("title")
+  end
+
   def test_method_missing_odd
     err = "Page[\"blog/2012-01-02-page1.html.md\"] does not define \"wtf\"\n"
     assert_output "", err do
@@ -180,6 +198,19 @@ class TestZenwebPage < MiniTest::Unit::TestCase
 
   def test_site
     assert_equal site, page.site
+  end
+
+  def test_subpages
+    site.scan
+
+    page = site.pages["blog/index.html.erb"]
+    act = page.subpages
+    exp = [site.pages["blog/index.html.erb"],
+           site.pages["blog/2012-01-02-page1.html.md"],
+           site.pages["blog/2012-01-03-page2.html.md"],
+           site.pages["blog/2012-01-04-page3.html.md"]]
+
+    assert_equal exp, act
   end
 
   def test_subrender

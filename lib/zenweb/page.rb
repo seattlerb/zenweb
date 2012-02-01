@@ -31,7 +31,9 @@ module Zenweb
     def self.renderers_re
       @renderers_re ||=
         begin
-          ext = instance_methods.grep(/^render_/).map {|s| s.sub(/render_/, '')}
+          ext = instance_methods.grep(/^render_/).map { |s|
+            s.to_s.sub(/render_/, '')
+          }
           /(?:\.(#{ext.join "|"}))+$/
         end
     end
@@ -53,6 +55,13 @@ module Zenweb
     def body
       # TODO: add a test for something with --- without a yaml header.
       @body ||= content.split(/^---$/, 3).last.strip
+    end
+
+    ##
+    # Return the url as users normally enter them (ie, no index.html).
+
+    def clean_url
+      url.sub(/\/index.html$/, '')
     end
 
     ##
@@ -198,6 +207,14 @@ module Zenweb
     end
 
     ##
+    # Stupid helper method to make declaring header meta lines cleaner
+
+    def meta key, name=key, label="name"
+      val = self.config[key]
+      %(<meta #{label}="#{name}" content="#{val}">) if val
+    end
+
+    ##
     # Access a config variable and only warn if it isn't accessible.
     # If +msg+ starts with render, go ahead and pass that up to the
     # default method_missing.
@@ -222,6 +239,15 @@ module Zenweb
       content = layout.render page, content if layout
 
       content
+    end
+
+    ##
+    # Return all pages underneath this page. Usually used for
+    # index.html pages to have sitemaps.
+
+    def subpages
+      prefix = self.clean_url
+      site.html_pages.select {|p| p.url.index(prefix) == 0}.sort_by(&:clean_url)
     end
 
     ##
