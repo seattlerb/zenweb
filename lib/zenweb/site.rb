@@ -155,9 +155,7 @@ module Zenweb
         when /\.yml$/ then
           @configs[path] = Config.new self, path
         when /\.(?:png|jpg|gif|eot|svg|ttf|woff|ico)$/ then # HACK
-          page = Page.new self, path
-          page.config = self.config
-          @pages[path] = page  # HACK
+          @pages[path] = Page.new self, path, self.config
         when /\.(?:txt|html|css|js)$/, renderers_re then # HACK
           @pages[path] = Page.new self, path
         else

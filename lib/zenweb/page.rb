@@ -38,8 +38,9 @@ module Zenweb
         end
     end
 
-    def initialize site, path # :nodoc:
+    def initialize site, path, config = nil # :nodoc:
       @site, @path = site, path
+      @config = config if config
     end
 
     ##
@@ -221,7 +222,7 @@ module Zenweb
 
     def method_missing msg, *args # :nodoc:
       case msg.to_s
-      when /^render_|^to_a(?:ry)?$/ then # to_a/ry for 1.9 only. :(
+      when /=|^render_|^to_a(?:ry)?$/ then # to_a/ry for 1.9 only. :(
         super
       else
         self[msg]
