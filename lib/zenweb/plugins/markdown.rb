@@ -71,6 +71,9 @@ class Zenweb::Page
     }.flatten.join "\n"
   end
 
+  ##
+  # Convenience function to return a markdown TOC.
+
   def toc
     "* \n{:toc}\n"
   end
