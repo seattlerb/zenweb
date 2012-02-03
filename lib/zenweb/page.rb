@@ -39,6 +39,7 @@ module Zenweb
     end
 
     def initialize site, path, config = nil # :nodoc:
+      # TODO: make sure that creating page /a.html strips leading / from path
       @site, @path = site, path
       @config = config if config
     end
@@ -55,7 +56,44 @@ module Zenweb
 
     def body
       # TODO: add a test for something with --- without a yaml header.
-      @body ||= content.split(/^---$/, 3).last.strip
+      @body ||= begin
+                  body = content
+                  body = "\n" if body.empty?
+                  body.split(/^---$/, 3).last.strip
+                end
+    end
+
+    def parent_url url = self.url
+      url = File.dirname url if File.basename(url) == "index.html"
+      File.join File.dirname(url), "index.html"
+    end
+
+    def parent
+      unless defined?(@parent) then
+        pages = site.pages.values
+        url = parent_url
+        url.count("/").times do
+          page = pages.find { |page| page.url == url }
+          if page then
+            @parent = page
+            break
+          end
+          url = parent_url url
+        end
+        @parent = nil unless @parent
+      end
+
+      @parent
+    end
+
+    def breadcrumbs
+      pages = [self]
+      loop do
+        parent = pages.first.parent
+        break unless parent and parent != pages.first
+        pages.unshift parent
+      end
+      pages
     end
 
     ##
@@ -205,6 +243,13 @@ module Zenweb
         @layout = site.layout self.config["layout"]
       end
       @layout
+    end
+
+    ##
+    # Convenience function to create an html link for this page.
+
+    def link_html
+      %(<a href="#{url}">#{title}</a>)
     end
 
     ##
