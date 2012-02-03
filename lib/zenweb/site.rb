@@ -134,7 +134,7 @@ module Zenweb
     # naming enhancements.
 
     def scan
-      excludes = Array(config["exclude"])
+      excludes = %w[~ Rakefile] + Array(config["exclude"])
 
       top = Dir["*"] - excludes
       files = top.select { |path| File.file? path }
@@ -144,7 +144,7 @@ module Zenweb
 
       files.each do |path|
         case path
-        when /(?:~|#{excludes.join '|'})$/
+        when /(?:#{excludes.join '|'})$/
           # ignore
         when /^_layout/ then
           ext = File.extname path
