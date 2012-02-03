@@ -28,8 +28,9 @@ class Zenweb::Page
     content = content.
       gsub(/\{\{/, "<%=").
       gsub(/\}\}/, "%>").
-      gsub(/\{%/, "<%").
-      gsub(/%\}/, "%>")
+      gsub(/\{%/,  "<%").
+      gsub(/%\}/,  "%>").
+      gsub(/\\(.)/, '\1')
 
     erb = ERB.new(content)
     erb.filename = source.inspect
