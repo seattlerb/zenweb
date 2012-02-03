@@ -34,6 +34,14 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     assert_equal "Not really much here to see.", page.body
   end
 
+  def test_breadcrumbs
+    site.scan
+
+    exp = %w[/index.html /blog/index.html /blog/2012/01/02/page1.html]
+
+    assert_equal exp, page.breadcrumbs.map(&:url)
+  end
+
   def test_clean_url
     act = page.clean_url
     exp = "/blog/2012/01/02/page1.html"
@@ -187,6 +195,22 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     end
     err = "undefined method `render_wtf' for Page"
     assert_includes e.message, err
+  end
+
+  def test_parent
+    site.scan
+    assert_equal site.pages["blog/index.html.erb"], page.parent
+  end
+
+  def test_parent_url
+    assert_equal "/blog/2012/01/02/page1.html", page.url
+    assert_equal "/blog/2012/01/02/index.html", page.parent_url
+
+    page = Zenweb::Page.new(site, "a/b/c.html")
+    assert_equal "/a/b/index.html", page.parent_url
+
+    page = Zenweb::Page.new(site, "a/b/index.html")
+    assert_equal "/a/index.html", page.parent_url
   end
 
   def test_path
