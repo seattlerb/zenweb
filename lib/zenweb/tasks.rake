@@ -15,7 +15,7 @@ end
 
 website if ENV['ALL']
 
-desc "Generate the website"
+desc "Generate the website."
 task :generate do
   site = website
 
@@ -26,22 +26,23 @@ task :generate do
   rm found - known
 end
 
-desc "Push changes to the site"
+desc "Push changes to the site. (you need to define this)"
 task :push
 
-desc "Update current website"
+desc "Publish your website: clean, generate, push."
 task :publish => [:clean, :generate, :push]
 
-desc "remove generated directories"
+desc "Remove junk files."
 task :clean do
   rm_rf Dir["**/*~"]
 end
 
-desc "remove generated .site directory"
+desc "Remove generated .site directory."
 task :realclean => :clean do
   rm_rf ".site"
 end
 
+desc "Run a webserver and build on the fly."
 task :run do
   require 'webrick'
 
@@ -81,14 +82,14 @@ task :run do
   server.start
 end
 
-task :debug do
+desc "Debug the generation of a file. Takes a PATH arg."
+task :debug => ".site" do
   site = website
 
-  path = ENV['PAGE'] || ENV['PATH'] || ENV['FILE'] || "index.html.erb"
+  path = ENV['PAGE'] || ENV['F'] || ENV['FILE'] || "index.html.erb"
 
   if path then
     page = site.pages[path]
-
     page.generate
 
     puts
