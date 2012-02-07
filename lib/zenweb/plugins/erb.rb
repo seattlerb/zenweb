@@ -25,16 +25,19 @@ class Zenweb::Page
     require 'erb'
     extend ERB::Util
 
-    content = content.
-      gsub(/\{\{/, "<%=").
-      gsub(/\}\}/, "%>").
-      gsub(/\{%/,  "<%").
-      gsub(/%\}/,  "%>").
-      gsub(/\\(.)/, '\1')
+    unless defined? @erb then
+      content = content.
+        gsub(/\{\{/, "<%=").
+        gsub(/\}\}/, "%>").
+        gsub(/\{%/,  "<%").
+        gsub(/%\}/,  "%>").
+        gsub(/\\(.)/, '\1')
 
-    erb = ERB.new(content)
-    erb.filename = source.inspect
-    erb.result binding
+      @erb = ERB.new(content)
+    end
+
+    @erb.filename = source.inspect
+    @erb.result binding
   end
 end # erb
 
