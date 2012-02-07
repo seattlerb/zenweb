@@ -122,8 +122,19 @@ module Zenweb
 
     def pages_by_date
       # page.config["title"] avoids the warning
-      html_pages.select {|page| page.config["title"] && page.date }.
+      html_pages.select {|page| page.config["title"] }.
         sort_by { |page| [-page.date.to_i, page.title] }
+    end
+
+    def pages_by_url
+      unless defined? @pages_by_url then
+        h = {}
+        pages.each do |_,p|
+          h[p.url] = p
+        end
+        @pages_by_url = h
+      end
+      @pages_by_url
     end
 
     ##
