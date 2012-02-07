@@ -45,28 +45,27 @@ end
 desc "Run a webserver and build on the fly."
 task :run do
   require 'webrick'
+  require 'thread'
 
   class ZenwebBuilder < WEBrick::HTTPServlet::FileHandler
+    @@semaphore = Mutex.new
+
     def service req, res
+
+      @@site ||= @@semaphore.synchronize { website }
+
       url = req.path
-      target_path = File.join(@root, url)
+      target_path = File.join(".site", url)
 
-      source_file = req.path.
-        gsub(/(\d\d\d\d)\/(\d\d)\/(\d\d)\//, '\1-\2-\3-').
-        gsub(/(\d\d\d\d)\/(\d\d)\//, '\1-\2-')
+      task = Rake.application[target_path]
 
-      if File.directory? File.join(@root, url) then
-        source_file += "index.html"
-        target_path += "index.html"
+      newer = task && task.needed?
+
+      if newer then
+        system "rake clean generate"
+        @@site = nil
+        Rake.application = Rake::Application.new
       end
-
-      sources = Dir[".#{source_file}*"]
-
-      newer = sources.find { |p|
-        ! File.exist?(target_path) or File.mtime(p) > File.mtime(target_path)
-      }
-
-      system "rake clean generate" if newer
 
       super
     end
