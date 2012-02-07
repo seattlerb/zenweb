@@ -49,14 +49,38 @@ module Zenweb
     # Access value at +k+. The value can be inherited from the parent configs.
 
     def [] k
-      h[k] or parent[k]
+      h[k.to_s] or parent[k]
+    end
+
+    ##
+    # Splits a file and returns the yaml header and body, as applicable.
+    #
+    #   split("_config.yml")   => [config, nil]
+    #   split("blah.txt")      => [nil,    content]
+    #   split("index.html.md") => [config, content]
+
+    def self.split path
+      body = File.read_utf(path) rescue ''
+
+      ary = body.split(/^---$/, 3)
+
+      case
+      when File.extname(path) == ".yml" then
+        ary
+      when ary[2] then
+        [ary[0..1].join("---"), ary[2]]
+      else
+        [nil, ary[0]]
+      end
+    rescue ArgumentError => e # Assume it is an encoding error and move on
+      warn "Possible encoding issue with #{path}: #{e}"
+      return [nil, body]
     end
 
     def h # :nodoc:
       @h ||= begin
-               body = File.read(path)
-               body = body.split(/^---$/, 3)[0..1].join("---")
-               YAML.load(body) || {}
+               config, _ = self.class.split path
+               config && YAML.load(config) || {}
              end
     end
 
