@@ -1,3 +1,4 @@
+.autotest
 History.txt
 Manifest.txt
 README.txt
@@ -5,7 +6,8 @@ Rakefile
 example-site/.isolate.rb
 example-site/Rakefile
 example-site/_config.yml
-example-site/_includes/analytics.html
+example-site/_includes/analytics.html.erb
+example-site/_includes/header.html.erb
 example-site/_includes/page_list_item.html
 example-site/_includes/post_list_item.html
 example-site/_layouts/post.erb
@@ -40,4 +42,11 @@ lib/zenweb/plugins/less.rb
 lib/zenweb/plugins/markdown.rb
 lib/zenweb/site.rb
 lib/zenweb/tasks.rake
+test/helper.rb
+test/test_zenweb_config.rb
+test/test_zenweb_extensions.rb
 test/test_zenweb_page.rb
+test/test_zenweb_plugins_erb.rb
+test/test_zenweb_plugins_less.rb
+test/test_zenweb_plugins_markdown.rb
+test/test_zenweb_site.rb
