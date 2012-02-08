@@ -60,21 +60,24 @@ module Zenweb
     #   split("index.html.md") => [config, content]
 
     def self.split path
-      body = File.read_utf(path) rescue ''
+      body = File.binread path
 
-      ary = body.split(/^---$/, 3)
+      raise ArgumentError, "UTF BOM not supported: #{path}" if
+        body.start_with? "\xEF\xBB\xBF"
 
-      case
-      when File.extname(path) == ".yml" then
-        ary
-      when ary[2] then
-        [ary[0..1].join("---"), ary[2]]
+      yaml_file = File.extname(path) == ".yml"
+
+      if yaml_file or body.start_with? "---" then
+        body.force_encoding "utf-8" if File::RUBY19
+
+        if yaml_file then
+          [body, nil]
+        else
+          body.split(/^\.\.\.$/, 2)
+        end
       else
-        [nil, ary[0]]
+        [nil, body]
       end
-    rescue ArgumentError => e # Assume it is an encoding error and move on
-      warn "Possible encoding issue with #{path}: #{e}"
-      return [nil, body]
     end
 
     def h # :nodoc:
