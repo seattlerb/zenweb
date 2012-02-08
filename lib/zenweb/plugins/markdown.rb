@@ -36,6 +36,8 @@ class Zenweb::Page
   # Helper Methods:
 
   def dated_sitemap index, group = :ym, stamp = :date
+    index -= [self]
+
     olddate = nil
 
     index.map { |post|
@@ -48,9 +50,7 @@ class Zenweb::Page
   def sitemap index
     dirs = Hash.new { |h,k| h[k] = [] }
 
-    sorted = index.sort_by { |p|
-      p.path =~ /index.html/ ? File.dirname(p.path) : p.path
-    }
+    sorted = index.sort_by(&:clean_url)
 
     sorted.each do |page|
       dir = File.dirname page.url.sub(%r%\d\d\d\d/\d\d/%, "")
