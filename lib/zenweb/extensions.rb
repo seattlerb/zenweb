@@ -9,6 +9,14 @@ def File.each_parent dir, file
   end
 end
 
+class File
+  RUBY19 = "<3".respond_to? :encoding
+
+  class << self
+    alias :binread :read unless RUBY19
+  end
+end
+
 class Time # :nodoc:
   ##
   # Format as YYYY-MM-DD
@@ -55,13 +63,14 @@ class FileTask
   end
 
   def timestamp
-    if File.exist?(name)
-      a = File.mtime(name.to_s)
-      b = super unless prerequisites.empty?
-      [a, b].compact.max
-    else
-      Rake::EARLY
-    end
+    @timestamp ||=
+      if File.exist?(name)
+        a = File.mtime(name.to_s)
+        b = super unless prerequisites.empty?
+        [a, b].compact.max
+      else
+        Rake::EARLY
+      end
   end
 end
 end
