@@ -37,7 +37,7 @@ class TestZenwebPage < MiniTest::Unit::TestCase
   def test_breadcrumbs
     site.scan
 
-    exp = %w[/index.html /blog/index.html /blog/2012/01/02/page1.html]
+    exp = %w[/index.html /blog/index.html]
 
     assert_equal exp, page.breadcrumbs.map(&:url)
   end
@@ -119,7 +119,7 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     end
 
     out = "woot\n"
-    err = "Rendering blah\n       to .site/blah\n"
+    err = "Rendering .site/blah\n"
 
     assert_output out, err do
       page.generate
@@ -248,12 +248,16 @@ class TestZenwebPage < MiniTest::Unit::TestCase
 
   def test_url
     assert_equal "/blog/2012/01/02/page1.html", page.url
+  end
 
+  def test_url_date_fmt
     page.config.h["date_fmt"] = "%Y/%m/"
     assert_equal "/blog/2012/01/page1.html", page.url
+  end
 
-    page = Zenweb::Page.new site, "blog/blah.html"
-    assert_equal "/blog/blah.html", page.url
+  def test_url_regular_page
+    page = Zenweb::Page.new site, "pages/blah.html"
+    assert_equal "/pages/blah.html", page.url
   end
 
   def test_url_dir

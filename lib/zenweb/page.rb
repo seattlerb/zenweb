@@ -48,7 +48,7 @@ module Zenweb
     # Helper method to access the config value named +k+.
 
     def [] k
-      config[k.to_s] or warn("#{self.inspect} does not define #{k.inspect}")
+      config[k] or warn("#{self.inspect} does not define #{k.inspect}")
     end
 
     ##
@@ -57,9 +57,8 @@ module Zenweb
     def body
       # TODO: add a test for something with --- without a yaml header.
       @body ||= begin
-                  body = content
-                  body = "\n" if body.empty?
-                  body.split(/^---$/, 3).last.strip
+                  _, body = Zenweb::Config.split path
+                  body.strip
                 end
     end
 
@@ -70,10 +69,10 @@ module Zenweb
 
     def parent
       unless defined?(@parent) then
-        pages = site.pages.values
+        pages = site.pages_by_url
         url = parent_url
         url.count("/").times do
-          page = pages.find { |page| page.url == url }
+          page = pages[url]
           if page then
             @parent = page
             break
@@ -93,6 +92,7 @@ module Zenweb
         break unless parent and parent != pages.first
         pages.unshift parent
       end
+      pages.pop # take self back off
       pages
     end
 
@@ -111,7 +111,7 @@ module Zenweb
     def config
       unless defined? @config then
         @config = Config.new site, path
-        @config = @config.parent unless content =~ /\A---/
+        @config = @config.parent unless content.start_with? "---"
       end
       @config
     end
@@ -165,10 +165,14 @@ module Zenweb
     # or a single page.
 
     def depends_on deps
-      deps = deps.values if Hash === deps
-      deps = Array(deps)
+      if String === deps then
+        file self.path => deps
+      else
+        deps = deps.values if Hash === deps
+        deps = Array(deps)
 
-      file self.url_path => deps.map(&:url_path) - [self.url_path]
+        file self.url_path => deps.map(&:url_path) - [self.url_path]
+      end
     end
 
     ##
@@ -207,8 +211,7 @@ module Zenweb
     # Render and write the result to #url_path.
 
     def generate
-      warn "Rendering #{path}"
-      warn "       to #{url_path}"
+      warn "Rendering #{url_path}"
 
       content = self.render
 
@@ -249,7 +252,7 @@ module Zenweb
     # Convenience function to create an html link for this page.
 
     def link_html
-      %(<a href="#{url}">#{title}</a>)
+      %(<a href="#{clean_url}">#{title}</a>)
     end
 
     ##
@@ -292,8 +295,8 @@ module Zenweb
     # index.html pages to have sitemaps.
 
     def subpages
-      prefix = self.clean_url
-      site.html_pages.select {|p| p.url.index(prefix) == 0}.sort_by(&:clean_url)
+      url = self.clean_url
+      site.html_pages.select {|p| p.url.start_with? url }.sort_by(&:clean_url)
     end
 
     ##
@@ -315,7 +318,7 @@ module Zenweb
     # TODO: expand
 
     def url
-      self.path.
+      @url ||= self.path.
         sub(/^/, '/').
         sub(/(\d\d\d\d)-(\d\d)-(\d\d)-/) { |s| format_date s }.
         gsub(self.class.renderers_re, '')

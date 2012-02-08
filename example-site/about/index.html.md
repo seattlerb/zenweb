@@ -1,7 +1,7 @@
 ---
 title: About example.com
 layout: site
----
+...
 
 # About Me
 
