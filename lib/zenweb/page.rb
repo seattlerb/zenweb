@@ -296,7 +296,8 @@ module Zenweb
 
     def subpages
       url = self.clean_url
-      site.html_pages.select {|p| p.url.start_with? url }.sort_by(&:clean_url)
+      site.html_pages.select {|p| p.url.start_with? url }.sort_by(&:clean_url) -
+        [self]
     end
 
     ##

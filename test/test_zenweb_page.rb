@@ -230,8 +230,7 @@ class TestZenwebPage < MiniTest::Unit::TestCase
 
     page = site.pages["blog/index.html.erb"]
     act = page.subpages
-    exp = [site.pages["blog/index.html.erb"],
-           site.pages["blog/2012-01-02-page1.html.md"],
+    exp = [site.pages["blog/2012-01-02-page1.html.md"],
            site.pages["blog/2012-01-03-page2.html.md"],
            site.pages["blog/2012-01-04-page3.html.md"]]
 

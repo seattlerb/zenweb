@@ -43,7 +43,7 @@ class Zenweb::Page
     index.map { |post|
       extra = "{:.day}\n## #{ olddate = post.date.send group }\n\n" if
         olddate != post.date.send(group)
-      "#{extra}* [#{post.date.send stamp} ~ #{post.title}](#{post.url})\n"
+      "#{extra}* [#{post.date.send stamp} ~ #{post.title}](#{post.url})"
     }.join "\n"
   end
 
@@ -53,11 +53,14 @@ class Zenweb::Page
     sorted = index.sort_by(&:clean_url)
 
     sorted.each do |page|
-      dir = File.dirname page.url.sub(%r%\d\d\d\d/\d\d/%, "")
+      # HACK: should use date_fmt... but ugh
+      dir = File.dirname page.url.sub(%r%\d\d\d\d/\d\d/\d\d/%, "").
+        sub(%r%\d\d\d\d/\d\d/%, "")
+
       dirs[dir] << page
     end
 
-    original = [self.clean_url.sub(/^\//, '').split(/\//).length - 1, 0].max
+    original = [self.clean_url.sub(/^\//, '').split(/\//).length, 0].max
 
     dirs.sort.map { |(dir, pages)|
       length = dir[1..-1].split(/\//).length
