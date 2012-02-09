@@ -36,41 +36,16 @@ class Zenweb::Page
   # Helper Methods:
 
   def dated_sitemap index, group = :ym, stamp = :date
-    index -= [self]
-
-    olddate = nil
-
-    index.map { |post|
-      extra = "{:.day}\n## #{ olddate = post.date.send group }\n\n" if
-        olddate != post.date.send(group)
-      "#{extra}* [#{post.date.send stamp} ~ #{post.title}](#{post.url})"
-    }.join "\n"
+    raise "removed. Use sitemap."
   end
 
-  def sitemap index
-    dirs = Hash.new { |h,k| h[k] = [] }
-
-    sorted = index.sort_by(&:clean_url)
-
-    sorted.each do |page|
-      # HACK: should use date_fmt... but ugh
-      dir = File.dirname page.url.sub(%r%\d\d\d\d/\d\d/\d\d/%, "").
-        sub(%r%\d\d\d\d/\d\d/%, "")
-
-      dirs[dir] << page
-    end
-
-    original = [self.clean_url.sub(/^\//, '').split(/\//).length, 0].max
-
-    dirs.sort.map { |(dir, pages)|
-      length = dir[1..-1].split(/\//).length
-      pages.map { |page|
-        bonus = 0
-        bonus = length > 0 && page.url =~ /index.html/ ? -1 : 0
-        indent = "  " * (length+bonus-original)
-
-        "#{indent}* [#{page.title}](#{page.url})"
-      }
+  def sitemap index, indent=0
+    index.map { |page|
+      x = ["#{"  " * indent}* [#{page.title}](#{page.clean_url})"]
+      unless page.subpages.empty? then
+        x += [sitemap(page.subpages, indent+1)]
+      end
+      x
     }.flatten.join "\n"
   end
 

@@ -39,6 +39,8 @@ class MiniTest::Unit::TestCase
       }
       site.pages[path] = page
     end
+
+    site.fix_subpages
   end
 end
 

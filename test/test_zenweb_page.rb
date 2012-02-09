@@ -202,6 +202,14 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     assert_equal site.pages["blog/index.html.erb"], page.parent
   end
 
+  def test_parent_top
+    build_fake_site %w[index.html]
+
+    page = site.pages["index.html"]
+
+    assert_nil page.parent
+  end
+
   def test_parent_url
     assert_equal "/blog/2012/01/02/page1.html", page.url
     assert_equal "/blog/2012/01/02/index.html", page.parent_url
@@ -230,11 +238,47 @@ class TestZenwebPage < MiniTest::Unit::TestCase
 
     page = site.pages["blog/index.html.erb"]
     act = page.subpages
-    exp = [site.pages["blog/2012-01-02-page1.html.md"],
+    exp = [site.pages["blog/2012-01-04-page3.html.md"],
            site.pages["blog/2012-01-03-page2.html.md"],
-           site.pages["blog/2012-01-04-page3.html.md"]]
+           site.pages["blog/2012-01-02-page1.html.md"]]
 
     assert_equal exp, act
+  end
+
+  def test_subpages_subdirs
+    build_fake_site %w[index.html
+                       a/index.html
+                       a/a.html
+                       a/b.html
+                       a/c.html
+                       b/index.html
+                       b/2012-01-02-p1.html
+                       b/2012-01-03-p2.html
+                       b/2012-01-04-p3.html
+                       c/index.html
+                       c/a.html
+                       c/b.html
+                       c/c.html
+                       c/d/e.html
+                       c/d/f.html
+                       c/d/g.html
+                       d/index.html
+                       d/2012-01-02-p1.html
+                       d/2012-01-03-p2.html
+                       d/2012-01-04-p3.html
+                       some_random_page.html
+                      ]
+
+    urls = %w[a/index.html
+              b/index.html
+              c/index.html
+              d/index.html
+              some_random_page.html]
+
+    exp = urls.map { |url| site.pages[url] }
+
+    page = site.pages["index.html"]
+    assert_equal exp, page.subpages
   end
 
   def test_subrender

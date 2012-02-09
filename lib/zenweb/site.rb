@@ -173,6 +173,22 @@ module Zenweb
           warn "unknown file type: #{path}" if Rake.application.options.trace
         end
       end
+
+      fix_subpages
+    end
+
+    def fix_subpages
+      @pages.values.each do |p|
+        p.parent.subpages << p if p.parent
+      end
+
+      @pages.values.each do |p|
+        unless p.subpages.empty? then
+          sorted = p.subpages.sort_by(&:clean_url)
+          sorted = sorted.reverse if p.subpages.first.dated_path?
+          p.subpages.replace sorted
+        end
+      end
     end
 
     ##

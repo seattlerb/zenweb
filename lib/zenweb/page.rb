@@ -24,6 +24,8 @@ module Zenweb
 
     attr_reader :path
 
+    attr_reader :subpages
+
     ##
     # Returns a regexp that will match file extensions for all known
     # renderer types.
@@ -42,6 +44,7 @@ module Zenweb
       # TODO: make sure that creating page /a.html strips leading / from path
       @site, @path = site, path
       @config = config if config
+      @subpages = []
     end
 
     ##
@@ -68,18 +71,20 @@ module Zenweb
     end
 
     def parent
+      # FIX: I hate this method. It should prolly be moved to site and
+      # only allow site to violate page
       unless defined?(@parent) then
         pages = site.pages_by_url
         url = parent_url
         url.count("/").times do
           page = pages[url]
-          if page then
+          if page and page != self then
             @parent = page
             break
           end
           url = parent_url url
         end
-        @parent = nil unless @parent
+        @parent = nil unless defined? @parent
       end
 
       @parent
@@ -137,6 +142,13 @@ module Zenweb
     def date_from_path # :nodoc:
       date = path[/\d\d\d\d-\d\d-\d\d/]
       Time.local(*date.split(/-/).map(&:to_i)) if date
+    end
+
+    ##
+    # Is this a dated page? (ie, does it have YYYY-MM-DD in the path?)
+
+    def dated_path?
+      path[/\d\d\d\d-\d\d-\d\d/]
     end
 
     ##
@@ -288,16 +300,6 @@ module Zenweb
       content = layout.render page, content if layout
 
       content
-    end
-
-    ##
-    # Return all pages underneath this page. Usually used for
-    # index.html pages to have sitemaps.
-
-    def subpages
-      url = self.clean_url
-      site.html_pages.select {|p| p.url.start_with? url }.sort_by(&:clean_url) -
-        [self]
     end
 
     ##
