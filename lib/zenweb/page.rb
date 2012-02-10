@@ -105,7 +105,7 @@ module Zenweb
     # Return the url as users normally enter them (ie, no index.html).
 
     def clean_url
-      url.sub(/\/index.html$/, '')
+      url.sub(/\/index.html$/, '/')
     end
 
     ##

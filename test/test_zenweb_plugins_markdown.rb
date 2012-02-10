@@ -50,7 +50,7 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
     page = site.pages["a/index.html"]
     act  = page.sitemap page.subpages
     exp  = <<-END.cleanup
-    * [Title for a/b/index.html](/a/b)
+    * [Title for a/b/index.html](/a/b/)
       * [Title for a/b/2012-01-04-p3.html](/a/b/2012/01/04/p3.html)
       * [Title for a/b/2012-01-03-p2.html](/a/b/2012/01/03/p2.html)
       * [Title for a/b/2012-01-02-p1.html](/a/b/2012/01/02/p1.html)
@@ -69,7 +69,7 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
     page = site.pages["a/index.html"]
     act = page.sitemap page.subpages
     exp = <<-END.cleanup
-    * [Title for a/b/index.html](/a/b)
+    * [Title for a/b/index.html](/a/b/)
       * [Title for a/b/p1.html](/a/b/p1.html)
       * [Title for a/b/p2.html](/a/b/p2.html)
       * [Title for a/b/p3.html](/a/b/p3.html)
@@ -124,23 +124,23 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
     page = site.pages["index.html"]
     act = page.sitemap page.subpages
     exp = <<-END.cleanup
-    * [Title for a/index.html](/a)
+    * [Title for a/index.html](/a/)
       * [Title for a/a.html](/a/a.html)
       * [Title for a/b.html](/a/b.html)
       * [Title for a/c.html](/a/c.html)
-    * [Title for b/index.html](/b)
+    * [Title for b/index.html](/b/)
       * [Title for b/2012-01-04-p3.html](/b/2012/01/04/p3.html)
       * [Title for b/2012-01-03-p2.html](/b/2012/01/03/p2.html)
       * [Title for b/2012-01-02-p1.html](/b/2012/01/02/p1.html)
-    * [Title for c/index.html](/c)
+    * [Title for c/index.html](/c/)
       * [Title for c/a.html](/c/a.html)
       * [Title for c/b.html](/c/b.html)
       * [Title for c/c.html](/c/c.html)
-      * [Title for c/d/index.html](/c/d)
+      * [Title for c/d/index.html](/c/d/)
         * [Title for c/d/e.html](/c/d/e.html)
         * [Title for c/d/f.html](/c/d/f.html)
         * [Title for c/d/g.html](/c/d/g.html)
-    * [Title for d/index.html](/d)
+    * [Title for d/index.html](/d/)
       * [Title for d/2012-01-04-p3.html](/d/2012/01/04/p3.html)
       * [Title for d/2012-01-03-p2.html](/d/2012/01/03/p2.html)
       * [Title for d/2012-01-02-p1.html](/d/2012/01/02/p1.html)

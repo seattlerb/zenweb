@@ -50,7 +50,7 @@ class TestZenwebPage < MiniTest::Unit::TestCase
 
     page = Zenweb::Page.new site, "a/b/index.html"
     act = page.clean_url
-    exp = "/a/b"
+    exp = "/a/b/"
 
     assert_equal exp, act
   end
