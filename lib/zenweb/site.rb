@@ -178,8 +178,19 @@ module Zenweb
     end
 
     def fix_subpages
+      parents = {}
+      @pages.values.select(&:index?).each do |p|
+        parents[File.dirname p.path] = p
+      end
+
       @pages.values.each do |p|
-        p.parent.subpages << p if p.parent
+        path = File.dirname p.path
+        path = File.dirname path if p.index?
+
+        parent = parents[path]
+        next unless parent and parent != p
+        p.parent = parent
+        parent.subpages << p
       end
 
       @pages.values.each do |p|

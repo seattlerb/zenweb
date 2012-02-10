@@ -36,6 +36,7 @@ class TestZenwebPage < MiniTest::Unit::TestCase
 
   def test_breadcrumbs
     site.scan
+    self.page = site.pages[page.path]
 
     exp = %w[/index.html /blog/index.html]
 
@@ -199,6 +200,8 @@ class TestZenwebPage < MiniTest::Unit::TestCase
 
   def test_parent
     site.scan
+    self.page = site.pages[page.path]
+
     assert_equal site.pages["blog/index.html.erb"], page.parent
   end
 

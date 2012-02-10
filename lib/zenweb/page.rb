@@ -26,6 +26,8 @@ module Zenweb
 
     attr_reader :subpages
 
+    attr_accessor :parent
+
     ##
     # Returns a regexp that will match file extensions for all known
     # renderer types.
@@ -68,26 +70,6 @@ module Zenweb
     def parent_url url = self.url
       url = File.dirname url if File.basename(url) == "index.html"
       File.join File.dirname(url), "index.html"
-    end
-
-    def parent
-      # FIX: I hate this method. It should prolly be moved to site and
-      # only allow site to violate page
-      unless defined?(@parent) then
-        pages = site.pages_by_url
-        url = parent_url
-        url.count("/").times do
-          page = pages[url]
-          if page and page != self then
-            @parent = page
-            break
-          end
-          url = parent_url url
-        end
-        @parent = nil unless defined? @parent
-      end
-
-      @parent
     end
 
     def breadcrumbs
@@ -240,6 +222,10 @@ module Zenweb
     def include name, page
       incl = Page.new(site, File.join("_includes", name))
       incl.subrender page
+    end
+
+    def index?
+      url.end_with? "index.html"
     end
 
     def inspect # :nodoc:
