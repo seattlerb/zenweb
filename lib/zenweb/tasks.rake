@@ -26,6 +26,17 @@ task :generate do
   rm found - known
 end
 
+desc "Print out possible orphans (html pages w/o parent pages)"
+task :orphans do
+  site = website
+  puts "Possible Orphans (HTML pages w/o parents):"
+  puts
+  site.pages.values.reject(&:parent).sort_by(&:clean_url).each do |page|
+    next unless page.url =~ /html$/
+    puts page
+  end
+end
+
 desc "Push changes to the site. (you need to define this)"
 task :push
 
