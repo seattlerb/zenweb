@@ -188,7 +188,7 @@ module Zenweb
         path = File.dirname path if p.index?
 
         parent = parents[path]
-        next unless parent and parent != p
+        next unless parent and parent != p and p.url =~ /html$/
         p.parent = parent
         parent.subpages << p
       end

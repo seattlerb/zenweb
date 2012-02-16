@@ -39,11 +39,30 @@ class Zenweb::Page
     raise "removed. Use sitemap."
   end
 
-  def sitemap index, indent=0
-    index.map { |page|
-      x = ["#{"  " * indent}* [#{page.title}](#{page.clean_url})"]
+  def sitemap indent=0
+    raise ArgumentError, "Do not pass files to #sitemap" unless Integer === indent
+
+    bonus = 0
+    dated = subpages.first && subpages.first.dated_path?
+
+    if dated then
+      prev  = nil
+      fmt   = subpages.first.config["date_fmt"] || "%Y-%m"
+      bonus = 1
+    end
+
+    subpages.map { |page|
+      x = []
+      if dated then
+        curr = page.date.strftime fmt
+        if prev != curr then
+          x << "#{"  " * (indent)}* #{curr}:"
+          prev = curr
+        end
+      end
+      x << "#{"  " * (indent+bonus)}* [#{page.title}](#{page.clean_url})"
       unless page.subpages.empty? then
-        x += [sitemap(page.subpages, indent+1)]
+        x += [page.sitemap(indent+bonus+1)]
       end
       x
     }.flatten.join "\n"
