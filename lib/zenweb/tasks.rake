@@ -53,6 +53,43 @@ task :realclean => :clean do
   rm_rf ".site"
 end
 
+def new_file title, dated = false
+  path = "#{title.strip.downcase.gsub(/\W+/, '-')}.html.md"
+
+  if dated then
+    today = Time.now.strftime '%Y-%m-%d'
+    path = "#{today}-#{path}"
+  end
+
+  open path, 'w' do |post|
+    post.puts "---"
+    post.puts "layout: post"
+    post.puts "title: \"#{title}\""
+    post.puts "date: #{Time.now.strftime('%Y-%m-%d %H:%M')}"
+    post.puts "comments: true"
+    post.puts "categories: "
+    post.puts "---"
+  end
+end
+
+desc "Begin a new dated post: rake new_post['title']"
+task :new_post, :title do |t, args|
+  title = args[:title] || "new-post"
+
+  new_file title, true
+
+  warn "Created new post: #{path}"
+end
+
+desc "Begin a new dated post: rake new_page['title']"
+task :new_page, :title do |t, args|
+  title = args[:title] || "new-post"
+
+  new_file title
+
+  warn "Created new file: #{path}"
+end
+
 desc "Run a webserver and build on the fly."
 task :run do
   require 'webrick'
