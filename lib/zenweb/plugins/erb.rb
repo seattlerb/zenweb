@@ -31,7 +31,7 @@ class Zenweb::Page
         gsub(/\}\}/, "%>").
         gsub(/\{%/,  "<%").
         gsub(/%\}/,  "%>").
-        gsub(/\\(.)/, '\1')
+        gsub(/\\([{}%])/, '\1')
 
       @erb = ERB.new(content)
     end
