@@ -105,13 +105,12 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
                        a/a.html
                        a/b.html
                        a/c.html
-                       b/index.html
-                       b/2012-01-02-p1.html
-                       b/2012-01-03-p2.html
-                       b/2012-01-04-p3.html
-                       b/2012-02-02-p1.html
-                       b/2012-02-03-p2.html
-                       b/2012-02-04-p3.html
+                       a/2012-01-02-p1.html
+                       a/2012-01-03-p2.html
+                       a/2012-01-04-p3.html
+                       a/2012-02-02-p1.html
+                       a/2012-02-03-p2.html
+                       a/2012-02-04-p3.html
                        c/index.html
                        c/a.html
                        c/b.html
@@ -134,15 +133,14 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
       * [Title for a/a.html](/a/a.html)
       * [Title for a/b.html](/a/b.html)
       * [Title for a/c.html](/a/c.html)
-    * [Title for b/index.html](/b/)
       * 2012-02:
-        * [Title for b/2012-02-04-p3.html](/b/2012/02/04/p3.html)
-        * [Title for b/2012-02-03-p2.html](/b/2012/02/03/p2.html)
-        * [Title for b/2012-02-02-p1.html](/b/2012/02/02/p1.html)
+        * [Title for a/2012-02-04-p3.html](/a/2012/02/04/p3.html)
+        * [Title for a/2012-02-03-p2.html](/a/2012/02/03/p2.html)
+        * [Title for a/2012-02-02-p1.html](/a/2012/02/02/p1.html)
       * 2012-01:
-        * [Title for b/2012-01-04-p3.html](/b/2012/01/04/p3.html)
-        * [Title for b/2012-01-03-p2.html](/b/2012/01/03/p2.html)
-        * [Title for b/2012-01-02-p1.html](/b/2012/01/02/p1.html)
+        * [Title for a/2012-01-04-p3.html](/a/2012/01/04/p3.html)
+        * [Title for a/2012-01-03-p2.html](/a/2012/01/03/p2.html)
+        * [Title for a/2012-01-02-p1.html](/a/2012/01/02/p1.html)
     * [Title for c/index.html](/c/)
       * [Title for c/a.html](/c/a.html)
       * [Title for c/b.html](/c/b.html)
@@ -157,6 +155,36 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
         * [Title for d/2012-01-03-p2.html](/d/2012/01/03/p2.html)
         * [Title for d/2012-01-02-p1.html](/d/2012/01/02/p1.html)
     * [Title for some_random_page.html](/some_random_page.html)
+    END
+
+    assert_equal exp, act
+  end
+
+  def test_sitemap_subdir_bloggish
+    build_fake_site %w[index.html
+                       2012-01-02-p1.html
+                       2012-01-03-p2.html
+                       2012-01-04-p3.html
+                       2012-02-02-p1.html
+                       2012-02-03-p2.html
+                       2012-02-04-p3.html
+                       sitemap.html
+                       some_random_page.html
+                      ]
+
+    page = site.pages["index.html"]
+    act = page.sitemap
+    exp = <<-END.cleanup
+    * [Title for sitemap.html](/sitemap.html)
+    * [Title for some_random_page.html](/some_random_page.html)
+    * 2012-02:
+      * [Title for 2012-02-04-p3.html](/2012/02/04/p3.html)
+      * [Title for 2012-02-03-p2.html](/2012/02/03/p2.html)
+      * [Title for 2012-02-02-p1.html](/2012/02/02/p1.html)
+    * 2012-01:
+      * [Title for 2012-01-04-p3.html](/2012/01/04/p3.html)
+      * [Title for 2012-01-03-p2.html](/2012/01/03/p2.html)
+      * [Title for 2012-01-02-p1.html](/2012/01/02/p1.html)
     END
 
     assert_equal exp, act
