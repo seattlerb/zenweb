@@ -40,30 +40,28 @@ class Zenweb::Page
   end
 
   def sitemap indent=0
-    raise ArgumentError, "Do not pass files to #sitemap" unless Integer === indent
+    dated, regular = self.subpages.partition(&:dated?)
 
-    bonus = 0
-    dated = subpages.first && subpages.first.dated_path?
-
-    if dated then
-      prev  = nil
-      fmt   = subpages.first.config["date_fmt"] || "%Y-%m"
-      bonus = 1
-    end
+    bonus   = 0
+    prev    = nil
+    regular = regular.sort_by { |p| p.url }
+    subpages = regular + dated
 
     subpages.map { |page|
       x = []
-      if dated then
+
+      if page.dated? then
+        bonus = 1
+        fmt ||= page.config["date_fmt"] || "%Y-%m"
         curr = page.date.strftime fmt
         if prev != curr then
           x << "#{"  " * (indent)}* #{curr}:"
           prev = curr
         end
       end
+
       x << "#{"  " * (indent+bonus)}* [#{page.title}](#{page.clean_url})"
-      unless page.subpages.empty? then
-        x += [page.sitemap(indent+bonus+1)]
-      end
+      x += [page.sitemap(indent+bonus+1)] unless page.subpages.empty?
       x
     }.flatten.join "\n"
   end
