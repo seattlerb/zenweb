@@ -126,6 +126,10 @@ module Zenweb
       Time.local(*date.split(/-/).map(&:to_i)) if date
     end
 
+    def dated?
+      config['date'] || date_from_path
+    end
+
     ##
     # Is this a dated page? (ie, does it have YYYY-MM-DD in the path?)
 
