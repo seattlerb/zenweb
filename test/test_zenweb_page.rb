@@ -297,7 +297,7 @@ class TestZenwebPage < MiniTest::Unit::TestCase
   end
 
   def test_url_date_fmt
-    page.config.h["date_fmt"] = "%Y/%m/"
+    page.config.h["date_fmt"] = "%Y/%m"
     assert_equal "/blog/2012/01/page1.html", page.url
   end
 

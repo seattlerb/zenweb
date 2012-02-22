@@ -52,7 +52,7 @@ class Zenweb::Page
 
       if page.dated? then
         bonus = 1
-        fmt ||= page.config["date_fmt"] || "%Y-%m"
+        fmt ||= page.config["date_fmt"] || "%Y-%m" # REFACTOR: yuck
         curr = page.date.strftime fmt
         if prev != curr then
           x << "#{"  " * (indent)}* #{curr}:"

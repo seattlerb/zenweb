@@ -201,7 +201,7 @@ module Zenweb
     # Format a date string +s+ using the config value +date_fmt+ or YYYY/MM/DD.
 
     def format_date s
-      fmt = self.config["date_fmt"] || "%Y/%m/%d/"
+      fmt = self.config["date_fmt"] || "%Y/%m/%d"
       Time.local(*s.split(/-/).map(&:to_i)).strftime(fmt)
     end
 
@@ -313,7 +313,7 @@ module Zenweb
     def url
       @url ||= self.path.
         sub(/^/, '/').
-        sub(/(\d\d\d\d)-(\d\d)-(\d\d)-/) { |s| format_date s }.
+        sub(/(\d\d\d\d)-(\d\d)-(\d\d)-/) { |s| "#{format_date s}/" }.
         gsub(self.class.renderers_re, '')
     end
 
