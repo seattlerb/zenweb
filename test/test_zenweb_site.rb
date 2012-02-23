@@ -220,17 +220,31 @@ class TestZenwebSite < MiniTest::Unit::TestCase
       assert_task ".site/blog/2012/01/02/page1.html", %w[.site/blog/2012/01/02 blog/2012-01-02-page1.html.md]
       assert_task ".site/blog/2012/01/03/page2.html", %w[.site/blog/2012/01/03 blog/2012-01-03-page2.html.md]
       assert_task ".site/blog/2012/01/04/page3.html", %w[.site/blog/2012/01/04 blog/2012-01-04-page3.html.md]
-      assert_task ".site/blog/index.html",            %w[.site/blog            blog/index.html.erb          ]
+      assert_task ".site/blog/index.html",            %w[.site/blog
+                                                         blog/2012-01-02-page1.html.md
+                                                         blog/2012-01-03-page2.html.md
+                                                         blog/2012-01-04-page3.html.md
+                                                         blog/index.html.erb]
       assert_task ".site/css/colors.css",             %w[.site/css             css/colors.css.less          ]
       assert_task ".site/css/styles.css",             %w[.site/css             css/styles.css               ]
       assert_task ".site/css/syntax.css",             %w[.site/css             css/syntax.css               ]
       assert_task ".site/img/bg.png",                 %w[.site/img             img/bg.png                   ]
-      assert_task ".site/index.html",                 %w[.site                 index.html.erb               ]
+      assert_task ".site/index.html",                 %w[.site
+                                                         about/index.html.md
+                                                         blog/2012-01-02-page1.html.md
+                                                         blog/2012-01-03-page2.html.md
+                                                         blog/2012-01-04-page3.html.md
+                                                         blog/index.html.erb
+                                                         index.html.erb
+                                                         pages/index.html.erb
+                                                         pages/nonblogpage.html.md
+                                                         projects/index.html.erb
+                                                         projects/zenweb.html.erb]
       assert_task ".site/js/jquery.js",               %w[.site/js              js/jquery.js                 ]
       assert_task ".site/js/site.js",                 %w[.site/js              js/site.js                   ]
-      assert_task ".site/pages/index.html",           %w[.site/pages           pages/index.html.erb         ]
+      assert_task ".site/pages/index.html",           %w[.site/pages           pages/index.html.erb pages/nonblogpage.html.md]
       assert_task ".site/pages/nonblogpage.html",     %w[.site/pages           pages/nonblogpage.html.md    ]
-      assert_task ".site/projects/index.html",        %w[.site/projects        projects/index.html.erb      ]
+      assert_task ".site/projects/index.html",        %w[.site/projects        projects/index.html.erb projects/zenweb.html.erb]
       assert_task ".site/projects/zenweb.html",       %w[.site/projects        projects/zenweb.html.erb     ]
       assert_task ".site/sitemap.xml",                %w[.site                 sitemap.xml.erb              ]
 

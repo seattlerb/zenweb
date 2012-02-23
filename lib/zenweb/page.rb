@@ -56,6 +56,10 @@ module Zenweb
       config[k] or warn("#{self.inspect} does not define #{k.inspect}")
     end
 
+    def all_subpages
+      subpages.map { |p| [p, p.all_subpages] }.flatten
+    end
+
     ##
     # Returns the actual content of the file minus the optional YAML header.
 
@@ -363,6 +367,8 @@ module Zenweb
         file self.path => self.layout.path
         self.layout.wire
       end
+
+      file url_path => all_subpages.map(&:path) if url =~ /index.html/
 
       unless url_dir =~ %r%/_% then
         directory url_dir

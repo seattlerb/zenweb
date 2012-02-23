@@ -13,8 +13,6 @@ rescue RuntimeError => e
   raise e
 end
 
-website if ENV['ALL']
-
 desc "Generate the website."
 task :generate do
   site = website
@@ -105,7 +103,7 @@ task :run do
       url = req.path
       target_path = File.join(".site", url)
 
-      task = Rake.application[target_path]
+      task = Rake.application[target_path] rescue nil
 
       newer = task && task.needed?
 
