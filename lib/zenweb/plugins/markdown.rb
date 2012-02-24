@@ -39,8 +39,9 @@ class Zenweb::Page
     raise "removed. Use sitemap."
   end
 
-  def sitemap indent=0
-    dated, regular = self.subpages.partition(&:dated?)
+  def sitemap pages = nil, indent = 0
+    pages ||= self.subpages
+    dated, regular = pages.partition(&:dated?)
 
     bonus   = 0
     prev    = nil
@@ -61,7 +62,7 @@ class Zenweb::Page
       end
 
       x << "#{"  " * (indent+bonus)}* [#{page.title}](#{page.clean_url})"
-      x += [page.sitemap(indent+bonus+1)] unless page.subpages.empty?
+      x += [page.sitemap(nil, indent+bonus+1)] unless page.subpages.empty?
       x
     }.flatten.join "\n"
   end
