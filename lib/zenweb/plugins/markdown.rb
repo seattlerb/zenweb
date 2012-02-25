@@ -45,8 +45,10 @@ class Zenweb::Page
 
     bonus   = 0
     prev    = nil
-    regular = regular.sort_by { |p| p.url }
-    subpages = regular + dated
+    regular = regular
+    subpages =
+      regular.sort_by { |p| p.url } +
+      dated.sort_by   { |p| [-p.date.to_i, p.url] }
 
     subpages.map { |page|
       x = []
