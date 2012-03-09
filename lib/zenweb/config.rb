@@ -67,9 +67,9 @@ module Zenweb
 
       yaml_file = File.extname(path) == ".yml"
 
-      if yaml_file or body.start_with? "---" then
-        body.force_encoding "utf-8" if File::RUBY19
+      body.force_encoding "utf-8" if File::RUBY19
 
+      if yaml_file or body.start_with? "---" then
         if yaml_file then
           [body, nil]
         else
