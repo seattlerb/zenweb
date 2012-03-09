@@ -257,7 +257,7 @@ module Zenweb
     ##
     # Convenience function to create an html link for this page.
 
-    def link_html
+    def link_html title = self.title
       %(<a href="#{clean_url}">#{title}</a>)
     end
 
