@@ -1,27 +1,43 @@
 ---
+title: example.com
+domain: http://example.com
+author: John Doe
+email: john.doe@example.com
+feed_url: http://example.com/atom.xml
+rss_length: 15
 layout: nil
 ...
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
- <title>example.com</title>
- <link href="http://example.com/atom.xml" rel="self"/>
- <link href="http://example.com/"/>
- <updated>{{ site.pages_by_date.first.date }}</updated>
- <id>http://example.com/</id>
- <author>
-   <name>John Doe</name>
-   <email>john.doe@example.com</email>
- </author>
+  {%
+    posts = site.pages_by_date.first(rss_length)
+  %}
 
- {% for post in site.pages_by_date.first(30) %}
- <entry>
-   <title>{{ post.title }}</title>
-   <link href="http://example.com{{ post.url }}"/>
-   <updated>{{ post.date.xmlschema }}</updated>
-   <id>http://example.com{{ post.url }}</id>
-   <content type="html">{{ h post.content }}</content>
- </entry>
- {% end %}
+  <id>{{ domain }}/</id>
+  <title>{{ title }}</title>
+  <updated>{{ posts.first.date.iso8601 }}</updated>
 
+  <author>
+    <name>{{ author }}</name>
+    <email>{{ email }}</email>
+  </author>
+
+  <link href="{{ feed_url }}" rel="self"/>
+  <link href="{{ domain }}/"/>
+
+  <rights> © {{ author }} - {{ email }} </rights>
+
+  {% for post in posts %}
+    <entry>
+      <id>{{ domain }}{{ post.url }}</id>
+      <title>{{ h post.title }}</title>
+      <updated>{{ post.date.iso8601 }}</updated>
+
+      <link rel="alternate" href="{{ domain }}{{ post.url }}"/>
+
+      <published>{{ post.date.iso8601 }}</published>
+      <content type="html">{{ h post.subrender }}</content>
+    </entry>
+  {% end %}
 </feed>

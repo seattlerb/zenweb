@@ -4,7 +4,7 @@ layout: site
 header: example.com
 ...
 
-{% pages  = site.categories.blog %}
+{% pages  = site.pages_by_date.first(20) - [self] %}
 {% latest = pages.shift %}
 
 <div class="post">
