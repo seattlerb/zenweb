@@ -232,6 +232,11 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     assert_equal "<p>Not really much here to see.</p>\n", page.render
   end
 
+  def test_render_image
+    self.page = Zenweb::Page.new site, "img/bg.png"
+    assert_equal page.content, page.render
+  end
+
   def test_site
     assert_equal site, page.site
   end
