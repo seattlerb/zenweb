@@ -93,26 +93,22 @@ end
 
 desc "Run a webserver and build on the fly."
 task :run do
+  require 'zenweb/extensions'
   require 'webrick'
   require 'thread'
+
+  module Rake
+    class FileTask
+      def clear_timestamp
+        @timestamp = nil
+        prerequisite_tasks.each(&:clear_timestamp)
+      end
+    end
+  end
 
   # TODO: implement a watcher or something... this is annoying
   class ZenwebBuilder < WEBrick::HTTPServlet::FileHandler
     @@semaphore = Mutex.new
-
-    def self.start_builder
-      @@builder ||= Thread.new do
-        loop do
-          sleep 5
-
-          system "rake -q clean generate"
-        end
-      end
-    end
-
-    def self.stop_builder
-      @@builder.kill
-    end
 
     def service req, res
       @@site ||= @@semaphore.synchronize { website }
@@ -125,32 +121,31 @@ task :run do
 
       task = Rake.application[target_path] rescue nil
 
-      if task then
-        puts task
-      else
-        warn "NOTE: No file found for #{url}"
-      end
+      p target_path => task.needed? if task # TODO: remove
+
+      warn "NOTE: No file found for #{url}" unless task
 
       newer = task && task.needed?
 
       if newer then
         system "rake clean generate"
-        @@site = nil
-        Rake.application = Rake::Application.new
       end
+
+      if task && newer then
+        @@site = nil
+        Rake.application = Rake::Application.new # reset
+      end
+
+      task.clear_timestamp if task && target_path =~ /(html|css|js)$/
 
       super
     end
   end
 
   server = WEBrick::HTTPServer.new :Port => 8000
-  # ZenwebBuilder.start_builder
   server.mount '/', ZenwebBuilder, ".site"
 
-#  ZenwebBuilder.start_builder
-
   trap 'INT' do
-    # ZenwebBuilder.stop_builder
     server.shutdown
   end
 
