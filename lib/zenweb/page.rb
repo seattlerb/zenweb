@@ -141,6 +141,10 @@ module Zenweb
       path[/\d\d\d\d-\d\d-\d\d/]
     end
 
+    def html?
+      path =~ /\.html/
+    end
+
     ##
     # Wires up additional dependents on this Page. +from_deps+ may be
     # a Hash (eg site.pages), an Array (eg. site.categories.blog), or
