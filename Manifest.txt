@@ -38,6 +38,7 @@ lib/zenweb/config.rb
 lib/zenweb/extensions.rb
 lib/zenweb/page.rb
 lib/zenweb/plugins/erb.rb
+lib/zenweb/plugins/google.rb
 lib/zenweb/plugins/less.rb
 lib/zenweb/plugins/markdown.rb
 lib/zenweb/site.rb
