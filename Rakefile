@@ -14,6 +14,7 @@ Hoe.spec 'zenweb' do
   dependency 'less',       '~> 1.2'
   dependency 'coderay',    '~> 1.0'
   dependency 'kramdown',   '~> 0.13'
+  dependency 'ptools',     '~> 1.2.1'
   dependency 'rcov',       '~> 0.9', :development
 end
 

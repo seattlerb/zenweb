@@ -66,8 +66,8 @@ module Zenweb
     def body
       # TODO: add a test for something with --- without a yaml header.
       @body ||= begin
-                  _, body = Zenweb::Config.split path
-                  body.strip
+                  _, body, binary = Zenweb::Config.split path
+                  (!binary && body.strip) || body
                 end
     end
 
@@ -111,7 +111,7 @@ module Zenweb
     # Returns the entire (raw) content of the file.
 
     def content
-      @content ||= File.read path
+      @content ||= File.binread path
     end
 
     ##
