@@ -158,14 +158,13 @@ module Zenweb
         when /(?:#{excludes.join '|'})$/
           # ignore
         when /^_layout/ then
-          ext = File.extname path
-          name = File.basename path, ext
+          name = File.basename(path).sub(/\..+$/, '')
           @layouts[name] = Page.new self, path
         when /^_/ then
           next
         when /\.yml$/ then
           @configs[path] = Config.new self, path
-        when /\.(?:png|jpg|gif|eot|svg|ttf|woff|ico)$/ then # HACK
+        when /\.(?:png|jpg|gif|eot|svg|ttf|woff|ico|pdf)$/ then # HACK
           @pages[path] = Page.new self, path, self.config
         when /\.(?:txt|html|css|js)$/, renderers_re then # HACK
           @pages[path] = Page.new self, path
