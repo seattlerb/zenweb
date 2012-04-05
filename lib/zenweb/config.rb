@@ -3,6 +3,9 @@ require "yaml"
 gem "rake"
 require "rake"
 
+gem "ptools"
+require "ptools"
+
 module Zenweb
   ##
   # Provides a hierarchical dictionary made of yaml fragments and files.
@@ -65,18 +68,30 @@ module Zenweb
       raise ArgumentError, "UTF BOM not supported: #{path}" if
         body.start_with? "\xEF\xBB\xBF"
 
-      yaml_file = File.extname(path) == ".yml"
+      binary_file = File.binary? path
 
-      body.force_encoding "utf-8" if File::RUBY19
-
-      if yaml_file or body.start_with? "---" then
-        if yaml_file then
-          [body, nil]
-        else
-          body.split(/^\.\.\.$/, 2)
-        end
+      if binary_file
+        kind = :binary
+      elsif File.extname(path) == ".yml"
+        kind = :yaml
+      elsif body.start_with? "---"
+        kind = :yaml_text
       else
-        [nil, body]
+        kind = :text
+      end
+
+      unless kind == :binary
+        body.force_encoding "utf-8" if File::RUBY19
+        body.strip!
+      end
+
+      case kind
+      when :yaml
+        [body, nil, binary_file]
+      when :yaml_text
+        body.split(/^\.\.\.$/, 2).push(binary_file)
+      else
+        [nil, body, binary_file]
       end
     end
 
