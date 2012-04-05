@@ -234,7 +234,7 @@ class TestZenwebPage < MiniTest::Unit::TestCase
 
   def test_render_image
     self.page = Zenweb::Page.new site, "img/bg.png"
-    assert_equal page.content, page.render
+    assert_equal File.binread("img/bg.png"), page.render
   end
 
   def test_site

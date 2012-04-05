@@ -111,6 +111,7 @@ module Zenweb
     # Returns the entire (raw) content of the file.
 
     def content
+      # TODO: this has the same drawbacks as Config.split
       @content ||= File.read path
     end
 

@@ -69,15 +69,14 @@ module Zenweb
 
       body.force_encoding "utf-8" if File::RUBY19
 
-      if yaml_file or body.start_with? "---" then
-        if yaml_file then
-          [body, nil]
-        else
-          body.split(/^\.\.\.$/, 2)
-        end
+      if yaml_file then
+        [body, nil]
+      elsif body.start_with? "---" then
+        body.split(/^\.\.\.$/, 2)
       else
-        [nil, body]
+        [nil, body.valid_encoding? ? body : body.force_encoding('ASCII-8BIT')]
       end
+
     end
 
     def h # :nodoc:
