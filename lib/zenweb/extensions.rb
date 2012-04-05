@@ -17,6 +17,12 @@ class File
   end
 end
 
+class String
+  def valid_encoding?
+    true
+  end unless File::RUBY19
+end
+
 class Time # :nodoc:
   ##
   # Format as YYYY-MM-DD
