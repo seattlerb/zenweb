@@ -27,6 +27,11 @@ module Zenweb
     attr_reader :configs
 
     ##
+    # Returns all known layouts found via #scan
+
+    attr_reader :layouts
+
+    ##
     # Loads all files matching "zenweb/plugins/*.rb".
 
     def self.load_plugins
@@ -164,7 +169,7 @@ module Zenweb
           next
         when /\.yml$/ then
           @configs[path] = Config.new self, path
-        when /\.(?:png|jpg|gif|eot|svg|ttf|woff|ico|pdf)$/ then # HACK
+        when /\.(?:png|jpg|gif|eot|svg|ttf|woff|ico|pdf|m4a|t?gz)$/ then # HACK
           @pages[path] = Page.new self, path, self.config
         when /\.(?:txt|html|css|js)$/, renderers_re then # HACK
           @pages[path] = Page.new self, path
