@@ -76,6 +76,21 @@ class Zenweb::Page
     "* \n{:toc}\n"
   end
 
+  def attr h_or_name
+    h_or_name = h_or_name.map { |k,v| "#{k}=\"#{v}\"" }.join " " if
+      Hash === h_or_name
+
+    "{:#{h_or_name}}"
+  end
+
+  def css_class name
+    attr ".#{name}"
+  end
+
+  def css_id name
+    attr "##{name}"
+  end
+
   ##
   # This is just here during the transition of my site. I'll nuke it soon.
 
@@ -84,11 +99,8 @@ class Zenweb::Page
     "[#{title}](#{url})"
   end
 
-  ##
-  # This is just here during the transition of my site. I'll nuke it soon.
-
-  def img(*) # :nodoc:
-    raise "no!"
+  def image url, alt=url
+    "![#{alt}](#{url})"
   end
 end # markdown
 

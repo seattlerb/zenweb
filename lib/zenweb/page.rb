@@ -313,6 +313,22 @@ module Zenweb
       } || self.body
     end
 
+    # TODO: move this and others to plugins/html_toys.rb (or something)
+
+    def run_js_script url
+      <<-"EOM".gsub(/^ {6}/, '')
+      <script type="text/javascript">
+        (function() {
+          var s   = document.createElement('script');
+          s.type  = 'text/javascript';
+          s.async = true;
+          s.src   = '#{url}';
+          (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(s);
+        })();
+      </script>
+    EOM
+    end
+
     ##
     # Return the url for this page. The url is based entirely on its
     # location in the file-system.
