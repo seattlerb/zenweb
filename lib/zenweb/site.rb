@@ -178,6 +178,9 @@ module Zenweb
         end
       end
 
+      t = Time.now
+      @pages.reject! { |path, page| page.date && page.date > t }
+
       fix_subpages
     end
 
