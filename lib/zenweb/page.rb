@@ -147,26 +147,6 @@ module Zenweb
     end
 
     ##
-    # Wires up additional dependents on this Page. +from_deps+ may be
-    # a Hash (eg site.pages), an Array (eg. site.categories.blog), or
-    # a single page.
-    #
-    # This is the opposite of #depends_on and I'm not sure it is
-    # actually needed.
-    #
-    # TODO: remove me?
-
-    def depended_on_by from_deps
-      from_deps = from_deps.values if Hash === from_deps
-      from_deps = Array(from_deps)
-
-      from_deps.each do |dep|
-        next if self.url_path == dep.url_path
-        file dep.url_path => self.url_path
-      end
-    end
-
-    ##
     # Wires up additional dependencies for this Page. +from_deps+ may
     # be a Hash (eg site.pages), an Array (eg. site.categories.blog),
     # or a single page.

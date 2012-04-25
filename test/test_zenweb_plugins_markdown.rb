@@ -18,6 +18,31 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
     self.page = Zenweb::Page.new site, "blog/2012-01-02-page1.html.md"
   end
 
+  def test_attr_h
+    assert_equal "{:blah=\"42\"}", page.attr("blah" => 42)
+  end
+
+  def test_attr_name
+    assert_equal "{:blah}", page.attr("blah")
+  end
+
+  def test_css_class
+    assert_equal "{:.blah}", page.css_class("blah")
+  end
+
+  def test_css_id
+    assert_equal "{:#blah}", page.css_id("blah")
+  end
+
+  def test_link
+    assert_equal "[mytitle](myurl)", page.link("myurl", "mytitle")
+  end
+
+  def test_image
+    assert_equal "![myurl](myurl)", page.image("myurl")
+    assert_equal "![myalt](myurl)", page.image("myurl", "myalt")
+  end
+
   def test_render_md
     act = page.render_md page, nil
     exp = "<p>Not really much here to see.</p>\n"

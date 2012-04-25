@@ -35,10 +35,6 @@ class Zenweb::Page
   ############################################################
   # Helper Methods:
 
-  def dated_sitemap index, group = :ym, stamp = :date
-    raise "removed. Use sitemap."
-  end
-
   def sitemap pages = nil, indent = 0
     pages ||= self.subpages
     dated, regular = pages.partition(&:dated?)
@@ -91,11 +87,7 @@ class Zenweb::Page
     attr "##{name}"
   end
 
-  ##
-  # This is just here during the transition of my site. I'll nuke it soon.
-
   def link(url, title) # :nodoc:
-    warn "link called from #{self.inspect}"
     "[#{title}](#{url})"
   end
 

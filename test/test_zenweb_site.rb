@@ -169,6 +169,13 @@ class TestZenwebSite < MiniTest::Unit::TestCase
     assert_equal exp, site.pages_by_date.map { |x| [-x.date.to_i, x.title] }
   end
 
+  def test_pages_by_url
+    site.scan
+
+    exp = Hash[site.pages.values.map { |p| [p.url, p] }]
+    assert_equal exp, site.pages_by_url
+  end
+
   def test_scan # the rest is tested via the other tests
     assert_empty site.pages
     assert_empty site.configs

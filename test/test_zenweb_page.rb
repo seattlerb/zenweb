@@ -75,16 +75,6 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     assert_equal Time.local(2012, 1, 2), page.date_from_path
   end
 
-  def test_depended_on_by
-    p1, p2 = setup_deps
-
-    p1.depended_on_by p2
-
-    assert_tasks do
-      assert_task p2.url_path, [p1.url_path]
-    end
-  end
-
   def test_depends_on
     p1, p2 = setup_deps
 
@@ -92,6 +82,17 @@ class TestZenwebPage < MiniTest::Unit::TestCase
 
     assert_tasks do
       assert_task p1.url_path, [p2.url_path]
+    end
+  end
+
+  def test_depends_on_string
+    p1, p2 = setup_deps
+
+    p1.depends_on "somethingelse"
+
+    # TODO: double check that this should be p1.path and not p1.url_path
+    assert_tasks do
+      assert_task p1.path, ["somethingelse"]
     end
   end
 
@@ -147,6 +148,13 @@ class TestZenwebPage < MiniTest::Unit::TestCase
     FileUtils.rm_rf ".site"
   end
 
+  def test_html_eh
+    assert page.html?
+
+    site.scan
+    refute site.pages["js/site.js"].html?
+  end
+
   def test_include
     # test via a layout page so we can test indirect access of page vars
     layout = Zenweb::Page.new(site, "_layouts/site.erb")
@@ -172,6 +180,14 @@ class TestZenwebPage < MiniTest::Unit::TestCase
 
   def test_layout
     assert_equal site.layout("post"), page.layout
+  end
+
+  def test_link_html
+    exp = "<a href=\"/blog/2012/01/02/page1.html\">Example Page 1</a>"
+    assert_equal exp, page.link_html
+
+    exp = "<a href=\"/blog/2012/01/02/page1.html\">blah</a>"
+    assert_equal exp, page.link_html("blah")
   end
 
   def test_method_missing
@@ -235,6 +251,22 @@ class TestZenwebPage < MiniTest::Unit::TestCase
   def test_render_image
     self.page = Zenweb::Page.new site, "img/bg.png"
     assert_equal File.binread("img/bg.png"), page.render
+  end
+
+  def test_run_js_script
+    exp = <<-EOM.gsub(/^ {6}/, '')
+      <script type=\"text/javascript\">
+        (function() {
+          var s   = document.createElement('script');
+          s.type  = 'text/javascript';
+          s.async = true;
+          s.src   = 'my_url';
+          (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(s);
+        })();
+      </script>
+    EOM
+
+    assert_equal exp, page.run_js_script("my_url")
   end
 
   def test_site
