@@ -9,16 +9,16 @@ def File.each_parent dir, file
   end
 end
 
-class File
-  RUBY19 = "<3".respond_to? :encoding
+class File # :nodoc:
+  RUBY19 = "<3".respond_to? :encoding # :nodoc:
 
   class << self
     alias :binread :read unless RUBY19
   end
 end
 
-class String
-  def valid_encoding?
+class String # :nodoc:
+  def valid_encoding? # :nodoc:
     true
   end unless File::RUBY19
 end

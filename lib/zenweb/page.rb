@@ -24,7 +24,13 @@ module Zenweb
 
     attr_reader :path
 
+    ##
+    # The pages directly below this page. Can be empty.
+
     attr_reader :subpages
+
+    ##
+    # The parent page of this page. Can be nil.
 
     attr_accessor :parent
 
@@ -56,6 +62,9 @@ module Zenweb
       config[k] or warn("#{self.inspect} does not define #{k.inspect}")
     end
 
+    ##
+    # All pages below this page, recursively.
+
     def all_subpages
       subpages.map { |p| [p, p.all_subpages] }.flatten
     end
@@ -71,10 +80,16 @@ module Zenweb
                 end
     end
 
+    ##
+    # Returns the parent url of a particular url (or self).
+
     def parent_url url = self.url
       url = File.dirname url if File.basename(url) == "index.html"
       File.join File.dirname(url), "index.html"
     end
+
+    ##
+    # Returns an array of all parent pages of this page, including self.
 
     def breadcrumbs
       pages = [self]
@@ -131,6 +146,9 @@ module Zenweb
       Time.local(*date.split(/-/).map(&:to_i)) if date
     end
 
+    ##
+    # Returns true if this page has a date (via config or within the path).
+
     def dated?
       config['date'] || date_from_path
     end
@@ -141,6 +159,9 @@ module Zenweb
     def dated_path?
       path[/\d\d\d\d-\d\d-\d\d/]
     end
+
+    ##
+    # Returns true if this is an html page.
 
     def html?
       path =~ /\.html/
@@ -216,6 +237,9 @@ module Zenweb
       incl = Page.new(site, File.join("_includes", name))
       incl.subrender page
     end
+
+    ##
+    # Returns true if this page is an index page.
 
     def index?
       url.end_with? "index.html"

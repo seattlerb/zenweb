@@ -131,6 +131,9 @@ module Zenweb
         sort_by { |page| [-page.date.to_i, page.title] }
     end
 
+    ##
+    # Returns a hash mapping page url to page.
+
     def pages_by_url
       unless defined? @pages_by_url then
         h = {}
@@ -184,7 +187,7 @@ module Zenweb
       fix_subpages
     end
 
-    def fix_subpages
+    def fix_subpages # :nodoc:
       parents = {}
       @pages.values.select(&:index?).each do |p|
         parents[File.dirname p.path] = p
