@@ -33,7 +33,7 @@ class Zenweb::Page
         gsub(/%\}/,  "%>").
         gsub(/\\([{}%])/, '\1')
 
-      @erb = ERB.new(content)
+      @erb = ERB.new(content, nil, "-")
     end
 
     @erb.filename = source.inspect
