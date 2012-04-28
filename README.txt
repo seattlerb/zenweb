@@ -27,6 +27,8 @@ blazingly fast.
 * Has syntax highlighting via coderay.
 * Blazingly fast.
 * Stupidly flexible.
+* TODO: provide more templates via gem extensions.
+* TODO: provide more migrators via gem extensions.
 
 == REQUIREMENTS:
 
