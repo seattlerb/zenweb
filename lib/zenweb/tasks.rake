@@ -61,11 +61,8 @@ def new_file title, dated = false
 
   open path, 'w' do |post|
     post.puts "---"
-    post.puts "layout: post"
     post.puts "title: \"#{title}\""
     post.puts "date: #{Time.now.iso8601}"
-    post.puts "comments: true"
-    post.puts "categories: "
     post.puts "..."
     post.puts
   end
@@ -120,8 +117,6 @@ task :run do
         File.directory? target_path
 
       task = Rake.application[target_path] rescue nil
-
-      p target_path => task.needed? if task # TODO: remove
 
       warn "NOTE: No file found for #{url}" unless task
 
