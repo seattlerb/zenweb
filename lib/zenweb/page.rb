@@ -393,7 +393,7 @@ module Zenweb
         self.layout.wire
       end
 
-      file url_path => all_subpages.map(&:path) if url =~ /index.html/
+      file url_path => all_subpages.map(&:url_path) if url =~ /index.html/
 
       unless url_dir =~ %r%/_% then
         directory url_dir

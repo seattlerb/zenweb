@@ -147,6 +147,8 @@ task :run do
   server.start
 end
 
+website if ENV['DEBUG']
+
 desc "Debug the generation of a file. Takes a PATH arg."
 task :debug => ".site" do
   site = website
