@@ -86,7 +86,7 @@ class TestZenwebPage < MiniTest::Unit::TestCase
   end
 
   def test_depends_on_string
-    p1, p2 = setup_deps
+    p1, _ = setup_deps
 
     p1.depends_on "somethingelse"
 

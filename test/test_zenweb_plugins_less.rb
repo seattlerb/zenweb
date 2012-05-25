@@ -22,7 +22,8 @@ class TestZenwebPageLess < MiniTest::Unit::TestCase
     skip "soooo fucking slow!" unless ENV["RCOV"]
     css = "h1 {color: red}"
     act = nil
-    out, err = capture_io do
+
+    capture_io do # TODO: why?
       act = page.render_less page, css
     end
     exp = "h1 { color: red; }\n"

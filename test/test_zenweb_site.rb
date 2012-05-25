@@ -7,7 +7,7 @@ require "zenweb/site"
 require "test/helper"
 
 class Zenweb::Site
-  attr_accessor :layouts
+  attr_writer :layouts
 end
 
 class TestZenwebSite < MiniTest::Unit::TestCase
