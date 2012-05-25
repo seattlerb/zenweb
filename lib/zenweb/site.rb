@@ -1,6 +1,7 @@
 require "rubygems"
 gem "rake"
 require "rake"
+require "make/rake/work/well"
 
 require "zenweb/page"
 require "zenweb/config"
