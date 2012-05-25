@@ -37,6 +37,7 @@ lib/zenweb.rb
 lib/zenweb/config.rb
 lib/zenweb/extensions.rb
 lib/zenweb/page.rb
+lib/zenweb/plugins/disqus.rb
 lib/zenweb/plugins/erb.rb
 lib/zenweb/plugins/google.rb
 lib/zenweb/plugins/less.rb
@@ -47,7 +48,9 @@ test/helper.rb
 test/test_zenweb_config.rb
 test/test_zenweb_extensions.rb
 test/test_zenweb_page.rb
+test/test_zenweb_plugins_disqus.rb
 test/test_zenweb_plugins_erb.rb
+test/test_zenweb_plugins_google.rb
 test/test_zenweb_plugins_less.rb
 test/test_zenweb_plugins_markdown.rb
 test/test_zenweb_site.rb
