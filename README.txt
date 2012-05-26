@@ -1,6 +1,8 @@
 = ZenWeb
 
-* https://github.com/seattlerb/zenweb/
+home :: https://github.com/seattlerb/zenweb
+bugs :: https://github.com/seattlerb/zenweb/issues
+rdoc :: http://docs.seattlerb.org/zenweb
 
 == DESCRIPTION:
   
