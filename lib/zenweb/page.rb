@@ -160,6 +160,21 @@ module Zenweb
       path[/\d\d\d\d-\d\d-\d\d/]
     end
 
+    def change_frequency
+      days_old = (Time.now - self.date).to_i / 86400
+
+      case days_old
+      when 0...14 then
+        "daily"
+      when 14...56 then
+        "weekly"
+      when 56...365 then
+        "monthly"
+      else
+        "yearly"
+      end
+    end
+
     ##
     # Returns true if this is an html page.
 
