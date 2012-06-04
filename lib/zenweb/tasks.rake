@@ -51,18 +51,22 @@ task :realclean => :clean do
   rm_rf ".site"
 end
 
-def new_file title, dated = false
+def new_file title, dir, date = false
   path = "#{title.strip.downcase.gsub(/\W+/, '-')}.html.md"
 
-  if dated then
-    today = Time.now.strftime '%Y-%m-%d'
-    path = "#{today}-#{path}"
+  if date then
+    date = String === date ? Time.parse(date) : Time.now
+
+    path = "#{date.strftime '%Y-%m-%d'}-#{path}"
   end
+
+  date ||= Time.now
+  path = File.join dir, path
 
   open path, 'w' do |post|
     post.puts "---"
     post.puts "title: \"#{title}\""
-    post.puts "date: #{Time.now.iso8601}"
+    post.puts "date: #{date.iso8601}"
     post.puts "..."
     post.puts
   end
@@ -72,18 +76,21 @@ end
 
 desc "Begin a new dated post: rake new_post['title']"
 task :new_post, :title do |t, args|
+  dir   = ENV["DIR"]   || "."
   title = args[:title] || "new-post"
+  date  = ENV["DATE"]  || :dated
 
-  path = new_file title, true
+  path = new_file title, dir, date
 
   warn "Created new post: #{path}"
 end
 
 desc "Begin a new dated post: rake new_page['title']"
 task :new_page, :title do |t, args|
+  dir = ENV["DIR"] || "."
   title = args[:title] || "new-post"
 
-  path = new_file title
+  path = new_file title, dir
 
   warn "Created new file: #{path}"
 end
