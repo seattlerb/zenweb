@@ -1,3 +1,10 @@
+=== 3.0.0.b2 / 2012-06-11
+
+* 2 minor enhancements:
+
+  * Added Page#change_frequency
+  * Added ability to specify DIR and DATE for new_post and new_page tasks
+
 === 3.0.0.b1 / 2012-05-25
 
 * 1 major enhancement:
