@@ -1,3 +1,9 @@
+=== 3.0.0.b3 / 2012-06-22
+
+* 1 minor enhancement:
+
+  * Rake helper #new_file can now be passed a time instance for date arg
+
 === 3.0.0.b2 / 2012-06-11
 
 * 2 minor enhancements:
