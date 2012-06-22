@@ -51,11 +51,18 @@ task :realclean => :clean do
   rm_rf ".site"
 end
 
-def new_file title, dir, date = false
+def new_file title, dir = ".", date = false
   path = "#{title.strip.downcase.gsub(/\W+/, '-')}.html.md"
 
   if date then
-    date = String === date ? Time.parse(date) : Time.now
+    date = case date
+           when String
+             Time.parse(date)
+           when Time
+             date
+           else
+             Time.now
+           end
 
     path = "#{date.strftime '%Y-%m-%d'}-#{path}"
   end
