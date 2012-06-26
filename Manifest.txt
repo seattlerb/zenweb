@@ -18,6 +18,7 @@ example-site/atom.xml.erb
 example-site/blog/2012-01-02-page1.html.md
 example-site/blog/2012-01-03-page2.html.md
 example-site/blog/2012-01-04-page3.html.md
+example-site/blog/2012-01-05-page4.html.textile
 example-site/blog/_config.yml
 example-site/blog/index.html.erb
 example-site/config.ru
@@ -42,6 +43,7 @@ lib/zenweb/plugins/erb.rb
 lib/zenweb/plugins/google.rb
 lib/zenweb/plugins/less.rb
 lib/zenweb/plugins/markdown.rb
+lib/zenweb/plugins/textile.rb
 lib/zenweb/site.rb
 lib/zenweb/tasks.rake
 test/helper.rb
@@ -53,4 +55,5 @@ test/test_zenweb_plugins_erb.rb
 test/test_zenweb_plugins_google.rb
 test/test_zenweb_plugins_less.rb
 test/test_zenweb_plugins_markdown.rb
+test/test_zenweb_plugins_textile.rb
 test/test_zenweb_site.rb
