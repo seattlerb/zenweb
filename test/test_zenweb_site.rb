@@ -28,7 +28,8 @@ class TestZenwebSite < MiniTest::Unit::TestCase
 
     exp = [["blog/2012-01-02-page1.html.md",
             "blog/2012-01-03-page2.html.md",
-            "blog/2012-01-04-page3.html.md"],
+            "blog/2012-01-04-page3.html.md",
+            "blog/2012-01-05-page4.html.textile"],
            ["pages/nonblogpage.html.md"],
            ["projects/zenweb.html.erb"]]
 
@@ -41,7 +42,8 @@ class TestZenwebSite < MiniTest::Unit::TestCase
 
     exp = ["blog/2012-01-02-page1.html.md",
            "blog/2012-01-03-page2.html.md",
-           "blog/2012-01-04-page3.html.md"]
+           "blog/2012-01-04-page3.html.md",
+           "blog/2012-01-05-page4.html.textile"]
 
     assert_equal exp, cats.blog.map(&:path).sort
 
@@ -87,6 +89,7 @@ class TestZenwebSite < MiniTest::Unit::TestCase
              blog/2012-01-02-page1.html.md
              blog/2012-01-03-page2.html.md
              blog/2012-01-04-page3.html.md
+             blog/2012-01-05-page4.html.textile
              blog/index.html.erb
              index.html.erb
              pages/index.html.erb
@@ -110,7 +113,7 @@ class TestZenwebSite < MiniTest::Unit::TestCase
 
     site.scan
 
-    assert_equal "Site[18 pages, 2 configs]", site.inspect
+    assert_equal "Site[19 pages, 2 configs]", site.inspect
   end
 
   def test_layout
@@ -154,16 +157,17 @@ class TestZenwebSite < MiniTest::Unit::TestCase
         $dates[self.path]
       end
     end
-
-    exp = [[-92, "Example Page 1"],
-           [-86, "example.com pages"],
-           [-82, "example.com"],
+  
+    exp = [[-92, "Example Page 1"], 
+           [-87, "zenweb"],
+           [-86, "example.com"],
+           [-82, "Some regular page"],
+           [-74, "example.com pages"],
            [-74, "example.com projects"],
-           [-74, "zenweb"],
            [-71, "Example Page 3"],
-           [-60, "Example Website"],
-           [-51, "About example.com"],
-           [-20, "Some regular page"],
+           [-60, "Example Page 4"],
+           [-51, "About example.com"], 
+           [-20, "Example Website"], 
            [-14, "Example Page 2"]]
 
     assert_equal exp, site.pages_by_date.map { |x| [-x.date.to_i, x.title] }
@@ -202,6 +206,7 @@ class TestZenwebSite < MiniTest::Unit::TestCase
       assert_task ".site/blog/2012/01/02"
       assert_task ".site/blog/2012/01/03"
       assert_task ".site/blog/2012/01/04"
+      assert_task ".site/blog/2012/01/05"
       assert_task ".site/css"
       assert_task ".site/img"
       assert_task ".site/js"
@@ -227,10 +232,12 @@ class TestZenwebSite < MiniTest::Unit::TestCase
       assert_task ".site/blog/2012/01/02/page1.html", %w[.site/blog/2012/01/02 blog/2012-01-02-page1.html.md]
       assert_task ".site/blog/2012/01/03/page2.html", %w[.site/blog/2012/01/03 blog/2012-01-03-page2.html.md]
       assert_task ".site/blog/2012/01/04/page3.html", %w[.site/blog/2012/01/04 blog/2012-01-04-page3.html.md]
+      assert_task ".site/blog/2012/01/05/page4.html", %w[.site/blog/2012/01/05 blog/2012-01-05-page4.html.textile]
       assert_task ".site/blog/index.html",            %w[.site/blog
                                                          .site/blog/2012/01/02/page1.html
                                                          .site/blog/2012/01/03/page2.html
                                                          .site/blog/2012/01/04/page3.html
+                                                         .site/blog/2012/01/05/page4.html
                                                          blog/index.html.erb]
       assert_task ".site/css/colors.css",             %w[.site/css             css/colors.css.less          ]
       assert_task ".site/css/styles.css",             %w[.site/css             css/styles.css               ]
@@ -241,6 +248,7 @@ class TestZenwebSite < MiniTest::Unit::TestCase
                                                          .site/blog/2012/01/02/page1.html
                                                          .site/blog/2012/01/03/page2.html
                                                          .site/blog/2012/01/04/page3.html
+                                                         .site/blog/2012/01/05/page4.html
                                                          .site/blog/index.html
                                                          .site/pages/index.html
                                                          .site/pages/nonblogpage.html
@@ -261,6 +269,7 @@ class TestZenwebSite < MiniTest::Unit::TestCase
       assert_task "blog/2012-01-02-page1.html.md",    %w[_layouts/post.erb blog/_config.yml]
       assert_task "blog/2012-01-03-page2.html.md",    %w[_layouts/post.erb blog/_config.yml]
       assert_task "blog/2012-01-04-page3.html.md",    %w[_layouts/post.erb blog/_config.yml]
+      assert_task "blog/2012-01-05-page4.html.textile",    %w[_layouts/post.erb blog/_config.yml]
       assert_task "blog/index.html.erb",              %w[_layouts/site.erb blog/_config.yml]
       assert_task "index.html.erb",                   %w[_config.yml      _layouts/site.erb]
       assert_task "pages/index.html.erb",             %w[_config.yml      _layouts/site.erb]
@@ -274,6 +283,7 @@ class TestZenwebSite < MiniTest::Unit::TestCase
                 .site/blog/2012/01/02/page1.html
                 .site/blog/2012/01/03/page2.html
                 .site/blog/2012/01/04/page3.html
+                .site/blog/2012/01/05/page4.html
                 .site/blog/index.html
                 .site/css/colors.css
                 .site/css/styles.css
