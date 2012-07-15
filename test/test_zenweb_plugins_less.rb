@@ -9,13 +9,15 @@ require "test/helper"
 class TestZenwebPageLess < MiniTest::Unit::TestCase
   include ChdirTest("example-site")
 
-  attr_accessor :site, :page
+  attr_accessor :site, :page, :plugin
 
   def setup
     super
 
     self.site = Zenweb::Site.new
     self.page = Zenweb::Page.new site, "blog/2012-01-02-page1.html.md"
+    self.plugin = Zenweb::LessPlugin.new
+    self.plugin.underlying_page = page
   end
 
   def test_render_less
@@ -24,7 +26,7 @@ class TestZenwebPageLess < MiniTest::Unit::TestCase
     act = nil
 
     capture_io do # TODO: why?
-      act = page.render_less page, css
+      act = plugin.render_less page, css
     end
     exp = "h1 { color: red; }\n"
 

@@ -5,6 +5,7 @@ require "make/rake/work/well"
 
 require "zenweb/page"
 require "zenweb/config"
+require "zenweb/renderer"
 require "zenweb/extensions"
 
 module Zenweb

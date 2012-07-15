@@ -1,4 +1,11 @@
-class Zenweb::Page
+class Zenweb::LessPlugin < Zenweb::Renderer
+
+  renders 'less'
+
+  def process page, content
+    render_less page, content
+  end
+
   ##
   # Render less source to css.
 
