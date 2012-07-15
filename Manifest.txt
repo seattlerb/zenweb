@@ -42,6 +42,7 @@ lib/zenweb/plugins/erb.rb
 lib/zenweb/plugins/google.rb
 lib/zenweb/plugins/less.rb
 lib/zenweb/plugins/markdown.rb
+lib/zenweb/renderer.rb
 lib/zenweb/site.rb
 lib/zenweb/tasks.rake
 test/helper.rb
