@@ -1,3 +1,14 @@
+=== 3.0.0.b4 / 2012-07-16
+
+* 1 minor enhancement:
+
+  * Rake.application.rake_require is stupid. Add zenweb/tasks.rb to fix.
+
+* 2 bug fixes:
+
+  * Fixed test_zenweb_extensions so tests pass in any timezone. (tamc)
+  * rake and makerakeworkwell shouldn't be developer dependencies
+
 === 3.0.0.b3 / 2012-06-22
 
 * 1 minor enhancement:
