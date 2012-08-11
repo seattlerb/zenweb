@@ -1,8 +1,5 @@
 require "isolate"
 
 Isolate.now! :path => ".isolate", :system => false do
-  gem 'rake',     '~> 0.9'
-  gem 'less',     '~> 1.2'
-  gem 'coderay',  '~> 1.0'
-  gem 'kramdown', '~> 0.13'
+  gem 'zenweb',   '~> 3.0.0.b1'
 end
