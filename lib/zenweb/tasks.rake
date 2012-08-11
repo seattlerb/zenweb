@@ -3,6 +3,7 @@ require 'zenweb'
 task :default => :generate
 
 def website
+  return $website if defined?($website)
   $website = Zenweb::Site.new
   $website.scan
   $website.wire
