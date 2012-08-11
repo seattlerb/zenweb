@@ -1,12 +1,14 @@
 #!/usr/bin/env rake
 
+HTML_DIR="/Library/WebServer/Documents"
+
 require "rubygems"
 
 load ".isolate.rb"
 
 $: << "../lib"
 
-Rake.application.options.rakelib << "../lib/zenweb"
+require "zenweb/tasks"
 
 def extra_wirings
   site  = $website
@@ -28,5 +30,5 @@ task :extra_wirings do
 end
 
 task :push do
-  sh "rsync -rv --del .site/ /Library/WebServer/Documents/"
+  sh "rsync -rv --del .site/ #{HTML_DIR}"
 end
