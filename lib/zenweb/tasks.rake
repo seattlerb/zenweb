@@ -55,10 +55,20 @@ end
 def new_file title, dir = ".", date = false
   path = "#{title.strip.downcase.gsub(/\W+/, '-')}.html.md"
 
+  t = Time.now
+  noon = Time.local(t.year, t.month, t.day, 12)
+
   if date then
     date = case date
            when String
-             Time.parse(date)
+             case date
+             when /today/i then
+               noon
+             when /tomorrow/i then
+               noon + 86400
+             else
+               Time.parse(date)
+             end
            when Time
              date
            else
