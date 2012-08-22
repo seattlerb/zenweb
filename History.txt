@@ -1,3 +1,14 @@
+=== 3.0.0.b5 / 2012-08-21
+
+* 1 minor enhancement:
+
+  * Added DATE=today and tomorrow support for new_post
+
+* 2 bug fixes:
+
+  * Cache value in website factory method so we don't get double-renders
+  * Fixed isolate setup for example site
+
 === 3.0.0.b4 / 2012-07-16
 
 * 1 minor enhancement:
