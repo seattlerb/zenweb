@@ -28,6 +28,7 @@ example-site/img/bg.png
 example-site/index.html.erb
 example-site/js/jquery.js
 example-site/js/site.js
+example-site/pages/haml-devs-need-to-look-at-ruby-warnings.html.haml
 example-site/pages/index.html.erb
 example-site/pages/nonblogpage.html.md
 example-site/projects/index.html.erb
@@ -40,6 +41,7 @@ lib/zenweb/page.rb
 lib/zenweb/plugins/disqus.rb
 lib/zenweb/plugins/erb.rb
 lib/zenweb/plugins/google.rb
+lib/zenweb/plugins/haml.rb
 lib/zenweb/plugins/less.rb
 lib/zenweb/plugins/markdown.rb
 lib/zenweb/site.rb
@@ -52,6 +54,7 @@ test/test_zenweb_page.rb
 test/test_zenweb_plugins_disqus.rb
 test/test_zenweb_plugins_erb.rb
 test/test_zenweb_plugins_google.rb
+test/test_zenweb_plugins_haml.rb
 test/test_zenweb_plugins_less.rb
 test/test_zenweb_plugins_markdown.rb
 test/test_zenweb_site.rb

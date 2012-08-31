@@ -29,7 +29,7 @@ class TestZenwebSite < MiniTest::Unit::TestCase
     exp = [["blog/2012-01-02-page1.html.md",
             "blog/2012-01-03-page2.html.md",
             "blog/2012-01-04-page3.html.md"],
-           ["pages/nonblogpage.html.md"],
+           ["pages/haml-devs-need-to-look-at-ruby-warnings.html.haml", "pages/nonblogpage.html.md"],
            ["projects/zenweb.html.erb"]]
 
     assert_equal exp, cats.values.map { |a| a.map(&:path).sort }.sort
@@ -89,6 +89,7 @@ class TestZenwebSite < MiniTest::Unit::TestCase
              blog/2012-01-04-page3.html.md
              blog/index.html.erb
              index.html.erb
+             pages/haml-devs-need-to-look-at-ruby-warnings.html.haml
              pages/index.html.erb
              pages/nonblogpage.html.md
              projects/index.html.erb
@@ -110,7 +111,7 @@ class TestZenwebSite < MiniTest::Unit::TestCase
 
     site.scan
 
-    assert_equal "Site[18 pages, 2 configs]", site.inspect
+    assert_equal "Site[19 pages, 2 configs]", site.inspect
   end
 
   def test_layout
@@ -156,14 +157,15 @@ class TestZenwebSite < MiniTest::Unit::TestCase
     end
 
     exp = [[-92, "Example Page 1"],
-           [-86, "example.com pages"],
-           [-82, "example.com"],
+           [-87, "zenweb"],
+           [-86, "example.com"],
+           [-82, "Some regular page"],
+           [-74, "example.com pages"],
            [-74, "example.com projects"],
-           [-74, "zenweb"],
            [-71, "Example Page 3"],
            [-60, "Example Website"],
            [-51, "About example.com"],
-           [-20, "Some regular page"],
+           [-20, "Haml Devs Ignore Warnings"],
            [-14, "Example Page 2"]]
 
     assert_equal exp, site.pages_by_date.map { |x| [-x.date.to_i, x.title] }
@@ -242,6 +244,7 @@ class TestZenwebSite < MiniTest::Unit::TestCase
                                                          .site/blog/2012/01/03/page2.html
                                                          .site/blog/2012/01/04/page3.html
                                                          .site/blog/index.html
+                                                         .site/pages/haml-devs-need-to-look-at-ruby-warnings.html
                                                          .site/pages/index.html
                                                          .site/pages/nonblogpage.html
                                                          .site/projects/index.html
@@ -249,8 +252,10 @@ class TestZenwebSite < MiniTest::Unit::TestCase
                                                          index.html.erb]
       assert_task ".site/js/jquery.js",               %w[.site/js              js/jquery.js                 ]
       assert_task ".site/js/site.js",                 %w[.site/js              js/site.js                   ]
-      assert_task ".site/pages/index.html",           %w[.site/pages           .site/pages/nonblogpage.html pages/index.html.erb]
+      assert_task ".site/pages/index.html",           %w[.site/pages           .site/pages/haml-devs-need-to-look-at-ruby-warnings.html .site/pages/nonblogpage.html pages/index.html.erb ]
       assert_task ".site/pages/nonblogpage.html",     %w[.site/pages           pages/nonblogpage.html.md    ]
+      assert_task ".site/pages/haml-devs-need-to-look-at-ruby-warnings.html",
+                                                      %w[.site/pages           pages/haml-devs-need-to-look-at-ruby-warnings.html.haml ]
       assert_task ".site/projects/index.html",        %w[.site/projects        .site/projects/zenweb.html projects/index.html.erb]
       assert_task ".site/projects/zenweb.html",       %w[.site/projects        projects/zenweb.html.erb     ]
       assert_task ".site/sitemap.xml",                %w[.site                 sitemap.xml.erb              ]
@@ -265,6 +270,7 @@ class TestZenwebSite < MiniTest::Unit::TestCase
       assert_task "index.html.erb",                   %w[_config.yml      _layouts/site.erb]
       assert_task "pages/index.html.erb",             %w[_config.yml      _layouts/site.erb]
       assert_task "pages/nonblogpage.html.md",        %w[_config.yml      _layouts/site.erb]
+      assert_task "pages/haml-devs-need-to-look-at-ruby-warnings.html.haml", %w[_config.yml]
       assert_task "projects/index.html.erb",          %w[_config.yml      _layouts/site.erb]
       assert_task "projects/zenweb.html.erb",         %w[_config.yml      _layouts/project.erb]
 
@@ -282,6 +288,7 @@ class TestZenwebSite < MiniTest::Unit::TestCase
                 .site/index.html
                 .site/js/jquery.js
                 .site/js/site.js
+                .site/pages/haml-devs-need-to-look-at-ruby-warnings.html
                 .site/pages/index.html
                 .site/pages/nonblogpage.html
                 .site/projects/index.html
