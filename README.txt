@@ -24,7 +24,7 @@ blazingly fast.
   
 * Uses rake to do intelligent incremental builds.
 * Uses rubygems to provide a flexible plugin system.
-* Provides plugins for less, markdown, and erb out of the box.
+* Provides plugins for less, markdown, erb, and haml out of the box.
 * Uses a hierarchical config/variable system making pages cleaner.
 * Has syntax highlighting via coderay.
 * Blazingly fast.
