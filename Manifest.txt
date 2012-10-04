@@ -6,7 +6,6 @@ Rakefile
 example-site/.isolate.rb
 example-site/Rakefile
 example-site/_config.yml
-example-site/_includes/analytics.html.erb
 example-site/_includes/header.html.erb
 example-site/_includes/page_list_item.html
 example-site/_includes/post_list_item.html
