@@ -1,4 +1,11 @@
-class Zenweb::Page
+class Zenweb::ErbPlugin < Zenweb::Renderer
+
+  renders 'erb'
+
+  def process page, content
+    render_erb page, content
+  end
+
   ##
   # Render a page's erb and return the result
 

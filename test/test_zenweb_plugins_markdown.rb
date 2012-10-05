@@ -6,45 +6,49 @@ require "minitest/autorun"
 require "zenweb/site"
 require "test/helper"
 
+require 'pry'
+
 class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
   include ChdirTest("example-site")
 
-  attr_accessor :site, :page
+  attr_accessor :site, :page, :plugin
 
   def setup
     super
 
     self.site = Zenweb::Site.new
     self.page = Zenweb::Page.new site, "blog/2012-01-02-page1.html.md"
+    self.plugin = Zenweb::MarkdownPlugin.new
+    self.plugin.underlying_page = page
   end
 
   def test_attr_h
-    assert_equal "{:blah=\"42\"}", page.attr("blah" => 42)
+    assert_equal "{:blah=\"42\"}", plugin.attr("blah" => 42)
   end
 
   def test_attr_name
-    assert_equal "{:blah}", page.attr("blah")
+    assert_equal "{:blah}", plugin.attr("blah")
   end
 
   def test_css_class
-    assert_equal "{:.blah}", page.css_class("blah")
+    assert_equal "{:.blah}", plugin.css_class("blah")
   end
 
   def test_css_id
-    assert_equal "{:#blah}", page.css_id("blah")
+    assert_equal "{:#blah}", plugin.css_id("blah")
   end
 
   def test_link
-    assert_equal "[mytitle](myurl)", page.link("myurl", "mytitle")
+    assert_equal "[mytitle](myurl)", plugin.link("myurl", "mytitle")
   end
 
   def test_image
-    assert_equal "![myurl](myurl)", page.image("myurl")
-    assert_equal "![myalt](myurl)", page.image("myurl", "myalt")
+    assert_equal "![myurl](myurl)", plugin.image("myurl")
+    assert_equal "![myalt](myurl)", plugin.image("myurl", "myalt")
   end
 
   def test_render_md
-    act = page.render_md page, nil
+    act = plugin.render_md page, nil
     exp = "<p>Not really much here to see.</p>\n"
 
     assert_equal exp, act
@@ -52,14 +56,14 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
 
   def test_render_md_content
     skip "not yet"
-    act = page.render_md page, "woot"
+    act = plugin.render_md page, "woot"
     exp = "<p>Not really much here to see.</p>\n"
 
     assert_equal exp, act
   end
 
   def test_markdown
-    act = page.markdown "woot"
+    act = plugin.markdown "woot"
     exp = "<p>woot</p>\n"
 
     assert_equal exp, act
@@ -73,7 +77,9 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
                        a/b/2012-03-04-p3.html]
 
     page = site.pages["a/index.html"]
-    act  = page.sitemap
+    renderer = Zenweb::MarkdownPlugin.new
+    renderer.underlying_page = page
+    act  = renderer.sitemap
     exp  = <<-END.cleanup
     * [Title for a/b/index.html](/a/b/)
       * 2012-03:
@@ -95,7 +101,9 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
                        a/b/p3.html]
 
     page = site.pages["a/index.html"]
-    act = page.sitemap
+    renderer = Zenweb::MarkdownPlugin.new
+    renderer.underlying_page = page
+    act  = renderer.sitemap
     exp = <<-END.cleanup
     * [Title for a/b/index.html](/a/b/)
       * [Title for a/b/p1.html](/a/b/p1.html)
@@ -114,7 +122,9 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
                        a/b/p3.html]
 
     page = site.pages["a/b/index.html"]
-    act = page.sitemap
+    renderer = Zenweb::MarkdownPlugin.new
+    renderer.underlying_page = page
+    act  = renderer.sitemap
     exp = <<-END.cleanup
     * [Title for a/b/p1.html](/a/b/p1.html)
     * [Title for a/b/p2.html](/a/b/p2.html)
@@ -152,7 +162,9 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
                       ]
 
     page = site.pages["index.html"]
-    act = page.sitemap
+    renderer = Zenweb::MarkdownPlugin.new
+    renderer.underlying_page = page
+    act  = renderer.sitemap
     exp = <<-END.cleanup
     * [Title for a/index.html](/a/)
       * [Title for a/a.html](/a/a.html)
@@ -198,7 +210,9 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
                       ]
 
     page = site.pages["index.html"]
-    act = page.sitemap
+    renderer = Zenweb::MarkdownPlugin.new
+    renderer.underlying_page = page
+    act  = renderer.sitemap
     exp = <<-END.cleanup
     * [Title for sitemap.html](/sitemap.html)
     * [Title for some_random_page.html](/some_random_page.html)
@@ -216,7 +230,7 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
   end
 
   def test_toc
-    assert_equal "* \n{:toc}\n", page.toc
+    assert_equal "* \n{:toc}\n", plugin.toc
   end
 end
 

@@ -1,4 +1,4 @@
-class Zenweb::Page
+class Zenweb::MarkdownPlugin < Zenweb::Renderer
   KRAMDOWN_CONFIG = { # :nodoc:
     :toc_levels    => '2..4',
 
@@ -8,6 +8,12 @@ class Zenweb::Page
     :coderay_css                => :class,
     # TODO: turn off smart quotes
   }
+
+  renders 'md'
+
+  def process page, content
+    render_md page, content
+  end
 
   ##
   # Render markdown page content using kramdown.
@@ -66,7 +72,7 @@ class Zenweb::Page
       end
 
       x << "#{"  " * (indent+bonus)}* [#{page.title}](#{page.clean_url})"
-      x += [page.sitemap(nil, indent+bonus+1)] unless page.subpages.empty?
+      x += [sitemap(page.subpages, indent+bonus+1)] unless page.subpages.empty?
       x
     }.flatten.join "\n"
   end

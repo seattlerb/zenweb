@@ -41,10 +41,7 @@ module Zenweb
     def self.renderers_re
       @renderers_re ||=
         begin
-          ext = instance_methods.grep(/^render_/).map { |s|
-            s.to_s.sub(/render_/, '')
-          }
-          /(?:\.(#{ext.join "|"}))+$/
+          /(?:\.(#{Renderer.renderers.keys.join "|"}))+$/
         end
     end
 
@@ -328,7 +325,7 @@ module Zenweb
 
     def subrender page = self, content = nil
       self.filetypes.inject(content) { |cont, type|
-        send "render_#{type}", page, cont
+        Renderer.process self, type, page, cont
       } || self.body
     end
 
