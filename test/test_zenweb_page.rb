@@ -158,9 +158,8 @@ class TestZenwebPage < MiniTest::Unit::TestCase
   def test_include
     # test via a layout page so we can test indirect access of page vars
     layout = Zenweb::Page.new(site, "_layouts/site.erb")
-    fragment = layout.include("analytics.html.erb", page)
-    assert_match(/UA-\d+/, site.config["google_ua"])
-    assert_match site.config["google_ua"], fragment
+    fragment = layout.include("header.html.erb", page)
+    assert_match(/Example Page 1/, fragment)
   end
 
   def test_include_page_var

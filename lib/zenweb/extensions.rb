@@ -9,6 +9,42 @@ def File.each_parent dir, file
   end
 end
 
+module Enumerable
+  def chunk
+    bin, result, prev = [], [], Object.new
+
+    each do |o|
+      curr = yield o
+
+      if prev != curr then
+        bin = []
+        result << [curr, bin]
+        prev = curr
+      end
+
+      bin << o
+    end
+
+    result
+  end unless [].respond_to? :chunk
+end
+
+class Array # :nodoc:
+  def deep_each(depth = 0, &b) # :nodoc:
+    return self.to_enum(:deep_each) unless b
+
+    each do |x|
+      case x
+      when Array then
+        x.deep_each(depth + 1, &b)
+      else
+        # yield (depth-1)/2, x
+        yield depth, x
+      end
+    end
+  end
+end
+
 class File # :nodoc:
   RUBY19 = "<3".respond_to? :encoding # :nodoc:
 

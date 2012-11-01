@@ -2,11 +2,12 @@ class Zenweb::Page
   KRAMDOWN_CONFIG = { # :nodoc:
     :toc_levels    => '2..4',
 
+    :entity_output => :symbolic,
+
     :coderay_wrap               => :div,
     :coderay_line_numbers       => :table,
     :coderay_tab_width          => 4,
     :coderay_css                => :class,
-    # TODO: turn off smart quotes
   }
 
   ##
@@ -14,6 +15,10 @@ class Zenweb::Page
 
   def render_md page, content
     markdown(content || self.body) # HACK
+  end
+
+  def extend_md
+    extend Zenweb::Page::MarkdownHelpers
   end
 
   ##
@@ -29,93 +34,92 @@ class Zenweb::Page
       gsub(/^``` *(\w+)/) { "{:lang=\"#$1\"}\n~~~" }.
       gsub(/^```/, '~~~')
 
-    Kramdown::Document.new(content, KRAMDOWN_CONFIG).to_html
+    Kramdown::Document.new(content, KRAMDOWN_CONFIG.dup).to_html
   end
 
-  ############################################################
-  # Helper Methods:
+  module MarkdownHelpers
+    ##
+    # Returns a markdown formatted sitemap for the given pages or the
+    # current page's subpages. This intelligently composes a sitemap
+    # whether the pages are ordered (dated) or not or a combination of
+    # the two.
 
-  ##
-  # Returns a markdown formatted sitemap for the given pages or the
-  # current page's subpages. This intelligently composes a sitemap
-  # whether the pages are ordered (dated) or not or a combination of
-  # the two.
+    def sitemap pages = nil
+      pages ||= self.all_subpages
 
-  def sitemap pages = nil, indent = 0
-    pages ||= self.subpages
-    dated, regular = pages.partition(&:dated?)
+      pages.deep_each.chunk { |n, p| n }.map { |depth, a|
+        level = (depth-1)/2
+        dated, normal = a.map(&:last).partition(&:dated?)
 
-    bonus   = 0
-    prev    = nil
-    regular = regular
-    subpages =
-      regular.sort_by { |p| p.url } +
-      dated.sort_by   { |p| [-p.date.to_i, p.url] }
+        normal = normal.sort_by(&:url).map { |p| page_sitemap_url p, level }
 
-    subpages.map { |page|
-      x = []
+        dated = dated_map(dated) { |month, ps2|
+          date_sorted_map(ps2) { |p|
+            page_sitemap_url p, level + 1
+          }.unshift "#{"  " * (level)}* #{month}:"
+        }
 
-      if page.dated? then
-        bonus = 1
-        fmt ||= page.config["date_fmt"] || "%Y-%m" # REFACTOR: yuck
-        curr = page.date.strftime fmt
-        if prev != curr then
-          x << "#{"  " * (indent)}* #{curr}:"
-          prev = curr
-        end
-      end
+        normal + dated
+      }.join "\n"
+    end
 
-      x << "#{"  " * (indent+bonus)}* [#{page.title}](#{page.clean_url})"
-      x += [page.sitemap(nil, indent+bonus+1)] unless page.subpages.empty?
-      x
-    }.flatten.join "\n"
-  end
+    def page_sitemap_url page, depth # :nodoc:
+      "#{"  " * (depth)}* [#{page.title}](#{page.clean_url})"
+    end
 
-  ##
-  # Convenience function to return a markdown TOC.
+    def date_sorted_map a, &b # :nodoc:
+      a.sort_by { |p| [-p.date.to_i, p.url] }.map(&b)
+    end
 
-  def toc
-    "* \n{:toc}\n"
-  end
+    def dated_map a, &b # :nodoc:
+      a.group_by(&:date_str).sort.reverse.map(&b)
+    end
 
-  ##
-  # Return a kramdown block-tag to add attributes to the following (or
-  # preceding... kramdown is a bit crazy) block. Attributes can either
-  # be a simple name or a hash of key/value pairs.
+    ##
+    # Convenience function to return a markdown TOC.
 
-  def attr h_or_name
-    h_or_name = h_or_name.map { |k,v| "#{k}=\"#{v}\"" }.join " " if
-      Hash === h_or_name
+    def toc
+      "* \n{:toc}\n"
+    end
 
-    "{:#{h_or_name}}"
-  end
+    ##
+    # Return a kramdown block-tag to add attributes to the following (or
+    # preceding... kramdown is a bit crazy) block. Attributes can either
+    # be a simple name or a hash of key/value pairs.
 
-  ##
-  # Return a kramdown block-tag for a CSS class.
+    def attr h_or_name
+      h_or_name = h_or_name.map { |k,v| "#{k}=\"#{v}\"" }.join " " if
+        Hash === h_or_name
 
-  def css_class name
-    attr ".#{name}"
-  end
+      "{:#{h_or_name}}"
+    end
 
-  ##
-  # Return a kramdown block-tag for a CSS ID.
+    ##
+    # Return a kramdown block-tag for a CSS class.
 
-  def css_id name
-    attr "##{name}"
-  end
+    def css_class name
+      attr ".#{name}"
+    end
 
-  ##
-  # Return a markdown-formatted link for a given url and title.
+    ##
+    # Return a kramdown block-tag for a CSS ID.
 
-  def link(url, title) # :nodoc:
-    "[#{title}](#{url})"
-  end
+    def css_id name
+      attr "##{name}"
+    end
 
-  ##
-  # Return a markdown-formatted image for a given url and an optional alt.
+    ##
+    # Return a markdown-formatted link for a given url and title.
 
-  def image url, alt=url
-    "![#{alt}](#{url})"
+    def link(url, title) # :nodoc:
+      "[#{title}](#{url})"
+    end
+
+    ##
+    # Return a markdown-formatted image for a given url and an optional alt.
+
+    def image url, alt=url
+      "![#{alt}](#{url})"
+    end
   end
 end # markdown
-

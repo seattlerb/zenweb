@@ -4,6 +4,38 @@ require "rubygems"
 require "minitest/autorun"
 require "zenweb/extensions"
 
+class TestArray < MiniTest::Unit::TestCase
+  def test_deep_each
+    act = []
+    [1, 2, [3, [4], 5], 6].deep_each do |n, o|
+      act << [o, n]
+    end
+
+    exp = [[1, 0], [2, 0], [3, 1], [4, 2], [5, 1], [6, 0]]
+    assert_equal exp, act
+  end
+
+  def test_deep_each_enum
+    act = [1, 2, [3, [4], 5], 6].deep_each.map { |n, o|
+      [o, n]
+    }
+
+    exp = [[1, 0], [2, 0], [3, 1], [4, 2], [5, 1], [6, 0]]
+    assert_equal exp, act
+  end
+
+  def test_chunk
+    act = [3,1,4,1,5,9,2,6,5,3,5].chunk {|n| n.even? }.to_a
+    exp = [[false, [3, 1]],
+           [true,  [4]],
+           [false, [1, 5, 9]],
+           [true,  [2, 6]],
+           [false, [5, 3, 5]]]
+
+    assert_equal exp, act
+  end
+end
+
 class TestFile < MiniTest::Unit::TestCase
   def test_class_each_parent
     a = []

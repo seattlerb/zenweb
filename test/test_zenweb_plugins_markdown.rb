@@ -51,9 +51,8 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
   end
 
   def test_render_md_content
-    skip "not yet"
     act = page.render_md page, "woot"
-    exp = "<p>Not really much here to see.</p>\n"
+    exp = "<p>woot</p>\n"
 
     assert_equal exp, act
   end
@@ -66,16 +65,16 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
   end
 
   def test_sitemap
-    build_fake_site %w[a/index.html
-                       a/b/index.html
+    build_fake_site %w[a/index.html.md
+                       a/b/index.html.md
                        a/b/2012-01-02-p1.html
                        a/b/2012-02-03-p2.html
                        a/b/2012-03-04-p3.html]
 
-    page = site.pages["a/index.html"]
+    page = site.pages["a/index.html.md"]
     act  = page.sitemap
     exp  = <<-END.cleanup
-    * [Title for a/b/index.html](/a/b/)
+    * [Title for a/b/index.html.md](/a/b/)
       * 2012-03:
         * [Title for a/b/2012-03-04-p3.html](/a/b/2012/03/04/p3.html)
       * 2012-02:
@@ -88,16 +87,16 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
   end
 
   def test_sitemap_multidir
-    build_fake_site %w[a/index.html
-                       a/b/index.html
+    build_fake_site %w[a/index.html.md
+                       a/b/index.html.md
                        a/b/p1.html
                        a/b/p2.html
                        a/b/p3.html]
 
-    page = site.pages["a/index.html"]
+    page = site.pages["a/index.html.md"]
     act = page.sitemap
     exp = <<-END.cleanup
-    * [Title for a/b/index.html](/a/b/)
+    * [Title for a/b/index.html.md](/a/b/)
       * [Title for a/b/p1.html](/a/b/p1.html)
       * [Title for a/b/p2.html](/a/b/p2.html)
       * [Title for a/b/p3.html](/a/b/p3.html)
@@ -108,12 +107,12 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
 
   def test_sitemap_subdir
     build_fake_site %w[a/index.html
-                       a/b/index.html
+                       a/b/index.html.md
                        a/b/p1.html
                        a/b/p2.html
                        a/b/p3.html]
 
-    page = site.pages["a/b/index.html"]
+    page = site.pages["a/b/index.html.md"]
     act = page.sitemap
     exp = <<-END.cleanup
     * [Title for a/b/p1.html](/a/b/p1.html)
@@ -125,8 +124,8 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
   end
 
   def test_sitemap_subdir_mixed
-    build_fake_site %w[index.html
-                       a/index.html
+    build_fake_site %w[index.html.md
+                       a/index.html.md
                        a/a.html
                        a/b.html
                        a/c.html
@@ -136,25 +135,25 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
                        a/2012-02-02-p1.html
                        a/2012-02-03-p2.html
                        a/2012-02-04-p3.html
-                       c/index.html
+                       c/index.html.md
                        c/a.html
                        c/b.html
                        c/c.html
-                       c/d/index.html
+                       c/d/index.html.md
                        c/d/e.html
                        c/d/f.html
                        c/d/g.html
-                       d/index.html
+                       d/index.html.md
                        d/2012-01-02-p1.html
                        d/2012-01-03-p2.html
                        d/2012-01-04-p3.html
                        some_random_page.html
                       ]
 
-    page = site.pages["index.html"]
+    page = site.pages["index.html.md"]
     act = page.sitemap
     exp = <<-END.cleanup
-    * [Title for a/index.html](/a/)
+    * [Title for a/index.html.md](/a/)
       * [Title for a/a.html](/a/a.html)
       * [Title for a/b.html](/a/b.html)
       * [Title for a/c.html](/a/c.html)
@@ -166,15 +165,15 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
         * [Title for a/2012-01-04-p3.html](/a/2012/01/04/p3.html)
         * [Title for a/2012-01-03-p2.html](/a/2012/01/03/p2.html)
         * [Title for a/2012-01-02-p1.html](/a/2012/01/02/p1.html)
-    * [Title for c/index.html](/c/)
+    * [Title for c/index.html.md](/c/)
       * [Title for c/a.html](/c/a.html)
       * [Title for c/b.html](/c/b.html)
       * [Title for c/c.html](/c/c.html)
-      * [Title for c/d/index.html](/c/d/)
+      * [Title for c/d/index.html.md](/c/d/)
         * [Title for c/d/e.html](/c/d/e.html)
         * [Title for c/d/f.html](/c/d/f.html)
         * [Title for c/d/g.html](/c/d/g.html)
-    * [Title for d/index.html](/d/)
+    * [Title for d/index.html.md](/d/)
       * 2012-01:
         * [Title for d/2012-01-04-p3.html](/d/2012/01/04/p3.html)
         * [Title for d/2012-01-03-p2.html](/d/2012/01/03/p2.html)
@@ -186,7 +185,7 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
   end
 
   def test_sitemap_subdir_bloggish
-    build_fake_site %w[index.html
+    build_fake_site %w[index.html.md
                        2012-01-02-p1.html
                        2012-01-03-p2.html
                        2012-01-04-p3.html
@@ -197,7 +196,7 @@ class TestZenwebPageMarkdown < MiniTest::Unit::TestCase
                        some_random_page.html
                       ]
 
-    page = site.pages["index.html"]
+    page = site.pages["index.html.md"]
     act = page.sitemap
     exp = <<-END.cleanup
     * [Title for sitemap.html](/sitemap.html)

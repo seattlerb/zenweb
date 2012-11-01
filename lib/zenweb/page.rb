@@ -52,6 +52,11 @@ module Zenweb
       # TODO: make sure that creating page /a.html strips leading / from path
       @site, @path = site, path
       @config = config if config
+
+      self.filetypes.each do |type|
+        send "extend_#{type}" if self.respond_to? "extend_#{type}"
+      end
+
       @subpages = []
     end
 
@@ -66,7 +71,7 @@ module Zenweb
     # All pages below this page, recursively.
 
     def all_subpages
-      subpages.map { |p| [p, p.all_subpages] }.flatten
+      subpages.map { |p| [p, p.all_subpages] }
     end
 
     ##
@@ -144,6 +149,11 @@ module Zenweb
     def date_from_path # :nodoc:
       date = path[/\d\d\d\d-\d\d-\d\d/]
       Time.local(*date.split(/-/).map(&:to_i)) if date
+    end
+
+    def date_str
+      fmt ||= self.config["date_fmt"] || "%Y-%m" # REFACTOR: yuck
+      self.date.strftime fmt
     end
 
     ##
@@ -408,7 +418,7 @@ module Zenweb
         self.layout.wire
       end
 
-      file url_path => all_subpages.map(&:url_path) if url =~ /index.html/
+      file url_path => all_subpages.flatten.map(&:url_path) if url =~ /index.html/
 
       unless url_dir =~ %r%/_% then
         directory url_dir
