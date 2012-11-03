@@ -1,3 +1,26 @@
+=== 3.0.0 / 2012-11-03
+
+* 1 major enhancement:
+
+  * Added ability to run extend_<filetype> so plugins can directly extend pages based on type.
+
+* 10 minor enhancements:
+
+  * #sitemap no longer takes a pages arg. It does too much already.
+  * 1.8: Added Enumerable#chunk
+  * Added Array#deep_each.
+  * Added Page#date_str ... prolly needs more love.
+  * Markdown helper now extends Page instances with MarkdownHelpers.
+  * Moved all markdown methods into MarkdownHelpers. No more infection of Page.
+  * Page#analytics now calls both and is smart about it.
+  * Refactored analytics and split into google_analytics and gauges_analytics.
+  * Removed example analytics include now that it is pushed up to the lib.
+  * Rewrote markdown #sitemap so that it is non-recursive and works across non-markdown pages.
+
+* 1 bug fix:
+
+  * Force html entities to be symbolic. WTF kramdown? Different output on 1.8 and 1.9??
+
 === 3.0.0.b5 / 2012-08-21
 
 * 1 minor enhancement:
