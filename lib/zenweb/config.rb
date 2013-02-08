@@ -2,6 +2,7 @@ require "yaml"
 
 gem "rake"
 require "rake"
+require "zenweb/extensions"
 
 module Zenweb
   ##
@@ -52,6 +53,9 @@ module Zenweb
       h[k.to_s] or parent[k]
     end
 
+    UTF_BOM = "\xEF\xBB\xBF"
+    UTF_BOM.force_encoding "binary" if File::RUBY19
+
     ##
     # Splits a file and returns the yaml header and body, as applicable.
     #
@@ -63,7 +67,7 @@ module Zenweb
       body = File.binread path
 
       raise ArgumentError, "UTF BOM not supported: #{path}" if
-        body.start_with? "\xEF\xBB\xBF"
+        body.start_with? UTF_BOM
 
       yaml_file = File.extname(path) == ".yml"
 
