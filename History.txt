@@ -111,7 +111,7 @@
 
 * 10 bug fixes
 
-	* Couldn't call parent on the top page.
+  * Couldn't call parent on the top page.
   * Fixed a bug in HtmlTableRenderer when a paragraph butts up against it. 
   * Fixed a bug in the doco.
   * Fixed a problem where files with dashes in their names were rejected.
@@ -126,375 +126,375 @@
 
 * 3 minor enhancements
 
-	* Added FileAttachmentRenderer
-	* Added ordered HTML list support with the "=" delimiter
-	* Workaround added until a bug is fixed in ruby (should be in 1.8.2). This speeds up ZenWeb by 50% on my website.
+  * Added FileAttachmentRenderer
+  * Added ordered HTML list support with the "=" delimiter
+  * Workaround added until a bug is fixed in ruby (should be in 1.8.2). This speeds up ZenWeb by 50% on my website.
 
 * 1 bug fixes
 
-	* Couldn't call parent on the top page.
+  * Couldn't call parent on the top page.
 
 === 2.16.0 / 2004-02-26
 
 * 11 minor enhancements
 
-	* Added HtmlTableRenderer and tests.
-	* Added ZenWebsite, creates Makefile, and data dir with minimal site.
-	* Added better debugging output for undefined metadata variable access.
-	* Added caching of eval'd strings in MetadataRenderer.
-	* Added displayBadMetadata method that reports bad metadata access and stale definitions.
-	* Added the apache rule to Makefile and ZenWebpage.rb.
-	* Added the start of a FAQ to the demo pages.
-	* Added two helper methods link and img, to clean up metadata files.
-	* Extended ZenWebpage to include creating generic Makefiles.
-	* Lots of cleanup and (minor) optimization in the renderers.
-	* MetadataRenderer.include now properly does relative paths.
+  * Added HtmlTableRenderer and tests.
+  * Added ZenWebsite, creates Makefile, and data dir with minimal site.
+  * Added better debugging output for undefined metadata variable access.
+  * Added caching of eval'd strings in MetadataRenderer.
+  * Added displayBadMetadata method that reports bad metadata access and stale definitions.
+  * Added the apache rule to Makefile and ZenWebpage.rb.
+  * Added the start of a FAQ to the demo pages.
+  * Added two helper methods link and img, to clean up metadata files.
+  * Extended ZenWebpage to include creating generic Makefiles.
+  * Lots of cleanup and (minor) optimization in the renderers.
+  * MetadataRenderer.include now properly does relative paths.
 
 * 15 bug fixes
 
-	* Added RUBYFLAGS to Makefile.
-	* Added a new metatag 'style' to ZenWeb for short CSS snippets.
-	* Added geourl metadata
-	* Changes for 1.8 version of Test::Unit
-	* Clarified some documentation, esp in quickstart.
-	* Cleaned the documentation quite a bit using new metadata debugging.
-	* Fixed shutupwhile for ruby 1.8.0 with Matz's help.
-	* Fixed stupid Test::Unit breakage.
-	* Minor test refactoring.
-	* Renamed demo to docs to clear up user confusion.
-	* Retired zentestrunner.
-	* RubyCodeRenderer updated for changes to xmp. Less fragile now.
-	* Updated version.
-	* ZenWeb.rb will use "html" if source dir is "data".
-	* make install now sets permissions on scripts.
+  * Added RUBYFLAGS to Makefile.
+  * Added a new metatag 'style' to ZenWeb for short CSS snippets.
+  * Added geourl metadata
+  * Changes for 1.8 version of Test::Unit
+  * Clarified some documentation, esp in quickstart.
+  * Cleaned the documentation quite a bit using new metadata debugging.
+  * Fixed shutupwhile for ruby 1.8.0 with Matz's help.
+  * Fixed stupid Test::Unit breakage.
+  * Minor test refactoring.
+  * Renamed demo to docs to clear up user confusion.
+  * Retired zentestrunner.
+  * RubyCodeRenderer updated for changes to xmp. Less fragile now.
+  * Updated version.
+  * ZenWeb.rb will use "html" if source dir is "data".
+  * make install now sets permissions on scripts.
 
 === 2.15.0 / 2003-02-04
 
 * 2 minor enhancements
 
-	* Added MetadataRenderer.include and tests. I can finally render my documentation online without duplicating it in my source tree!
-	* 'force' = true as a metadata variable forces page rebuild. Good for includes.
+  * Added MetadataRenderer.include and tests. I can finally render my documentation online without duplicating it in my source tree!
+  * 'force' = true as a metadata variable forces page rebuild. Good for includes.
 
 * 4 bug fixes
 
-	* Massively revamped the history file to work w/in ZenWeb.
-	* Enhanced html list tests to ensure it worked at many levels.
-	* Hash to DL conversion now (finally!) preserves order.
-	* Moved run_all_tests_with into zentestrunner.rb.
+  * Massively revamped the history file to work w/in ZenWeb.
+  * Enhanced html list tests to ensure it worked at many levels.
+  * Hash to DL conversion now (finally!) preserves order.
+  * Moved run_all_tests_with into zentestrunner.rb.
 
 === 2.14.1 / 2002-10-06
 
 * 2 bug fixes
 
-	* RelativeRenderer was busted w/ '#location' urls.
-	* tests using 'touch' didn't work on some linux distros.
+  * RelativeRenderer was busted w/ '#location' urls.
+  * tests using 'touch' didn't work on some linux distros.
 
 === 2.14.0 / 2002-09-28
 
 * 1 minor enhancement
 
-	* <EM>Added many tests to bring it to ZenTest 1.0 compliancy.</EM>
+  * <EM>Added many tests to bring it to ZenTest 1.0 compliancy.</EM>
 
 * 4 bug fixes
 
-	* Renamed ZenTest to ZenTestCase.
-	* ZenDocument#addSubpage tests the type and throws if bad.
-	* CompositeRenderer#addRenderer checks the types.
-	* StupidRenderer wasn't compliant to the new GenericRenderer API.
+  * Renamed ZenTest to ZenTestCase.
+  * ZenDocument#addSubpage tests the type and throws if bad.
+  * CompositeRenderer#addRenderer checks the types.
+  * StupidRenderer wasn't compliant to the new GenericRenderer API.
 
 === 2.14.0 / 2002-09-28
 
 * 1 minor enhancement
 
-	* Added many tests to bring it to ZenTest 1.0 compliancy.
+  * Added many tests to bring it to ZenTest 1.0 compliancy.
 
 * 4 bug fixes
 
-	* Renamed ZenTest to ZenTestCase.
-	* ZenDocument#addSubpage tests the type and throws if bad.
-	* CompositeRenderer#addRenderer checks the types.
-	* StupidRenderer wasn't compliant to the new GenericRenderer API.
+  * Renamed ZenTest to ZenTestCase.
+  * ZenDocument#addSubpage tests the type and throws if bad.
+  * CompositeRenderer#addRenderer checks the types.
+  * StupidRenderer wasn't compliant to the new GenericRenderer API.
 
-=== 2002-09-02 2.13.1
+=== 2.13.1 / 2002-09-02
 
 * 2 bug fixes
 
-	* Fixed a big rendering bug. It escaped my tests because of a race condition.
-	* Added optional charset variable to HtmlTemplateRenderer.
+  * Fixed a big rendering bug. It escaped my tests because of a race condition.
+  * Added optional charset variable to HtmlTemplateRenderer.
 
-=== 2002-08-31 2.13.0
+=== 2.13.0 / 2002-08-31
 
 * 2 major enhancements
 
-	* Architectural change: render methods now take and return a single string.
-	* Reduced runtime by about 20%.
+  * Architectural change: render methods now take and return a single string.
+  * Reduced runtime by about 20%.
 
 * 4 minor enhancements
 
-	* Fixed use of regular expressions that caused incompatibilities between 1.6.4, 1.6.7, and 1.7.2. Needs testing.
-	* Modified RelativeRenderer to NoOp if ruby < 1.6.7.
-	* Updated sitemaps now cause re-rendering of entire site. (disabled-minor bug)
-	* Added GenericRenderer#result
+  * Fixed use of regular expressions that caused incompatibilities between 1.6.4, 1.6.7, and 1.7.2. Needs testing.
+  * Modified RelativeRenderer to NoOp if ruby < 1.6.7.
+  * Updated sitemaps now cause re-rendering of entire site. (disabled-minor bug)
+  * Added GenericRenderer#result
 
 * 5 bug fixes
 
-	* Moved several documents to design directory. Updated manifest.
-	* Moved ZenDocument#createList and createHash to ZenWeb/TextToHtmlRenderer.
-	* Stripped out old profiling code.
-	* Removed all existing warnings from ruby 1.7.2
-	* (Re)Moved dependencies for renderers in ZenWeb.rb.
+  * Moved several documents to design directory. Updated manifest.
+  * Moved ZenDocument#createList and createHash to ZenWeb/TextToHtmlRenderer.
+  * Stripped out old profiling code.
+  * Removed all existing warnings from ruby 1.7.2
+  * (Re)Moved dependencies for renderers in ZenWeb.rb.
 
-=== 2002-08-29 2.12.1
+=== 2.12.1 / 2002-08-29
 
 * 1 bug fix
 
-	* Added StupidRenderer, which is so stupid that I thought I'd list it as a bug instead of a minor enhancement. :) The cool thing is that this was written at a Seattle.rb meeting as a demo and it only took 20 seconds for the first iteration!
+  * Added StupidRenderer, which is so stupid that I thought I'd list it as a bug instead of a minor enhancement. :) The cool thing is that this was written at a Seattle.rb meeting as a demo and it only took 20 seconds for the first iteration!
 
-=== 2002-08-19 2.12.0
+=== 2.12.0 / 2002-08-19
 
 * 2 minor enhancements
 
-	* Added TocRenderer code and tests. Using it in the demo as well...
-	* Added Renderers page to demo.
+  * Added TocRenderer code and tests. Using it in the demo as well...
+  * Added Renderers page to demo.
 
 * 3 bug fixes
 
-	* Fixed some parsing errors when used w/ ruby 1.7. Tests clean in 1.6 and 1.7.
-	* Moved TestMetadata in TestZenWeb and clumped the renderers together.
-	* switched to RUBY variable in Makefile for testing in multiple versions.
+  * Fixed some parsing errors when used w/ ruby 1.7. Tests clean in 1.6 and 1.7.
+  * Moved TestMetadata in TestZenWeb and clumped the renderers together.
+  * switched to RUBY variable in Makefile for testing in multiple versions.
 
-=== 2002-08-16 2.11.1
+=== 2.11.1 / 2002-08-16
 
 * 1 bug fix
 
-	* Wrote Customizing document for those who want to really tweak their site.
+  * Wrote Customizing document for those who want to really tweak their site.
 
-=== 2002-08-15 2.11.0
+=== 2.11.0 / 2002-08-15
 
 * 1 minor enhancement
 
-	* ZenWeb.rb: Split out all renderers into separate files and modified renderer instantiation to ensure they are loaded dynamically.
+  * ZenWeb.rb: Split out all renderers into separate files and modified renderer instantiation to ensure they are loaded dynamically.
 
 * 3 bug fixes
 
-	* TestZenWeb: got to work w/ new split structure.
-	* demo: added (mostly empty) customizing page.
-	* Makefile: added requirements checker and massive improvements to install.
+  * TestZenWeb: got to work w/ new split structure.
+  * demo: added (mostly empty) customizing page.
+  * Makefile: added requirements checker and massive improvements to install.
 
-=== 2002-08-13 2.10.0
+=== 2.10.0 / 2002-08-13
 
 * 4 minor enhancements
 
-	* Overhauled demo pages. Documented special variables and much more.
-	* Extended ZenWebpage.rb to deal w/ metadata.txt and SiteMap files.
-	* Added demo/Presentation.
-	* Added heirarchy.png and .tgif.
+  * Overhauled demo pages. Documented special variables and much more.
+  * Extended ZenWebpage.rb to deal w/ metadata.txt and SiteMap files.
+  * Added demo/Presentation.
+  * Added heirarchy.png and .tgif.
 
 * 4 bug fixes
 
-	* Deleted design.obj and objectmodel.obj in favor of heirarchy.tgif.
-	* Fixed version number, I had kept and released a mislabeled beta by accident.
-	* Improved banner to point to zenspider.com.
-	* Updated Manifest.txt, no more stale stuff.
+  * Deleted design.obj and objectmodel.obj in favor of heirarchy.tgif.
+  * Fixed version number, I had kept and released a mislabeled beta by accident.
+  * Improved banner to point to zenspider.com.
+  * Updated Manifest.txt, no more stale stuff.
 
-=== 2002-08-11 2.9.1
+=== 2.9.1 / 2002-08-11
 
 * 2 bug fixes
 
-	* Fixed REQUIREMENTS.txt (minor).
-	* Fixed SiteMapRenderer indentation for ~user sites.
+  * Fixed REQUIREMENTS.txt (minor).
+  * Fixed SiteMapRenderer indentation for ~user sites.
 
-=== 2002-08-06 2.9.0
-
-* 2 minor enhancements
-
-	* Added RelativeRenderer to convert urls to relative where possible.
-	* Improved tests and test content.
-
-=== 2002-08-03 2.8.1
-
-* 3 bug fixes
-
-	* Removed "mailto:" from MADE metadata to have anti-spam links.
-	* Allow for a backslashed colon to prevent automatic url conversion.
-	* Fixed demo and overhauled it's documentation.
-
-=== 2002-05-29 2.8.0
+=== 2.9.0 / 2002-08-06
 
 * 2 minor enhancements
 
-	* Added ruby code interpolation in MetadataRenderer
-	* Cut (wallclock) runtime for large sites by 50%. ~25% for smaller sites.
+  * Added RelativeRenderer to convert urls to relative where possible.
+  * Improved tests and test content.
 
-* 4 bug fixes
-
-	* Added a INSTALL section to the readme.
-	* Got rid of extra xxx test directory and fixed tests.
-	* Added ZenWebsite.banner method and switched to it in cmdline tools and tests.
-	* Improved metadata usage documentation.
-
-=== 2002-05-17 2.7.4
-
-* 4 bug fixes
-
-	* Added a 'demo' rule to the makefile.
-	* Added a requirements section to the readme.
-	* Modified incremental build tests to be much faster. Requires 'touch'.
-	* demo/... Updated old python based demo ... oops.
-
-=== 2002-05-14 2.7.3
+=== 2.8.1 / 2002-08-03
 
 * 3 bug fixes
 
-	* Implemented test_load, test_loadFromDirectory, test_renderContent_foot.
-	* Added -I. to Makefile invocation of tests.
-	* Deleted Metadata#save and corresponding test. Yeah! Less code!
+  * Removed "mailto:" from MADE metadata to have anti-spam links.
+  * Allow for a backslashed colon to prevent automatic url conversion.
+  * Fixed demo and overhauled it's documentation.
 
-=== 2002-04-07 2.7.2
+=== 2.8.0 / 2002-05-29
+
+* 2 minor enhancements
+
+  * Added ruby code interpolation in MetadataRenderer
+  * Cut (wallclock) runtime for large sites by 50%. ~25% for smaller sites.
+
+* 4 bug fixes
+
+  * Added a INSTALL section to the readme.
+  * Got rid of extra xxx test directory and fixed tests.
+  * Added ZenWebsite.banner method and switched to it in cmdline tools and tests.
+  * Improved metadata usage documentation.
+
+=== 2.7.4 / 2002-05-17
+
+* 4 bug fixes
+
+  * Added a 'demo' rule to the makefile.
+  * Added a requirements section to the readme.
+  * Modified incremental build tests to be much faster. Requires 'touch'.
+  * demo/... Updated old python based demo ... oops.
+
+=== 2.7.3 / 2002-05-14
+
+* 3 bug fixes
+
+  * Implemented test_load, test_loadFromDirectory, test_renderContent_foot.
+  * Added -I. to Makefile invocation of tests.
+  * Deleted Metadata#save and corresponding test. Yeah! Less code!
+
+=== 2.7.2 / 2002-04-07
 
 * 2 bug fixes
 
-	* Updated to use Test::Unit instead of deprecated RUNIT.
-	* Fixed all tests. Clean run!
+  * Updated to use Test::Unit instead of deprecated RUNIT.
+  * Fixed all tests. Clean run!
 
-=== 2002-04-07 2.7.1
+=== 2.7.1 / 2002-04-07
 
 * 1 bug fix
 
-	* Synced version to new revisionist history version number.
+  * Synced version to new revisionist history version number.
 
 NOTE: all versions below this line are essentially a revisionist history.
 
-=== 2002-03-31 2.7.0
+=== 2.7.0 / 2002-03-31
 
 * 2 major enhancements
 
-	* Fixed RubyCodeRenderer!!!! (sorta)
-	* Added ZenWebpage.rb
+  * Fixed RubyCodeRenderer!!!! (sorta)
+  * Added ZenWebpage.rb
 
-=== 2002-01-19 2.6.1
+=== 2.6.1 / 2002-01-19
 
 * 1 bug fix
 
-	* Allowed #\{ to prevent interpolation. Helps w/ Ruby quickref.
+  * Allowed #\{ to prevent interpolation. Helps w/ Ruby quickref.
 
-=== 2001-08-24 2.6.0
+=== 2.6.0 / 2001-08-24
 
 * 2 major enhancements
 
-	* Extended to be able to do incremental builds.
-	* Tool is damn cool now!
+  * Extended to be able to do incremental builds.
+  * Tool is damn cool now!
 
 * 2 minor enhancements
 
-	* Improved unit tests for incremental builds.
-	* Profiled to enhance small changesets in incremental builds.
+  * Improved unit tests for incremental builds.
+  * Profiled to enhance small changesets in incremental builds.
 
-=== 2001-08-07 2.5.0
-
-* 3 minor enhancements
-
-	* Tests exit w/ test result count.
-	* TestZenWeb.rb: Improved tests. started working on differential build 
-	*   tests.
-	* ZenWeb.rb: Stubbed newerThanTarget. Sorted some stuff for testing.
-
-=== 2001-04-14 2.4.0
+=== 2.5.0 / 2001-08-07
 
 * 3 minor enhancements
 
-	* Added CompositeRenderer and StandardRenderer to make life easier.
-	* Added test for navbar generation.
-	* Added tilde test files.
+  * Tests exit w/ test result count.
+  * TestZenWeb.rb: Improved tests. started working on differential build 
+  *   tests.
+  * ZenWeb.rb: Stubbed newerThanTarget. Sorted some stuff for testing.
+
+=== 2.4.0 / 2001-04-14
+
+* 3 minor enhancements
+
+  * Added CompositeRenderer and StandardRenderer to make life easier.
+  * Added test for navbar generation.
+  * Added tilde test files.
 
 * 1 bug fix
 
-	* Removed a redundant refactor tag by renaming to refactee.
+  * Removed a redundant refactor tag by renaming to refactee.
 
-=== 2001-03-30 2.3.0
+=== 2.3.0 / 2001-03-30
 
 * 1 major enhancement
 
-	* Added tweak to make tilde sites work correctly.
+  * Added tweak to make tilde sites work correctly.
 
 * 2 minor enhancements
 
-	* Added test for tilde sites.
-	* Added Makefile
+  * Added test for tilde sites.
+  * Added Makefile
 
 * 1 bug fix
 
-	* Fixed some docs.
+  * Fixed some docs.
 
-=== 2001-03-08 2.2.1
+=== 2.2.1 / 2001-03-08
 
 * 3 bug fixes
 
-	* Fixed renderer list.
-	* Added accessor for testing. Cleaned some html.
-	* Wrote tests for generic renderer.
+  * Fixed renderer list.
+  * Added accessor for testing. Cleaned some html.
+  * Wrote tests for generic renderer.
 
-=== 2001-03-07 2.2.0
+=== 2.2.0 / 2001-03-07
 
 * 12 minor enhancements
 
-	* Added some refactored renderers to renderers list.
-	* Fixed some tags. Refactored some renderers.
-	* Added some tests for newly separated renderers.
-	* Started cleaning up some of the little design things.
-	* Knocked off several tags: cleanup, refactoring, and wrote tests.
-	* Added a test for hash2html.
-	* Fixed several failed tests.
-	* Switched some accessors to only be defined during testing.
-	* Switched TestZenWebsite to subclass ZenTest.
-	* Added several tests. Fixed some.
-	* Switched TestZenSiteMap to subclass TestZenDocument.
-	* Added dictionary lists for testing.
+  * Added some refactored renderers to renderers list.
+  * Fixed some tags. Refactored some renderers.
+  * Added some tests for newly separated renderers.
+  * Started cleaning up some of the little design things.
+  * Knocked off several tags: cleanup, refactoring, and wrote tests.
+  * Added a test for hash2html.
+  * Fixed several failed tests.
+  * Switched some accessors to only be defined during testing.
+  * Switched TestZenWebsite to subclass ZenTest.
+  * Added several tests. Fixed some.
+  * Switched TestZenSiteMap to subclass TestZenDocument.
+  * Added dictionary lists for testing.
 
 * 2 bug fixes
 
-	* Fixed Metadata#initialize.
-	* Added tests for Metadata#initialize.
+  * Fixed Metadata#initialize.
+  * Added tests for Metadata#initialize.
 
-=== 2001-03-05 2.1.0
+=== 2.1.0 / 2001-03-05
 
 * 15 minor enhancements
 
-	* (originally 2.0.0 - first time version was added)
-	* Added ZenDocument#createHash as an analog to createList.
-	* Added HtmlRenderer#hash2html
-	* Added Text2HtmlRenderer extensions for dictionary lists.
-	* Added tests for all new features, and some old ones.
-	* Added content setter if testing.
-	* Added tests for footer and header renderers.
-	* Moved TESTING declaration to be global
-	* Added TESTING variable for verbose-ness only when actually running.
-	* Added test for non-existant renderers.
-	* Added doctype.
-	* Modified how banner is used to make it look much better.
-	* Modified TextToHTMLRenderer to re-split lines more properly.
-	* Started to add RubyCodeRenderer, but am having problems w/ it.
-	* Added tons 'o docs.
+  * (originally 2.0.0 - first time version was added)
+  * Added ZenDocument#createHash as an analog to createList.
+  * Added HtmlRenderer#hash2html
+  * Added Text2HtmlRenderer extensions for dictionary lists.
+  * Added tests for all new features, and some old ones.
+  * Added content setter if testing.
+  * Added tests for footer and header renderers.
+  * Moved TESTING declaration to be global
+  * Added TESTING variable for verbose-ness only when actually running.
+  * Added test for non-existant renderers.
+  * Added doctype.
+  * Modified how banner is used to make it look much better.
+  * Modified TextToHTMLRenderer to re-split lines more properly.
+  * Started to add RubyCodeRenderer, but am having problems w/ it.
+  * Added tons 'o docs.
 
 * 1 bug fix
 
-	* Corrected date
+  * Corrected date
 
-=== 2001-02-13 2.0.1
+=== 2.0.1 / 2001-02-13
 
 * 2 minor enhancements
 
-	* Added design docs
-	* Added a test suite
+  * Added design docs
+  * Added a test suite
 
-=== 2001-02-13 2.0.0
-
-* 1 major enhancement
-
-	* First fully working version in Ruby.
-
-=== 2001-01-29 2.0.0 alpha
+=== 2.0.0 / 2001-02-13
 
 * 1 major enhancement
 
-	* Started ruby project.
+  * First fully working version in Ruby.
+
+=== 2.0.0 alpha / 2001-01-29
+
+* 1 major enhancement
+
+  * Started ruby project.
