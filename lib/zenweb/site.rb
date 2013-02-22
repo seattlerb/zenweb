@@ -173,9 +173,9 @@ module Zenweb
           next
         when /\.yml$/ then
           @configs[path] = Config.new self, path
-        when /\.(?:png|jpg|gif|eot|svg|ttf|woff|ico|pdf|m4a|t?gz)$/ then # HACK
+        when /\.(?:#{self.class.binary_files.join("|")})$/ then
           @pages[path] = Page.new self, path, self.config
-        when /\.(?:txt|html|css|js)$/, renderers_re then # HACK
+        when /\.(?:#{self.class.text_files.join("|")})$/, renderers_re then
           @pages[path] = Page.new self, path
         else
           warn "unknown file type: #{path}" if Rake.application.options.trace
@@ -187,6 +187,14 @@ module Zenweb
         ENV["ALL"]
 
       fix_subpages
+    end
+
+    def self.binary_files
+      @binary_files ||= %w[png jpg gif eot svg ttf woff ico pdf m4a t?gz]
+    end
+
+    def self.text_files
+      @text_files ||= %w[txt html css js]
     end
 
     def fix_subpages # :nodoc:

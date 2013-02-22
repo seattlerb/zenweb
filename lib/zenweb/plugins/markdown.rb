@@ -14,7 +14,8 @@ class Zenweb::Page
   # Render markdown page content using kramdown.
 
   def render_md page, content
-    markdown(content || self.body) # HACK
+    no_line_numbers = page.config["no_line_numbers"]
+    markdown(content || self.body, no_line_numbers)
   end
 
   def extend_md
@@ -27,14 +28,17 @@ class Zenweb::Page
   # I cheated and added some additional gsubs. I prefer "``` lang" so
   # that works now.
 
-  def markdown content
+  def markdown content, no_line_numbers = false
     require "kramdown"
 
     content = content.
-      gsub(/^``` *(\w+)/) { "{:lang=\"#$1\"}\n~~~" }.
-      gsub(/^```/, '~~~')
+     gsub(/^\`\`\` *(\w+)/) { "{:lang=\"#$1\"}\n~~~" }.
+     gsub(/^\`\`\`/, '~~~')
 
-    Kramdown::Document.new(content, KRAMDOWN_CONFIG.dup).to_html
+    config = KRAMDOWN_CONFIG.dup
+    config[:coderay_line_numbers] = nil if no_line_numbers
+
+    Kramdown::Document.new(content, config).to_html
   end
 
   module MarkdownHelpers
