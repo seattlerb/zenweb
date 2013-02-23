@@ -1,3 +1,16 @@
+=== 3.1.0 / 2013-02-22
+
+* 4 minor enhancements:
+
+  * Added Site.binary_files so you can register extra binary file extensions.
+  * Added Site.text_files so you can register extra text file extensions.
+  * Updated to use rake 0.9 or 10.
+  * markdown: Added new config no_line_numbers to control coderay's formatting.
+
+* 1 bug fix:
+
+  * 2.0: Default is now UTF-8, so treat UTF_BOM as binary explicitly
+
 === 3.0.0 / 2012-11-03
 
 * 1 major enhancement:
