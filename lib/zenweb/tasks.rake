@@ -103,7 +103,7 @@ task :new_post, :title do |t, args|
   warn "Created new post: #{path}"
 end
 
-desc "Begin a new dated post: rake new_page['title']"
+desc "Begin a new page: rake new_page['title']"
 task :new_page, :title do |t, args|
   dir = ENV["DIR"] || "."
   title = args[:title] || "new-post"
