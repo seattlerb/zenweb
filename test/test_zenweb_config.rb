@@ -9,7 +9,7 @@ require "minitest/autorun"
 require "zenweb/site"
 require "test/helper"
 
-class TestZenwebConfig < MiniTest::Unit::TestCase
+class TestZenwebConfig < Minitest::Test
   include ChdirTest("example-site")
 
   attr_accessor :site, :config

@@ -6,7 +6,7 @@ require "minitest/autorun"
 require "zenweb/site"
 require "test/helper"
 
-class TestZenwebPageGoogle < MiniTest::Unit::TestCase
+class TestZenwebPageGoogle < Minitest::Test
   include ChdirTest("example-site")
 
   attr_accessor :site, :page

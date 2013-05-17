@@ -4,7 +4,7 @@ require "rubygems"
 require "minitest/autorun"
 require "zenweb/extensions"
 
-class TestArray < MiniTest::Unit::TestCase
+class TestArray < Minitest::Test
   def test_deep_each
     act = []
     [1, 2, [3, [4], 5], 6].deep_each do |n, o|
@@ -36,7 +36,7 @@ class TestArray < MiniTest::Unit::TestCase
   end
 end
 
-class TestFile < MiniTest::Unit::TestCase
+class TestFile < Minitest::Test
   def test_class_each_parent
     a = []
 
@@ -50,7 +50,7 @@ class TestFile < MiniTest::Unit::TestCase
   end
 end
 
-class TestTime < MiniTest::Unit::TestCase
+class TestTime < Minitest::Test
   def test_date
     assert_equal "1969-12-31",         Time.local(1969,12,31,16,0).date
   end

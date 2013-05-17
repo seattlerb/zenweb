@@ -1,4 +1,4 @@
-class MiniTest::Unit::TestCase
+class Minitest::Test
   def self.ChdirTest path
     Module.new do
       define_method :setup do

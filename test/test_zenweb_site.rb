@@ -10,7 +10,7 @@ class Zenweb::Site
   attr_writer :layouts
 end
 
-class TestZenwebSite < MiniTest::Unit::TestCase
+class TestZenwebSite < Minitest::Test
   include ChdirTest("example-site")
 
   attr_accessor :site

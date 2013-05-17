@@ -6,7 +6,7 @@ require "minitest/autorun"
 require "zenweb/site"
 require "test/helper"
 
-class TestZenwebPageDisqus < MiniTest::Unit::TestCase
+class TestZenwebPageDisqus < Minitest::Test
   attr_accessor :site, :page
 
   def setup
