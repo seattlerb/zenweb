@@ -44,6 +44,11 @@ blazingly fast.
 
 * gem install zenweb
 
+== DEVELOP:
+
+* gem install hoe
+* rake newb
+
 == LICENSE:
 
 (The MIT License)
