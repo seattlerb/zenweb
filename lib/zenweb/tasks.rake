@@ -52,6 +52,11 @@ task :realclean => :clean do
   rm_rf ".site"
 end
 
+task :stale do
+  stale = website.stale_pages
+  puts stale unless stale.empty?
+end
+
 def new_file title, dir = ".", date = false
   path = "#{title.strip.downcase.gsub(/\W+/, '-')}.html.md"
 

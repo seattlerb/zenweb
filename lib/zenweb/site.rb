@@ -197,6 +197,14 @@ module Zenweb
       @text_files ||= %w[txt html css js]
     end
 
+    def stale_pages
+      pages.values.find_all(&:stale?)
+    end
+
+    def stale?
+      not stale_pages.empty?
+    end
+
     def fix_subpages # :nodoc:
       parents = {}
       @pages.values.select(&:index?).each do |p|

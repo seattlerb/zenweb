@@ -330,6 +330,10 @@ module Zenweb
       content
     end
 
+    def stale?
+      file(url_path).needed?
+    end
+
     ##
     # Render a Page instance based on its filetypes. For example,
     # index.html.md.erb will essentially call:
