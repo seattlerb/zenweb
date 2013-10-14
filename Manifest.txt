@@ -32,6 +32,9 @@ example-site/pages/nonblogpage.html.md
 example-site/projects/index.html.erb
 example-site/projects/zenweb.html.erb
 example-site/sitemap.xml.erb
+lib/coderay/scanners/elisp.rb
+lib/coderay/scanners/scheme.rb
+lib/coderay/zenweb_extensions.rb
 lib/zenweb.rb
 lib/zenweb/config.rb
 lib/zenweb/extensions.rb

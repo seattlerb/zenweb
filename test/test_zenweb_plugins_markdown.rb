@@ -6,9 +6,7 @@ require "minitest/autorun"
 require "zenweb/site"
 require "test/helper"
 
-class TestZenwebPageMarkdown < Minitest::Test
-  include ChdirTest("example-site")
-
+class MarkdownTest < Minitest::Test
   attr_accessor :site, :page
 
   def setup
@@ -17,6 +15,43 @@ class TestZenwebPageMarkdown < Minitest::Test
     self.site = Zenweb::Site.new
     self.page = Zenweb::Page.new site, "blog/2012-01-02-page1.html.md"
   end
+end
+
+class TestUgh < MarkdownTest
+  def assert_markdown_code lang, line, *exps
+    act = page.markdown "``` #{lang}\n#{line}\n```"
+
+    exps.each do |exp|
+      assert_includes act, exp
+    end
+  end
+
+  def test_coderay_ruby
+    assert_markdown_code("ruby",
+                         "def x\n  42\nend",
+                         '<div><table class="CodeRay"><tr>',
+                         '<span class="keyword">def</span>')
+  end
+
+  def test_coderay_clojure
+    assert_markdown_code("clojure",
+                         "(+ 1 1)",
+                         '<pre>(<span class="keyword">+</span>',
+                         '<span class="integer">1</span>',
+                         '<span class="integer">1</span>)')
+  end
+
+  def test_coderay_elisp
+    assert_markdown_code("elisp",
+                         "(+ 1 1)",
+                         '<pre>(<span class="keyword">+</span>',
+                         '<span class="integer">1</span>',
+                         '<span class="integer">1</span>)')
+  end
+end
+
+class TestZenwebPageMarkdown < MarkdownTest
+  include ChdirTest("example-site")
 
   def test_attr_h
     assert_equal "{:blah=\"42\"}", page.attr("blah" => 42)

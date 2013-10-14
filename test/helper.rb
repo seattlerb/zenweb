@@ -1,3 +1,5 @@
+require "coderay/zenweb_extensions" # lame... force load early before chdir
+
 class Minitest::Test
   def self.ChdirTest path
     Module.new do

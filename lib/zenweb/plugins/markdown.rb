@@ -30,9 +30,10 @@ class Zenweb::Page
 
   def markdown content, no_line_numbers = false
     require "kramdown"
+    require "coderay/zenweb_extensions"
 
     content = content.
-     gsub(/^\`\`\` *(\w+)/) { "{:lang=\"#$1\"}\n~~~" }.
+     gsub(/^\`\`\` *(\w+)/) { "~~~ #$1" }.
      gsub(/^\`\`\`/, '~~~')
 
     config = KRAMDOWN_CONFIG.dup
