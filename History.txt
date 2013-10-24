@@ -1,3 +1,10 @@
+=== 3.3.0 / 2013-10-24
+
+* 2 minor enhancements:
+
+  * Added scheme and elisp extensions to coderay. (just aliass for clojure right now)
+  * Updated to kramdown 1.x.
+
 === 3.2.0 / 2013-08-19
 
 * 3 minor enhancements:
