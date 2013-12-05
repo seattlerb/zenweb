@@ -1,8 +1,5 @@
 require "rubygems"
 
-gem "rake"
-require "rake"
-
 module Zenweb
 
   ##

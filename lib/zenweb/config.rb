@@ -1,7 +1,5 @@
 require "yaml"
 
-gem "rake"
-require "rake"
 require "zenweb/extensions"
 
 module Zenweb
