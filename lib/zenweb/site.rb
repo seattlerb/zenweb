@@ -180,6 +180,9 @@ module Zenweb
         end
       end
 
+      $website = self # HACK
+      task(:virtual_pages).invoke
+
       t = Time.now
       @pages.reject! { |path, page| page.date && page.date > t } unless
         ENV["ALL"]

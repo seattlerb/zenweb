@@ -77,7 +77,8 @@ module Zenweb
     def body
       # TODO: add a test for something with --- without a yaml header.
       @body ||= begin
-                  _, body = Zenweb::Config.split path
+                  thing = File.file?(path) ? path : self
+                  _, body = Zenweb::Config.split thing
                   body.strip
                 end
     end
@@ -432,4 +433,15 @@ module Zenweb
       end
     end
   end # class Page
+
+  ##
+  # A page not rooted in an actual file. This lets you synthesize
+  # pages directly in rake tasks. Initialize it with a destination
+  # path as normal, but then you must set the date and content
+  # yourself.
+
+  class FakePage < Page
+    attr_accessor :content
+    attr_accessor :date
+  end
 end

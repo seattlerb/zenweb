@@ -62,14 +62,19 @@ module Zenweb
     #   split("index.html.md") => [config, content]
 
     def self.split path
-      body = File.binread path
+      body, yaml_file = nil, false
+      if String === path and File.file? path
+        body = File.binread path
 
-      raise ArgumentError, "UTF BOM not supported: #{path}" if
-        body.start_with? UTF_BOM
+        raise ArgumentError, "UTF BOM not supported: #{path}" if
+          body.start_with? UTF_BOM
 
-      yaml_file = File.extname(path) == ".yml"
+        yaml_file = File.extname(path) == ".yml"
 
-      body.force_encoding "utf-8" if File::RUBY19
+        body.force_encoding "utf-8" if File::RUBY19
+      else
+        body = path.content
+      end
 
       if yaml_file then
         [body, nil]
@@ -83,7 +88,8 @@ module Zenweb
 
     def h # :nodoc:
       @h ||= begin
-               config, _ = self.class.split path
+               thing = File.file?(path) ? path : site.pages[path]
+               config, _ = self.class.split thing
                config && YAML.load(config) || {}
              end
     end

@@ -83,6 +83,7 @@ class TestZenwebConfig < Minitest::Test
 
     assert_tasks do
       assert_task "_config.yml"
+      assert_task "virtual_pages", nil, Rake::Task
       assert_task "blog/_config.yml", %w[_config.yml]
       assert_task config.path, %w[blog/_config.yml]
     end

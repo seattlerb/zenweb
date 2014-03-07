@@ -194,6 +194,8 @@ class TestZenwebSite < Minitest::Test
     site.wire
 
     assert_tasks do
+      assert_task "virtual_pages", nil, Rake::Task
+
       assert_task ".site"
       assert_task ".site/about"
       assert_task ".site/blog"

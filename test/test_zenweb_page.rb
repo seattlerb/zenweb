@@ -22,7 +22,7 @@ class TestZenwebPage < Minitest::Test
     Rake.application = Rake::Application.new
     site.scan
 
-    assert_empty Rake.application.tasks
+    assert_empty Rake.application.tasks.map(&:name) - ["virtual_pages"]
 
     p1 = site.pages["blog/2012-01-02-page1.html.md"]
     p2 = site.pages["blog/2012-01-03-page2.html.md"]
@@ -81,6 +81,7 @@ class TestZenwebPage < Minitest::Test
     p1.depends_on p2
 
     assert_tasks do
+      assert_task "virtual_pages", nil, Rake::Task
       assert_task p1.url_path, [p2.url_path]
     end
   end
@@ -92,6 +93,7 @@ class TestZenwebPage < Minitest::Test
 
     # TODO: double check that this should be p1.path and not p1.url_path
     assert_tasks do
+      assert_task "virtual_pages", nil, Rake::Task
       assert_task p1.path, ["somethingelse"]
     end
   end
@@ -358,6 +360,8 @@ class TestZenwebPage < Minitest::Test
     page.wire
 
     assert_tasks do
+      assert_task "virtual_pages", nil, Rake::Task
+
       # dirs
       assert_task ".site"
       assert_task ".site/blog"
