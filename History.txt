@@ -1,3 +1,12 @@
+=== 3.4.0 / 2014-03-24
+
+* 4 minor enhancements:
+
+  * Added FakePage to make synthesizing pages easier.
+  * Added task :virtual_pages and called during scan phase. Add virtual pages in your Rakefile!
+  * Markdown sitemap can now toggle it's subsection's dated titles.
+  * Modified config to be more resilient to non-file pages. Grabs content directly from page when passed one.
+
 === 3.3.1 / 2013-12-13
 
 * 1 bug fix:
