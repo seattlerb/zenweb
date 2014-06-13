@@ -315,6 +315,10 @@ module Zenweb
       end
     end
 
+    def no_index?
+      config["no_index"]
+    end
+
     ##
     # Render this page as a whole. This includes rendering the page's
     # content into a layout if one has been specified via config.

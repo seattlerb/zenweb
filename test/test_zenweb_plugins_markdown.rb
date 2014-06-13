@@ -140,6 +140,26 @@ class TestZenwebPageMarkdown < MarkdownTest
     assert_equal exp, act
   end
 
+  def test_sitemap_multidir_excluded
+    build_fake_site %w[a/index.html.md
+                       a/b/index.html.md
+                       a/b/p1.html
+                       a/b/p2.html
+                       a/b/p3.html]
+
+    site.pages["a/b/p1.html"].config.h["no_index"] = true
+
+    page = site.pages["a/index.html.md"]
+    act = page.sitemap
+    exp = <<-END.cleanup
+    * [Title for a/b/index.html.md](/a/b/)
+      * [Title for a/b/p2.html](/a/b/p2.html)
+      * [Title for a/b/p3.html](/a/b/p3.html)
+    END
+
+    assert_equal exp, act
+  end
+
   def test_sitemap_subdir
     build_fake_site %w[a/index.html
                        a/b/index.html.md

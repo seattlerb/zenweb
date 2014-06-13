@@ -54,7 +54,7 @@ class Zenweb::Page
         level = (depth-1)/2
         level = 0 if level < 0
 
-        dated, normal = a.map(&:last).partition(&:dated?)
+        dated, normal = a.map(&:last).reject(&:no_index?).partition(&:dated?)
 
         normal = normal.sort_by(&:url).map { |p| page_sitemap_url p, level }
 

@@ -1,13 +1,16 @@
 # -*- ruby -*-
 
-require 'autotest/restart'
-require 'autotest/isolate'
-require 'autotest/rcov' if ENV['RCOV']
+require "rbconfig"
+version = RbConfig::CONFIG["ruby_version"]
+
+# require "autotest/restart"
+# require "autotest/isolate"
+# require "autotest/rcov" if ENV["RCOV"]
 
 Autotest.add_hook :initialize do |at|
-  at.testlib = "minitest/autorun"
+  at.add_exception(/isolate/)
 
-  at.add_exception /isolate/
+  ENV["GEM_PATH"] = "tmp/isolate/ruby-#{version}"
 
   at.extra_class_map["Zenweb::Site"]   = "lib/zenweb/site.rb"
   at.extra_class_map["Zenweb::Page"]   = "lib/zenweb/page.rb"
