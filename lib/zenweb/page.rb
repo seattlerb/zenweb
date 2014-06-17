@@ -68,7 +68,7 @@ module Zenweb
     # All pages below this page, recursively.
 
     def all_subpages
-      subpages.map { |p| [p, p.all_subpages] }
+      subpages.reject(&:no_index?).map { |p| [p, p.all_subpages] }
     end
 
     ##
