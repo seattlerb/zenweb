@@ -1,3 +1,11 @@
+=== 3.5.0 / 2014-06-17
+
+* 3 minor enhancements:
+
+  * Added Page#no_index?
+  * Markdown's sitemap excludes any #no_index? page.
+  * Page#all_subpages excludes #no_index? pages.
+
 === 3.4.0 / 2014-03-24
 
 * 4 minor enhancements:
