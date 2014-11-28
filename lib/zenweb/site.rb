@@ -207,17 +207,25 @@ module Zenweb
     end
 
     def fix_subpages # :nodoc:
+      # TODO: push most of this down to page
       parents = {}
+
       @pages.values.select(&:index?).each do |p|
-        parents[File.dirname p.path] = p
+        parents[p.url] = p
       end
 
       @pages.values.each do |p|
-        path = File.dirname p.path
-        path = File.dirname path if p.index?
+        path = p.parent_url
 
-        parent = parents[path]
+        parent = nil
+        begin
+          path = File.join File.dirname(path), "index.html"
+          parent = parents[path]
+          path = File.dirname path
+        end until parent or path == "/"
+
         next unless parent and parent != p and p.url =~ /html$/
+
         p.parent = parent
         parent.subpages << p
       end
