@@ -65,10 +65,21 @@ module Zenweb
     end
 
     ##
-    # All pages below this page, recursively.
+    # All pages below this page, possibly +reversed+, recursively.
 
-    def all_subpages
-      subpages.reject(&:no_index?).map { |p| [p, p.all_subpages] }
+    def all_subpages reversed = false
+      dated, normal = subpages.partition(&:dated?)
+      dated = dated.reverse if reversed
+
+      (normal + dated).map { |p| [p, p.all_subpages(reversed)] }
+    end
+
+    ##
+    # All pages below this page, possibly +reversed+, recursively,
+    # with the depth of each subpage relative to the current page.
+
+    def all_subpages_by_level(reverse = false)
+      self.all_subpages(reverse).deep_each.map { |n, p| [(n-1)/2, p] }
     end
 
     ##
@@ -165,7 +176,7 @@ module Zenweb
     # Is this a dated page? (ie, does it have YYYY-MM-DD in the path?)
 
     def dated_path?
-      path[/\d\d\d\d-\d\d-\d\d/]
+      path[/\d\d\d\d-\d\d-\d\d/] || path[/\d\d\d\d(?:-\d\d)?\/index/]
     end
 
     def change_frequency

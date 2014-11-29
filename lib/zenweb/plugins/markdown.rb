@@ -49,9 +49,10 @@ class Zenweb::Page
     # whether the pages are ordered (dated) or not or a combination of
     # the two.
 
-    def sitemap title_dated = true
-      self.all_subpages.deep_each.chunk { |n, p| n }.map { |depth, a|
-        level = (depth-1)/2
+    def sitemap title_dated = true, demote = 0
+      self.all_subpages_by_level(true).chunk { |n, p| n }.map { |level, a|
+        level -= demote
+
         level = 0 if level < 0
 
         dated, normal = a.map(&:last).reject(&:no_index?).partition(&:dated?)
@@ -60,7 +61,7 @@ class Zenweb::Page
 
         dated = dated_map(dated) { |month, ps2|
           x = date_sorted_map(ps2) { |p|
-            page_sitemap_url p, level + 1
+            page_sitemap_url p, level + (title_dated ? 1 : 0)
           }
           x.unshift "#{"  " * level}* #{month}:" if title_dated
           x
