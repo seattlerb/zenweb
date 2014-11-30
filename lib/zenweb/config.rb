@@ -92,6 +92,9 @@ module Zenweb
                config, _ = self.class.split thing
                config && YAML.load(config) || {}
              end
+    rescue => e
+      warn "#{self.path}: #{e}"
+      raise
     end
 
     def inspect # :nodoc:
