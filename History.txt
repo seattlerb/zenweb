@@ -1,3 +1,26 @@
+=== 3.6.0 / 2014-12-09
+
+* 12 minor enhancements:
+
+  * Add debugging help when config blows on bad yaml.
+  * Added Enumerable#multi_group_by
+  * Added GeneratedIndex subclass of FakePage.
+  * Added Page#all_subpages_by_level that returns all subpages paired with their depth.
+  * Added Page#tag_list.
+  * Added TagIndex, TagDetail, MonthlyPage, YearlyPage, SeriesPage
+  * Extended Page#dated_path? to include yearly/monthly index pages.
+  * Page#all_subpages now partitioned by #dated_path?
+  * Page#all_subpages takes a reversed arg to reverse (only) dated pages.
+  * Page#dated_path? now returns true for yearly/monthly index.html pages.
+  * Page#sitemap now takes a demote arg in case your subpages are N levels deep.
+  * Page#sitemap reverse-sorts dated pages.
+
+* 3 bug fixes:
+
+  * Fixed Site#fix_subpages to index via url, not path, so virtual pages work.
+  * Page#all_subpages incorrectly filtered out no_index pages. All means all.
+  * Site#fix_subpages no longer reverse sorts... that's someone else's job.
+
 === 3.5.0 / 2014-06-17
 
 * 3 minor enhancements:
