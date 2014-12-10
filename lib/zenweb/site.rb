@@ -233,7 +233,6 @@ module Zenweb
       @pages.values.each do |p|
         unless p.subpages.empty? then
           sorted = p.subpages.sort_by(&:clean_url)
-          sorted = sorted.reverse if sorted.first.dated_path?
           p.subpages.replace sorted
         end
       end

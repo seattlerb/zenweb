@@ -30,6 +30,139 @@ class TestZenwebPage < Minitest::Test
     return p1, p2
   end
 
+  def setup_complex_website
+    self.site = Zenweb::Site.new
+
+    pages = %w[
+      index.html.md
+      blog/index.html.md
+      blog/2014-01-01-first.html.md
+      blog/2014-02-02-second.html.md
+      blog/2014-03-03-third.html.md
+    ]
+
+    build_fake_site(*pages)
+
+    site.pages["index.html.md"]
+  end
+
+  def setup_complex_website2 skip_monthly = false
+    self.site = Zenweb::Site.new
+
+    pages = %w[
+      index.html.md
+      ruby/index.html.md
+      ruby/notes.html.md
+      ruby/quickref.html.md
+      blog/2014/index.html.md
+      blog/2014/01/index.html.md
+      blog/2014-01-01-first.html.md
+      blog/2014/02/index.html.md
+      blog/2014-02-02-second.html.md
+      blog/2014/03/index.html.md
+      blog/2014-03-03-third.html.md
+      blog/index.html.md
+    ]
+
+    pages.reject! { |s| s =~ /blog.2.*index/ } if skip_monthly
+
+    build_fake_site(*pages)
+
+    site.pages["index.html.md"]
+  end
+
+  def test_all_subpages
+    top = setup_complex_website2
+    sp  = site.pages
+    exp = [[sp["blog/index.html.md"],
+            [[sp["blog/2014/index.html.md"],
+              [[sp["blog/2014/01/index.html.md"],
+                [[sp["blog/2014-01-01-first.html.md"], []]]],
+               [sp["blog/2014/02/index.html.md"],
+                [[sp["blog/2014-02-02-second.html.md"], []]]],
+               [sp["blog/2014/03/index.html.md"],
+                [[sp["blog/2014-03-03-third.html.md"], []]]]]]]],
+           [sp["ruby/index.html.md"],
+            [[sp["ruby/notes.html.md"], []],
+             [sp["ruby/quickref.html.md"], []]]]]
+
+    assert_equal exp, top.all_subpages
+  end
+
+  make_my_diffs_pretty!
+
+  def test_all_subpages_reversed
+    top = setup_complex_website2
+    sp  = site.pages
+
+    exp = [[sp["blog/index.html.md"],
+            [[sp["blog/2014/index.html.md"],
+              [[sp["blog/2014/03/index.html.md"],
+                [[sp["blog/2014-03-03-third.html.md"], []]]],
+               [sp["blog/2014/02/index.html.md"],
+                [[sp["blog/2014-02-02-second.html.md"], []]]],
+               [sp["blog/2014/01/index.html.md"],
+                [[sp["blog/2014-01-01-first.html.md"], []]]]]]]],
+           [sp["ruby/index.html.md"],
+            [[sp["ruby/notes.html.md"], []],
+             [sp["ruby/quickref.html.md"], []]]]]
+
+    assert_equal exp, top.all_subpages(true)
+  end
+
+  def test_all_subpages_complex_reversed
+    top = setup_complex_website2
+    sp = site.pages
+
+    exp = [[sp["blog/index.html.md"],
+            [[sp["blog/2014/index.html.md"],
+              [[sp["blog/2014/03/index.html.md"],
+                [[sp["blog/2014-03-03-third.html.md"], []]]],
+               [sp["blog/2014/02/index.html.md"],
+                [[sp["blog/2014-02-02-second.html.md"], []]]],
+               [sp["blog/2014/01/index.html.md"],
+                [[sp["blog/2014-01-01-first.html.md"], []]]]]]]],
+           [sp["ruby/index.html.md"],
+            [[sp["ruby/notes.html.md"], []],
+             [sp["ruby/quickref.html.md"], []]]]]
+    assert_equal exp, top.all_subpages(true)
+  end
+
+  def test_sitemap_complex_no_dates # TODO: move to markdown tests
+    top = setup_complex_website2
+
+    exp = "* [Title for blog/index.html.md](/blog/)
+  * [Title for blog/2014/index.html.md](/blog/2014/)
+    * [Title for blog/2014/03/index.html.md](/blog/2014/03/)
+      * [Title for blog/2014-03-03-third.html.md](/blog/2014/03/03/third.html)
+    * [Title for blog/2014/02/index.html.md](/blog/2014/02/)
+      * [Title for blog/2014-02-02-second.html.md](/blog/2014/02/02/second.html)
+    * [Title for blog/2014/01/index.html.md](/blog/2014/01/)
+      * [Title for blog/2014-01-01-first.html.md](/blog/2014/01/01/first.html)
+* [Title for ruby/index.html.md](/ruby/)
+  * [Title for ruby/notes.html.md](/ruby/notes.html)
+  * [Title for ruby/quickref.html.md](/ruby/quickref.html)"
+
+    assert_equal exp, top.sitemap(false)
+  end
+
+  def test_sitemap_title_dated_no_monthlies # TODO: move to markdown tests
+    top = setup_complex_website2 :skip_monthly
+
+    exp = "* [Title for blog/index.html.md](/blog/)
+  * 2014-03:
+    * [Title for blog/2014-03-03-third.html.md](/blog/2014/03/03/third.html)
+  * 2014-02:
+    * [Title for blog/2014-02-02-second.html.md](/blog/2014/02/02/second.html)
+  * 2014-01:
+    * [Title for blog/2014-01-01-first.html.md](/blog/2014/01/01/first.html)
+* [Title for ruby/index.html.md](/ruby/)
+  * [Title for ruby/notes.html.md](/ruby/notes.html)
+  * [Title for ruby/quickref.html.md](/ruby/quickref.html)"
+
+    assert_equal exp, top.sitemap(:title_dated)
+  end
+
   def test_body
     assert_equal "Not really much here to see.", page.body
   end
@@ -279,9 +412,9 @@ class TestZenwebPage < Minitest::Test
 
     page = site.pages["blog/index.html.erb"]
     act = page.subpages
-    exp = [site.pages["blog/2012-01-04-page3.html.md"],
+    exp = [site.pages["blog/2012-01-02-page1.html.md"],
            site.pages["blog/2012-01-03-page2.html.md"],
-           site.pages["blog/2012-01-02-page1.html.md"]]
+           site.pages["blog/2012-01-04-page3.html.md"]]
 
     assert_equal exp, act
   end

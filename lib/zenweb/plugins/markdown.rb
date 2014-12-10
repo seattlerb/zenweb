@@ -71,8 +71,14 @@ class Zenweb::Page
       }.join "\n"
     end
 
+    def page_url page
+      "[#{page.title}](#{page.clean_url})"
+    end
+
+    module_function :page_url
+
     def page_sitemap_url page, depth # :nodoc:
-      "#{"  " * (depth)}* [#{page.title}](#{page.clean_url})"
+      "#{"  " * (depth)}* #{page_url page}"
     end
 
     def date_sorted_map a, &b # :nodoc:

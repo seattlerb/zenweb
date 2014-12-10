@@ -68,7 +68,7 @@ module Zenweb
     # All pages below this page, possibly +reversed+, recursively.
 
     def all_subpages reversed = false
-      dated, normal = subpages.partition(&:dated?)
+      dated, normal = subpages.partition(&:dated_path?)
       dated = dated.reverse if reversed
 
       (normal + dated).map { |p| [p, p.all_subpages(reversed)] }
@@ -78,8 +78,8 @@ module Zenweb
     # All pages below this page, possibly +reversed+, recursively,
     # with the depth of each subpage relative to the current page.
 
-    def all_subpages_by_level(reverse = false)
-      self.all_subpages(reverse).deep_each.map { |n, p| [(n-1)/2, p] }
+    def all_subpages_by_level reversed = false
+      self.all_subpages(reversed).deep_each.map { |n, p| [(n-1)/2, p] }
     end
 
     ##
@@ -156,6 +156,7 @@ module Zenweb
     end
 
     def date_from_path # :nodoc:
+      # TODO: test
       date = path[/\d\d\d\d-\d\d-\d\d/]
       Time.local(*date.split(/-/).map(&:to_i)) if date
     end
@@ -176,7 +177,7 @@ module Zenweb
     # Is this a dated page? (ie, does it have YYYY-MM-DD in the path?)
 
     def dated_path?
-      path[/\d\d\d\d-\d\d-\d\d/] || path[/\d\d\d\d(?:-\d\d)?\/index/]
+      path[/\d\d\d\d[-\/]\d\d[-\/]\d\d/] || path[/\d\d\d\d(?:[-\/]\d\d)?\/index/]
     end
 
     def change_frequency
@@ -372,7 +373,7 @@ module Zenweb
           (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(s);
         })();
       </script>
-    EOM
+      EOM
     end
 
     ##
@@ -400,6 +401,12 @@ module Zenweb
 
     def url_path
       @url_path ||= File.join(".site", self.url)
+    end
+
+    def tag_list
+      self.tags.map { |tag|
+        "<a href=\"/blog/tags/#{tag.downcase.gsub(/\W/, '')}.html\">#{tag}</a>"
+      }.join ", "
     end
 
     ##
@@ -458,5 +465,162 @@ module Zenweb
   class FakePage < Page
     attr_accessor :content
     attr_accessor :date
+  end
+
+  ##
+  # Generates a virtual page with an index of all tags on the given pages.
+  # You must subclass and provide a content method.
+
+  class GeneratedIndex < FakePage
+    attr_accessor :pages
+
+    def self.collate_by pages, key, default=nil
+      pages.multi_group_by { |page| page.config[key] || default }
+    end
+
+    def self.generate_all site, dir, pages
+      raise NotImplementedError, "Implement #{self}#generate_all"
+    end
+
+    def self.page_url page # TODO: hard to do helpers on class methods
+      "[#{page.title}](#{page.clean_url})"
+    end
+
+    def initialize site, path, pages
+      super site, path
+
+      self.pages = pages.select(&:html?)
+      self.date  = Time.now
+
+      site.pages[path] = self
+    end
+
+    def content
+      raise NotImplementedError, "Implement #{self.class}#content"
+    end
+
+    def wire
+      super
+      self.depends_on pages
+    end
+  end
+
+  class TagIndex < GeneratedIndex
+    def self.tags_for pages
+      collate_by pages, :tags, "None"
+    end
+
+    def self.generate_all site, dir, pages
+      self.new site, "#{dir}/index.html.md.erb", pages
+    end
+
+    def self.tag_list tag, pages
+      r = []
+      r << "### #{tag}"
+      r << "#{pages.size} pages"
+      r << ""
+      r << pages.map { |page| "*  #{page.date.date} #{page_url page}" }
+      r << ""
+      r.join "\n"
+    end
+
+    def index
+      self.class.tags_for(pages).sort_by { |t,_| t.to_s.downcase }.map { |t, p|
+        self.class.tag_list t, p
+      }.join "\n"
+    end
+  end
+
+  ##
+  # Generates a virtual page with an index for a given tag on the given pages.
+  # You must subclass and provide a content method.
+
+  class TagDetail < TagIndex
+    attr_accessor :tag
+
+    def self.generate_all site, dir, pages
+      tags_for(pages).sort.each do |tag, pgs|
+        path = tag.downcase.gsub(/\W+/, '')
+        generate site, "#{dir}/#{path}.html.md.erb", pgs, tag
+      end
+    end
+
+    def self.generate site, path, pages, tag
+      self.new site, path, pages, tag
+    end
+
+    def initialize site, path, pages, tag
+      super site, path, pages
+      self.tag = tag
+    end
+
+    def index
+      self.class.tag_list tag, pages
+    end
+  end
+
+  class SeriesPage < GeneratedIndex
+    attr_accessor :series
+
+    def self.series_for pages
+      collate_by pages, :series
+    end
+
+    def self.generate_all site, dir, pages
+      series_for(pages).sort.each do |series, pgs|
+        next unless series
+        path = series.downcase.gsub(/\W/, '-')
+        generate site, "#{dir}/#{path}.html.md.erb", pgs, series
+      end
+    end
+
+    def self.generate site, path, pages, series
+      self.new site, path, pages, series
+    end
+
+    def initialize sate, path, pages, series
+      super site, path, pages
+      self.series = series
+    end
+  end
+
+  ##
+  # Generates a virtual page with monthly index pages.
+  # You must subclass and provide a content method.
+
+  class MonthlyPage < GeneratedIndex
+    def self.generate_all site, dir, pages
+      pages.find_all(&:dated?).group_by { |page|
+        [page.date.year, page.date.month]
+      }.each do |(year, month), subpages|
+        path = "#{dir}/%4d/%02d/index.html.md.erb" % [year, month]
+        self.new site, path, subpages, year, month
+      end
+    end
+
+    def initialize site, path, pages, year, month
+      super site, path, pages
+      self.date = Time.local(year, month)
+    end
+  end
+
+  ##
+  # Generates a virtual page with yearly index pages.
+  # You must subclass and provide a content method.
+
+  class YearlyPage < GeneratedIndex
+    def self.generate_all site, dir, pages
+      pages.find_all(&:dated?).group_by { |page|
+        page.date.year
+      }.each do |year, subpages|
+        path = "#{dir}/%4d/index.html.md.erb" % [year]
+        self.new site, path, subpages, year
+      end
+    end
+
+    def initialize site, path, pages, year
+      super site, path, pages
+      self.date = Time.local(year)
+    end
   end
 end

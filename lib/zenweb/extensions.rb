@@ -27,6 +27,16 @@ module Enumerable
 
     result
   end unless [].respond_to? :chunk
+
+  def multi_group_by
+    r = Hash.new { |h,k| h[k] = [] }
+    each do |o|
+      Array(yield(o)).each do |k|
+        r[k] << o
+      end
+    end
+    r
+  end
 end
 
 class Array # :nodoc:
