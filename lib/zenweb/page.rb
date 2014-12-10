@@ -578,7 +578,7 @@ module Zenweb
       self.new site, path, pages, series
     end
 
-    def initialize sate, path, pages, series
+    def initialize site, path, pages, series
       super site, path, pages
       self.series = series
     end
