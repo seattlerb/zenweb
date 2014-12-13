@@ -1,3 +1,21 @@
+=== 3.7.0 / 2014-12-12
+
+* 8 minor enhancements:
+
+  * Added Page#series_page.
+  * Added Page#tag_pages.
+  * Added SeriesPage::all and made instances register themselves automatically.
+  * Added Site#html_page_map(&mapfn) to return a list of pages from mapfn.
+  * Added Site#link_list(&mapfn) to return a list of html links from mapfn.
+  * Added TagDetail::all and made instances register themselves automatically.
+  * Removed SeriesPage::generate in farvor of plain new/initialize.
+  * Removed TagDetail::generate in favor of plain new/initialize.
+
+* 2 bug fixes:
+
+  * Fixed unfortunate typo.
+  * Replaced tag_list with tag_pages. Design bug made while coding stupid.
+
 === 3.6.0 / 2014-12-09
 
 * 12 minor enhancements:
