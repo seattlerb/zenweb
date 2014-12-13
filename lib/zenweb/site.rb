@@ -97,6 +97,14 @@ module Zenweb
     end
 
     ##
+    # Return a list of all pages my applying +map+ to all html_pages
+    # and cleaning up the results.
+
+    def html_page_map &map
+      html_pages.map(&map).flatten.uniq.compact
+    end
+
+    ##
     # Returns a list of all known html pages.
 
     def html_pages
@@ -112,6 +120,14 @@ module Zenweb
 
     def layout name
       @layouts[name]
+    end
+
+    ##
+    # Return a list of HTML links after applying +map+ to all html
+    # pages and cleaning the results.
+
+    def link_list &map
+      html_page_map(&map).map(&:link_html)
     end
 
     ##

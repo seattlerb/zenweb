@@ -403,10 +403,13 @@ module Zenweb
       @url_path ||= File.join(".site", self.url)
     end
 
-    def tag_list
-      self.tags.map { |tag|
-        "<a href=\"/blog/tags/#{tag.downcase.gsub(/\W/, '')}.html\">#{tag}</a>"
-      }.join ", "
+    def tag_pages
+      (self.config[:tags] || []).map { |t| Zenweb::TagDetail.all[t] }.compact
+    end
+
+    def series_page
+      series = self.config[:series]
+      Zenweb::SeriesPage.all[series] if series
     end
 
     ##
@@ -538,15 +541,15 @@ module Zenweb
   class TagDetail < TagIndex
     attr_accessor :tag
 
+    def self.all
+      @@all ||= {}
+    end
+
     def self.generate_all site, dir, pages
       tags_for(pages).sort.each do |tag, pgs|
         path = tag.downcase.gsub(/\W+/, '')
-        generate site, "#{dir}/#{path}.html.md.erb", pgs, tag
+        self.all[tag] = self.new site, "#{dir}/#{path}.html.md.erb", pgs, tag
       end
-    end
-
-    def self.generate site, path, pages, tag
-      self.new site, path, pages, tag
     end
 
     def initialize site, path, pages, tag
@@ -562,6 +565,10 @@ module Zenweb
   class SeriesPage < GeneratedIndex
     attr_accessor :series
 
+    def self.all
+      @@all ||= {}
+    end
+
     def self.series_for pages
       collate_by pages, :series
     end
@@ -570,12 +577,9 @@ module Zenweb
       series_for(pages).sort.each do |series, pgs|
         next unless series
         path = series.downcase.gsub(/\W/, '-')
-        generate site, "#{dir}/#{path}.html.md.erb", pgs, series
+        path = "#{dir}/#{path}.html.md.erb"
+        self.all[series] = self.new(site, path, pgs, series)
       end
-    end
-
-    def self.generate site, path, pages, series
-      self.new site, path, pages, series
     end
 
     def initialize site, path, pages, series
