@@ -90,6 +90,9 @@ def new_file title, dir = ".", date = false
     post.puts "---"
     post.puts "title: \"#{title}\""
     post.puts "date: #{date.iso8601}"
+    post.puts "series: FI#{'X'}"
+    post.puts "tags:"
+    post.puts "- FI#{'X'}"
     post.puts "..."
     post.puts
   end
