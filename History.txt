@@ -1,3 +1,9 @@
+=== 3.7.1 / 2015-01-07
+
+* 1 minor enhancement:
+
+  * rake new_page/post now includes series and tags headers.
+
 === 3.7.0 / 2014-12-12
 
 * 8 minor enhancements:
