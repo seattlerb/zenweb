@@ -22,14 +22,14 @@ class TestUgh < MarkdownTest
     act = page.markdown "``` #{lang}\n#{line}\n```"
 
     exps.each do |exp|
-      assert_includes act, exp
+      assert_includes act, exp, act
     end
   end
 
   def test_coderay_ruby
     assert_markdown_code("ruby",
                          "def x\n  42\nend",
-                         '<div><table class="CodeRay"><tr>',
+                         '<div class="highlighter-coderay"><table class="CodeRay"><tr>',
                          '<span class="keyword">def</span>')
   end
 
