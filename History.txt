@@ -1,3 +1,9 @@
+=== 3.7.2 / 2015-10-26
+
+* 1 bug fix:
+
+  * Fixed kramdown dep to 1.4+ family.
+
 === 3.7.1 / 2015-01-07
 
 * 1 minor enhancement:
