@@ -11,7 +11,7 @@ Hoe.spec 'zenweb' do
 
   dependency "rake",             [">= 0.9", "< 11"]
   dependency "makerakeworkwell", "~> 1.0"
-  dependency "less",             "~> 1.2"
+  dependency "less",             "~> 2.0"
   dependency "coderay",          "~> 1.0"
   dependency "kramdown",         "~> 1.4"
 end
