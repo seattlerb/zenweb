@@ -1,3 +1,13 @@
+=== 3.8.0 / 2015-12-15
+
+* 1 minor enhancement:
+
+  * Added woff2 to Site.binary_files
+
+* 1 bug fix:
+
+  * Bumped less to 2.0 family.
+
 === 3.7.2 / 2015-10-26
 
 * 1 bug fix:
