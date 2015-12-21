@@ -163,6 +163,14 @@ class TestZenwebPage < Minitest::Test
     assert_equal exp, top.sitemap(:title_dated)
   end
 
+  def test_binary
+    page = Zenweb::Page.new site, "blah"
+    refute_predicate page, :binary?
+
+    page = Zenweb::Page.new site, "blah", site.config
+    assert_predicate page, :binary?
+  end
+
   def test_body
     assert_equal "Not really much here to see.", page.body
   end
@@ -256,6 +264,25 @@ class TestZenwebPage < Minitest::Test
     end
 
     out = "woot\n"
+    err = "Rendering .site/blah\n"
+
+    assert_output out, err do
+      page.generate
+    end
+  end
+
+  def test_generate_binary
+    page = Zenweb::Page.new site, "blah", site.config
+
+    def page.render
+      "woot"
+    end
+
+    def page.open path, mode
+      yield $stdout
+    end
+
+    out = "woot"
     err = "Rendering .site/blah\n"
 
     assert_output out, err do

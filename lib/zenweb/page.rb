@@ -32,6 +32,12 @@ module Zenweb
     attr_accessor :parent
 
     ##
+    # Is this file a binary file? Defaults to true if config passed to Page.new.
+
+    attr_accessor :binary
+    alias binary? binary
+
+    ##
     # Returns a regexp that will match file extensions for all known
     # renderer types.
 
@@ -49,6 +55,7 @@ module Zenweb
       # TODO: make sure that creating page /a.html strips leading / from path
       @site, @path = site, path
       @config = config if config
+      @binary = config
 
       self.filetypes.each do |type|
         send "extend_#{type}" if self.respond_to? "extend_#{type}"
@@ -90,7 +97,11 @@ module Zenweb
       @body ||= begin
                   thing = File.file?(path) ? path : self
                   _, body = Zenweb::Config.split thing
-                  body.strip
+                  if self.binary? then
+                    body
+                  else
+                    body.strip
+                  end
                 end
     end
 
@@ -259,7 +270,11 @@ module Zenweb
       content = self.render
 
       open url_path, "w" do |f|
-        f.puts content
+        if binary? then
+          f.print content
+        else
+          f.puts content
+        end
       end
     end
 
