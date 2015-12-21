@@ -1,3 +1,14 @@
+=== 3.9.0 / 2015-12-21
+
+* 1 minor enhancement:
+
+  * Added Page#binary w/ Page#binary? alias.
+
+* 2 bug fixes:
+
+  * Only puts on output if not binary.
+  * Only strip body content if not binary.
+
 === 3.8.0 / 2015-12-15
 
 * 1 minor enhancement:
