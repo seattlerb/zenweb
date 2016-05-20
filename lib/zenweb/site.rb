@@ -119,7 +119,7 @@ module Zenweb
     # Returns a layout named +name+.
 
     def layout name
-      @layouts[name]
+      name and (@layouts[name] or raise "unknown layout #{name.inspect}")
     end
 
     ##

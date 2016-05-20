@@ -340,6 +340,8 @@ class TestZenwebPage < Minitest::Test
   end
 
   def test_layout
+    site.scan # to load layouts
+
     assert_equal site.layout("post"), page.layout
   end
 
@@ -406,6 +408,7 @@ class TestZenwebPage < Minitest::Test
   end
 
   def test_render
+    page.instance_variable_set :@layout, nil # keep it skinny
     assert_equal "<p>Not really much here to see.</p>\n", page.render
   end
 
