@@ -48,7 +48,6 @@ class Array # :nodoc:
       when Array then
         x.deep_each(depth + 1, &b)
       else
-        # yield (depth-1)/2, x
         yield depth, x
       end
     end
