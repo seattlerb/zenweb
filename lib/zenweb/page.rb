@@ -338,7 +338,11 @@ module Zenweb
       when /=|^render_|^to_a(?:ry)?$/ then # to_a/ry for 1.9 only. :(
         super
       else
-        self[msg]
+        if config.key? msg
+          config[msg]
+        else
+          config.send msg, *args
+        end
       end
     end
 

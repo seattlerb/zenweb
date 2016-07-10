@@ -353,20 +353,21 @@ class TestZenwebPage < Minitest::Test
     assert_equal exp, page.link_html("blah")
   end
 
-  def test_method_missing
-    assert_equal page["title"], page.method_missing("title")
-  end
-
   def test_meta
     exp = '<meta name="title" content="Example Page 1">'
     assert_equal exp, page.meta("title")
   end
 
+  def test_method_missing
+    assert_equal page["title"], page.method_missing("title")
+  end
+
   def test_method_missing_odd
-    err = "Page[\"blog/2012-01-02-page1.html.md\"] does not define \"wtf\"\n"
-    assert_output "", err do
+    e = assert_raises NoMethodError do
       assert_nil page.method_missing("wtf")
     end
+
+    assert_includes e.message, "undefined method `wtf'"
   end
 
   def test_method_missing_render

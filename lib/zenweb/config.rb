@@ -51,6 +51,10 @@ module Zenweb
       h[k.to_s] or parent[k]
     end
 
+    def key? k
+      h.key?(k.to_s) or parent.key?(k)
+    end
+
     UTF_BOM = "\xEF\xBB\xBF"
     UTF_BOM.force_encoding "binary" if File::RUBY19
 
@@ -129,6 +133,7 @@ module Zenweb
   # :stopdoc:
   Config::Null = Class.new Config do
     def [] k;                    end
+    def key? k;                  end
     def initialize;              end
     def inspect; "Config::Null"; end
     def wire;                    end

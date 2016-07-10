@@ -58,6 +58,14 @@ class TestZenwebConfig < Minitest::Test
     Rake.application.options.trace = nil
   end
 
+  def test_key_eh
+    assert config.key? "title"
+
+    assert_silent do
+      refute config.key? "woot"
+    end
+  end
+
   def test_parent
     assert_equal site.configs["blog/_config.yml"], config.parent
   end
