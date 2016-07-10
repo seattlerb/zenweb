@@ -121,6 +121,23 @@ class TestZenwebPageMarkdown < MarkdownTest
     assert_equal exp, act
   end
 
+  def test_sitemap
+    build_fake_site %w[
+                     a/index.html.md
+                     a/ZenWeb.html.md
+                     a/autotest.html.md
+                    ]
+
+    page = site.pages["a/index.html.md"]
+    act  = page.sitemap
+    exp  = <<-END.cleanup
+    * [Title for a/autotest.html.md](/a/autotest.html)
+    * [Title for a/ZenWeb.html.md](/a/ZenWeb.html)
+    END
+
+    assert_equal exp, act
+  end
+
   def test_sitemap_multidir
     build_fake_site %w[a/index.html.md
                        a/b/index.html.md

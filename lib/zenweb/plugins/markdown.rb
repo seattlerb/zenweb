@@ -57,7 +57,7 @@ class Zenweb::Page
 
         dated, normal = a.map(&:last).reject(&:no_index?).partition(&:dated?)
 
-        normal = normal.sort_by(&:url).map { |p| page_sitemap_url p, level }
+        normal = normal.sort_by { |p| p.url.downcase }.map { |p| page_sitemap_url p, level }
 
         dated = dated_map(dated) { |month, ps2|
           x = date_sorted_map(ps2) { |p|
