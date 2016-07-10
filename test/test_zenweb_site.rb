@@ -204,6 +204,33 @@ class TestZenwebSite < Minitest::Test
     refute_empty site.layouts
   end
 
+  def test_scan_excludes_underscores
+    site.scan
+
+    exp = %w[
+           about/index.html.md
+           atom.xml.erb
+           blog/2012-01-02-page1.html.md
+           blog/2012-01-03-page2.html.md
+           blog/2012-01-04-page3.html.md
+           blog/index.html.erb
+           css/colors.css.less
+           css/styles.css
+           css/syntax.css
+           img/bg.png
+           index.html.erb
+           js/jquery.js
+           js/site.js
+           pages/index.html.erb
+           pages/nonblogpage.html.md
+           projects/index.html.erb
+           projects/zenweb.html.erb
+           sitemap.xml.erb
+          ]
+
+    assert_equal exp, site.pages.keys.sort
+  end
+
   def test_wire
     Rake.application = Rake::Application.new
     site.scan

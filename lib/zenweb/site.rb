@@ -174,6 +174,7 @@ module Zenweb
       top = Dir["*"] - excludes
       files = top.select { |path| File.file? path }
       files += Dir["{#{top.join(",")}}/**/*"].reject { |f| not File.file? f }
+      files.reject! { |f| f.include? "/_" }
 
       renderers_re = Page.renderers_re
 

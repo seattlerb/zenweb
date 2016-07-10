@@ -18,6 +18,8 @@ example-site/blog/2012-01-02-page1.html.md
 example-site/blog/2012-01-03-page2.html.md
 example-site/blog/2012-01-04-page3.html.md
 example-site/blog/_config.yml
+example-site/blog/_not_yet.html.md
+example-site/blog/_tmp/not_yet.html.md
 example-site/blog/index.html.erb
 example-site/config.ru
 example-site/css/colors.css.less
