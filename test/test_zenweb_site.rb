@@ -122,6 +122,22 @@ class TestZenwebSite < Minitest::Test
     assert_equal "Example Website", site.header
   end
 
+  def test_method_missing_missing
+    exp = "Site[0 pages, 1 configs] does not define missing\n"
+
+    assert_output "", exp do
+      assert_nil site.missing
+    end
+  end
+
+  def test_method_missing_nil
+    site.config.h["nil_key"] = nil
+
+    assert_silent do
+      assert_nil site.nil_key
+    end
+  end
+
   def test_pages
     site.scan
 

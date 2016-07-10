@@ -133,8 +133,9 @@ module Zenweb
     ##
     # Proxy object for the config. Returns a config item at +msg+.
 
-    def method_missing msg, *args
-      config[msg.to_s] || warn("#{self.inspect} does not define #{msg}")
+    def method_missing msg, *_args
+      k = msg.to_s
+      config.key?(k) ? config[k] : warn("#{self.inspect} does not define #{k}")
     end
 
     ##
