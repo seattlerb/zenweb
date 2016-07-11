@@ -121,7 +121,7 @@ class TestZenwebPageMarkdown < MarkdownTest
     assert_equal exp, act
   end
 
-  def test_sitemap
+  def test_sitemap_folded_sorting
     build_fake_site %w[
                      a/index.html.md
                      a/ZenWeb.html.md
