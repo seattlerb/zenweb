@@ -44,6 +44,22 @@ class Minitest::Test
 
     site.fix_subpages
   end
+
+  def setup_complex_website
+    self.site = Zenweb::Site.new
+
+    pages = %w[
+      index.html.md
+      blog/index.html.md
+      blog/2014-01-01-first.html.md
+      blog/2014-02-02-second.html.md
+      blog/2014-03-03-third.html.md
+    ]
+
+    build_fake_site(*pages)
+
+    site.pages["index.html.md"]
+  end
 end
 
 class Zenweb::Page
