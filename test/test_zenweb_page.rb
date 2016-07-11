@@ -335,6 +335,14 @@ class TestZenwebPage < Minitest::Test
     assert_equal page.config["title"], page["title"]
   end
 
+  def test_index_missing
+    exp = "/blog/2012/01/02/page1.html does not define \"missing\"\n"
+
+    assert_output "", exp do
+      assert_nil page["missing"]
+    end
+  end
+
   def test_inspect
     assert_equal 'Page["blog/2012-01-02-page1.html.md"]', page.inspect
   end

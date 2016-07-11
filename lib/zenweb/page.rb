@@ -68,7 +68,8 @@ module Zenweb
     # Helper method to access the config value named +k+.
 
     def [] k
-      config[k] or warn("#{self.inspect} does not define #{k.inspect}")
+      warn("#{self.url} does not define #{k.inspect}") unless config.key?(k)
+      config[k]
     end
 
     ##
