@@ -29,7 +29,7 @@ class TestUgh < MarkdownTest
   def test_coderay_ruby
     assert_markdown_code("ruby",
                          "def x\n  42\nend",
-                         '<div class="highlighter-coderay"><table class="CodeRay"><tr>',
+                         '<div class="language-ruby highlighter-coderay"><table class="CodeRay"><tr>',
                          '<span class="keyword">def</span>')
   end
 
