@@ -438,6 +438,11 @@ class TestZenwebPage < Minitest::Test
     assert_equal site, page.site
   end
 
+  def test_stylesheet
+    exp = %(<link rel="stylesheet" type="text/css" href="/css/woot.css">)
+    assert_equal exp, page.stylesheet("woot")
+  end
+
   def test_subpages
     site.scan
 

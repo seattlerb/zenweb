@@ -368,6 +368,13 @@ module Zenweb
     end
 
     ##
+    # Stupid helper method to make declaring stylesheets cleaner
+
+    def stylesheet name
+      %(<link rel="stylesheet" type="text/css" href="/css/#{name}.css">)
+    end
+
+    ##
     # Render a Page instance based on its filetypes. For example,
     # index.html.md.erb will essentially call:
     #
