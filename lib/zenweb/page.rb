@@ -280,9 +280,9 @@ module Zenweb
     end
 
     ##
-    # Render a named file from +_includes+.
-    #
-    # category: XXX
+    # Render a named file from +_includes+. You must pass in the
+    # current page. This can make its configuration available
+    # accessing it via page.
 
     def include name, page
       incl = Page.new(site, File.join("_includes", name))
@@ -304,8 +304,6 @@ module Zenweb
 
     ##
     # Return a layout Page named in the config key +layout+.
-    #
-    # TODO: expand
 
     def layout
       unless defined? @layout then
