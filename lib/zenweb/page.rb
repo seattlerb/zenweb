@@ -630,6 +630,7 @@ module Zenweb
     def initialize site, path, pages, year, month
       super site, path, pages
       self.date = Time.local(year, month)
+      config.h['date'] = self.date
     end
   end
 
@@ -650,6 +651,7 @@ module Zenweb
     def initialize site, path, pages, year
       super site, path, pages
       self.date = Time.local(year)
+      config.h['date'] = self.date
     end
   end
 end

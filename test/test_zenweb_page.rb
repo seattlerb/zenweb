@@ -543,3 +543,43 @@ class TestZenwebPage < Minitest::Test
     end
   end
 end
+
+class TestGenerated < Minitest::Test
+  include ChdirTest("example-site")
+
+  class MonthlyTest < Zenweb::MonthlyPage
+    def content
+      "woot"
+    end
+  end
+
+  class YearlyTest < Zenweb::YearlyPage
+    def content
+      "woot"
+    end
+  end
+
+  attr_accessor :site
+
+  def assert_date klass, *args
+    setup_complex_website
+
+    path = "blog/2014/01/index.html"
+    pages = []
+    monthly = klass.new(site, path, pages, *args)
+
+    exp_date = Time.local 2014, 1
+
+    assert_equal exp_date, monthly.date
+    assert_equal exp_date, monthly["date"]
+
+  end
+
+  def test_monthly_date
+    assert_date MonthlyTest, 2014, 1
+  end
+
+  def test_yearly_date
+    assert_date YearlyTest, 2014
+  end
+end
