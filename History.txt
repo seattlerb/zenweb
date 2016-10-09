@@ -1,3 +1,19 @@
+=== 3.10.0 / 2016-10-09
+
+* 7 minor enhancements:
+
+  * Added Page#stylesheet.
+  * Added Zenweb::Config#key? and hooked into Page#method_missing for quieter checks.
+  * Improved Site#method_missing to use Config#key? to allow nil values w/o warnings.
+  * MonthlyPage and YearlyPage now put date in config as well.
+  * Now ignores subdirs/subfiles that start with underscore (not just top level).
+  * Page#[] uses Config#key? to be better about nil entries.
+  * Site#layout will now raise if passed unknown layout name.
+
+* 1 bug fix:
+
+  * Markdown sitemap now sorts w/ case folded.
+
 === 3.9.0 / 2015-12-21
 
 * 1 minor enhancement:
