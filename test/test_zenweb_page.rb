@@ -370,6 +370,16 @@ class TestZenwebPage < Minitest::Test
     assert_includes e.message, err
   end
 
+  def test_layout_nil_string
+    e = assert_raises RuntimeError do
+      page.config.h["layout"] = "nil"
+      page.layout
+    end
+
+    exp = 'unknown layout "nil" for page "blog/2012-01-02-page1.html.md"'
+    assert_equal exp, e.message
+  end
+
   def test_parent
     site.scan
     self.page = site.pages[page.path]

@@ -310,6 +310,9 @@ module Zenweb
         @layout = site.layout self.config["layout"]
       end
       @layout
+    rescue => e
+      e.message.concat " for page #{path.inspect}"
+      raise e
     end
 
     ##
