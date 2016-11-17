@@ -1,3 +1,9 @@
+=== 3.10.1 / 2016-11-16
+
+* 1 bug fix:
+
+  * Added page path to unknown layout exception message. (thagomizer)
+
 === 3.10.0 / 2016-10-09
 
 * 7 minor enhancements:
