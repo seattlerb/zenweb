@@ -54,7 +54,8 @@ class TestZenwebPageErb < Minitest::Test
       page.erb "this is {{ 1 + }} content", page
     end
 
-    assert_includes e.message, "concat(( 1 + ).to_s)"
+    # in 2.5 this changes from concat to <<, but the syntax error stays
+    assert_includes e.message, "(( 1 + ).to_s)"
     assert e.backtrace.grep('Page["blog/2012-01-02-page1.html.md"]:1')
   end
 end
