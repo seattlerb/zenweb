@@ -67,6 +67,8 @@ module Zenweb
             end
           end
 
+          time_prune
+
           pages.each do |url, page|
             dir = url.split(/\//).first
             next unless File.directory? dir and dir !~ /^_/
@@ -201,11 +203,15 @@ module Zenweb
       $website = self # HACK
       task(:virtual_pages).invoke
 
+      time_prune
+
+      fix_subpages
+    end
+
+    def time_prune
       t = Time.now
       @pages.reject! { |path, page| page.date && page.date > t } unless
         ENV["ALL"]
-
-      fix_subpages
     end
 
     def self.binary_files
