@@ -68,6 +68,7 @@ module Zenweb
           end
 
           time_prune
+          fix_subpages
 
           pages.each do |url, page|
             dir = url.split(/\//).first
