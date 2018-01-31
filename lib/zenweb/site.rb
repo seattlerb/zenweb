@@ -257,7 +257,7 @@ module Zenweb
 
       @pages.values.each do |p|
         unless p.subpages.empty? then
-          sorted = p.subpages.sort_by(&:clean_url)
+          sorted = p.subpages.sort_by(&:clean_url).uniq
           p.subpages.replace sorted
         end
       end

@@ -50,6 +50,22 @@ class TestZenwebSite < Minitest::Test
     end
   end
 
+  def test_fix_subpages
+    top = setup_complex_website
+
+    site.fix_subpages
+    site.fix_subpages
+    # ...
+
+    sp  = site.pages
+    exp = [[sp["blog/index.html.md"],
+            [[sp["blog/2014-01-01-first.html.md"], []],
+             [sp["blog/2014-02-02-second.html.md"], []],
+             [sp["blog/2014-03-03-third.html.md"], []]]]]
+
+    assert_equal exp, top.all_subpages
+  end
+
   def test_config
     assert_equal "_config.yml", site.config.path
   end
