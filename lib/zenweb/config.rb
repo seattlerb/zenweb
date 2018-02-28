@@ -48,7 +48,7 @@ module Zenweb
     # Access value at +k+. The value can be inherited from the parent configs.
 
     def [] k
-      h[k.to_s] or parent[k]
+      h.key?(k.to_s) ? h[k.to_s] : parent[k]
     end
 
     def key? k
