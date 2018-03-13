@@ -34,7 +34,11 @@ module Zenweb
     # Loads all files matching "zenweb/plugins/*.rb".
 
     def self.load_plugins
+      seen = {}
       Gem.find_files("zenweb/plugins/*.rb").each do |path|
+        file = File.basename path
+        next if seen[file]
+        seen[file] = true
         require path
       end
     end
