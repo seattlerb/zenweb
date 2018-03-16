@@ -1,3 +1,13 @@
+=== 3.10.2 / 2018-03-16
+
+* 5 bug fixes:
+
+  * Argh! Fixed logic error in inherited config lookup.
+  * Fix subpages after time pruning in categories.
+  * Fixed Site#fix_subpages from duplicating pages. Now idempotent.
+  * Fixed double-loading warnings from plugins if you're testing against local.
+  * Fixed filtering of pre-dated pages. (thagomizer)
+
 === 3.10.1 / 2016-11-16
 
 * 1 bug fix:
