@@ -1,3 +1,9 @@
+=== 3.10.3 / 2019-09-24
+
+* 1 bug fix:
+
+  * Fixed an ERB deprecation warning in ruby 2.6+.
+
 === 3.10.2 / 2018-03-16
 
 * 5 bug fixes:
