@@ -182,17 +182,20 @@ end
 
 website if ENV['DEBUG']
 
-desc "Debug the generation of a file. Takes a PATH arg."
-task :debug => ".site" do
+desc "Debug the generation of a file. Takes a PAGE/F/FILE arg or defaults to index.html.erb."
+task :debug do
   site = website
 
   path = ENV['PAGE'] || ENV['F'] || ENV['FILE'] || "index.html.erb"
 
-  if path then
-    page = site.pages[path]
+  page = site.pages[path]
+
+  if page
     page.generate
 
     puts
     puts File.read page.url_path
+  else
+    fail "Could not find %p" % [path]
   end
 end
