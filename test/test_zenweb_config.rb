@@ -51,7 +51,7 @@ class TestZenwebConfig < Minitest::Test
            '"layout" => "post"]',
            '"title" => "Example Page 1"]'].join ", "
 
-    assert_nil Rake.application.options.trace
+    refute Rake.application.options.trace
     Rake.application.options.trace = true
     assert_equal exp, config.inspect
   ensure
