@@ -13,7 +13,7 @@ Hoe.spec 'zenweb' do
   dependency "makerakeworkwell", "~> 1.0"
   dependency "less",             "~> 2.0"
   dependency "coderay",          "~> 1.0"
-  dependency "kramdown",         "~> 1.4"
+  dependency "kramdown",         "~> 1.4" # TODO: 1.17.0 -> 2.1.0
 end
 
 # vim: syntax=ruby
