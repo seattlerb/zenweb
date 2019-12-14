@@ -1,3 +1,13 @@
+=== 3.10.4 / 2019-12-14
+
+* 1 minor enhancement:
+
+  * Bumped rake dependency to < 15.
+
+* 1 bug fix:
+
+  * Fixed debug task to fail more gracefully when page not found. (kejadlen)
+
 === 3.10.3 / 2019-09-24
 
 * 1 bug fix:
