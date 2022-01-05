@@ -1,3 +1,9 @@
+=== 3.10.5 / 2022-01-04
+
+* 1 bug fix:
+
+  * ruby 3.1: Fixed YAML.load issue with loading Time instances.
+
 === 3.10.4 / 2019-12-14
 
 * 1 minor enhancement:
