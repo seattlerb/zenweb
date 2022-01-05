@@ -94,11 +94,21 @@ module Zenweb
       @h ||= begin
                thing = File.file?(path) ? path : site.pages[path]
                config, _ = self.class.split thing
-               config && YAML.load(config, permitted_classes: [Time]) || {}
+               maybe_load_yaml(config) || {}
              end
     rescue => e
       warn "#{self.path}: #{e}"
       raise
+    end
+
+    def maybe_load_yaml config
+      if config then
+        if YAML.respond_to? :safe_load_file then
+          YAML.safe_load config, permitted_classes: [Time]
+        else
+          YAML.load config
+        end
+      end
     end
 
     def inspect # :nodoc:
