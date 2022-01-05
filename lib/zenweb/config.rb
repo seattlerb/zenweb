@@ -94,7 +94,7 @@ module Zenweb
       @h ||= begin
                thing = File.file?(path) ? path : site.pages[path]
                config, _ = self.class.split thing
-               config && YAML.load(config) || {}
+               config && YAML.load(config, permitted_classes: [Time]) || {}
              end
     rescue => e
       warn "#{self.path}: #{e}"
