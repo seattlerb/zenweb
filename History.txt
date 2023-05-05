@@ -1,3 +1,9 @@
+=== 3.10.6 / 2023-05-04
+
+* 1 bug fix:
+
+  * Remove page from parent subpages if being moved via fix_subpages.
+
 === 3.10.5 / 2022-01-04
 
 * 1 bug fix:
