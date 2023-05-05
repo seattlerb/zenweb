@@ -255,6 +255,7 @@ module Zenweb
 
         next unless parent and parent != p and p.url =~ /html$/
 
+        p.parent.subpages.delete p if p.parent
         p.parent = parent
         parent.subpages << p
       end
