@@ -1,3 +1,9 @@
+=== 3.10.7 / 2023-07-25
+
+* 1 minor enhancement:
+
+  * Updated to use kramdown 2.x + kramdown-syntax-coderay + kramdown-parser-gfm.
+
 === 3.10.6 / 2023-05-04
 
 * 1 bug fix:
