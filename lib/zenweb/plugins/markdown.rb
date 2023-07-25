@@ -1,13 +1,18 @@
 class Zenweb::Page
   KRAMDOWN_CONFIG = { # :nodoc:
-    :toc_levels    => '2..4',
-
+    :toc_levels    => 2..4,
     :entity_output => :symbolic,
+    :hard_wrap     => false,
+    :input         => "GFM",
+    :gfm_quirks    => "no_auto_typographic",
 
-    :coderay_wrap               => :div,
-    :coderay_line_numbers       => :table,
-    :coderay_tab_width          => 4,
-    :coderay_css                => :class,
+    :syntax_highlighter => :coderay,
+    :syntax_highlighter_opts => {
+      :wrap         => :div,
+      :line_numbers => :table,
+      :tab_width    => 4,
+      :css          => :class,
+    },
   }
 
   ##
@@ -30,11 +35,9 @@ class Zenweb::Page
 
   def markdown content, no_line_numbers = false
     require "kramdown"
+    require "kramdown-parser-gfm"
+    require "kramdown-syntax-coderay"
     require "coderay/zenweb_extensions"
-
-    content = content.
-     gsub(/^\`\`\` *(\w+)/) { "~~~ #$1" }.
-     gsub(/^\`\`\`/, '~~~')
 
     config = KRAMDOWN_CONFIG.dup
     config[:coderay_line_numbers] = nil if no_line_numbers
