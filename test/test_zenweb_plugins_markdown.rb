@@ -18,8 +18,8 @@ class MarkdownTest < Minitest::Test
 end
 
 class TestUgh < MarkdownTest
-  def assert_markdown_code lang, line, *exps
-    act = page.markdown "``` #{lang}\n#{line}\n```"
+  def assert_markdown_code lang, line, *exps, no_lineno: false
+    act = page.markdown "``` #{lang}\n#{line}\n```", no_lineno
 
     exps.each do |exp|
       assert_includes act, exp, act
@@ -31,6 +31,14 @@ class TestUgh < MarkdownTest
                          "def x\n  42\nend",
                          '<div class="language-ruby highlighter-coderay"><table class="CodeRay"><tr>',
                          '<span class="keyword">def</span>')
+  end
+
+  def test_coderay_ruby__no_line_numbers
+    assert_markdown_code("ruby",
+                         "def x\n  42\nend",
+                         '<div class="language-ruby highlighter-coderay"><div class="CodeRay">',
+                         '<span class="keyword">def</span>',
+                         no_lineno: true)
   end
 
   def test_coderay_clojure

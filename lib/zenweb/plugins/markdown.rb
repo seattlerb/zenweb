@@ -40,7 +40,10 @@ class Zenweb::Page
     require "coderay/zenweb_extensions"
 
     config = KRAMDOWN_CONFIG.dup
-    config[:coderay_line_numbers] = nil if no_line_numbers
+    if no_line_numbers then
+      config[:syntax_highlighter_opts] = config[:syntax_highlighter_opts].dup
+      config[:syntax_highlighter_opts][:line_numbers] = nil
+    end
 
     Kramdown::Document.new(content, config).to_html
   end
