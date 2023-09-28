@@ -331,6 +331,13 @@ module Zenweb
     end
 
     ##
+    # Stupid helper method to make declaring header link lines cleaner
+
+    def link_head **kws
+      %(<link #{kws.map { |k,v| "#{k}=#{v.inspect}" }.join " "} />)
+    end
+
+    ##
     # Access a config variable and only warn if it isn't accessible.
     # If +msg+ starts with render, go ahead and pass that up to the
     # default method_missing.
@@ -373,7 +380,7 @@ module Zenweb
     # Stupid helper method to make declaring stylesheets cleaner
 
     def stylesheet name
-      %(<link rel="stylesheet" type="text/css" href="/css/#{name}.css">)
+      link_head rel:"stylesheet", type:"text/css", href:"/css/#{name}.css"
     end
 
     ##

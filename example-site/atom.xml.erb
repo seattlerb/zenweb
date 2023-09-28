@@ -22,8 +22,8 @@ rss_length: 15
     <email>{{ email }}</email>
   </author>
 
-  <link href="{{ feed_url }}" rel="self"/>
-  <link href="{{ domain }}/"/>
+  {{ link_head href:feed_url, rel:"self" }}
+  {{ link_head href:domain }}
 
   <rights> © {{ author }} - {{ email }} </rights>
 
@@ -33,7 +33,7 @@ rss_length: 15
       <title>{{ h post.title }}</title>
       <updated>{{ post.date.iso8601 }}</updated>
 
-      <link rel="alternate" href="{{ domain }}{{ post.url }}"/>
+      {{ link_head rel:"alternate", href:"{{ domain }}{{ post.url }}" }}
 
       <published>{{ post.date.iso8601 }}</published>
       <content type="html">{{ h post.subrender }}</content>

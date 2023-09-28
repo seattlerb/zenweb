@@ -441,7 +441,7 @@ class TestZenwebPage < Minitest::Test
   end
 
   def test_stylesheet
-    exp = %(<link rel="stylesheet" type="text/css" href="/css/woot.css">)
+    exp = %(<link rel="stylesheet" type="text/css" href="/css/woot.css" />)
     assert_equal exp, page.stylesheet("woot")
   end
 
