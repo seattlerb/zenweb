@@ -1,3 +1,9 @@
+=== 3.11.0 / 2023-09-28
+
+* 1 minor enhancement:
+
+  * Added Page#link_head helper method to clean up <link...> tags
+
 === 3.10.8 / 2023-08-30
 
 * 1 bug fix:

@@ -6,7 +6,7 @@ require "time"
 
 module Zenweb
   # duh
-  VERSION = "3.10.8"
+  VERSION = "3.11.0"
 end
 
 require "zenweb/site"
