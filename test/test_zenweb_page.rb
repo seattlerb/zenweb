@@ -366,8 +366,8 @@ class TestZenwebPage < Minitest::Test
     e = assert_raises NoMethodError do
       assert_nil page.render_wtf
     end
-    err = "undefined method `render_wtf' for Page"
-    assert_includes e.message, err
+
+    assert_match(/undefined method `render_wtf' for.*?Zenweb::Page/,  e.message)
   end
 
   def test_layout_nil_string
