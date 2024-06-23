@@ -54,20 +54,6 @@ class Array # :nodoc:
   end
 end
 
-class File # :nodoc:
-  RUBY19 = "<3".respond_to? :encoding # :nodoc:
-
-  class << self
-    alias :binread :read unless RUBY19
-  end
-end
-
-class String # :nodoc:
-  def valid_encoding? # :nodoc:
-    true
-  end unless File::RUBY19
-end
-
 class Time # :nodoc:
   ##
   # Format as YYYY-MM-DD

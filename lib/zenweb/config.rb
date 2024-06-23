@@ -55,8 +55,7 @@ module Zenweb
       h.key?(k.to_s) or parent.key?(k)
     end
 
-    UTF_BOM = "\xEF\xBB\xBF"
-    UTF_BOM.force_encoding "binary" if File::RUBY19
+    UTF_BOM = "\xEF\xBB\xBF".b
 
     ##
     # Splits a file and returns the yaml header and body, as applicable.
@@ -75,7 +74,7 @@ module Zenweb
 
         yaml_file = File.extname(path) == ".yml"
 
-        body.force_encoding "utf-8" if File::RUBY19
+        body.force_encoding Encoding::UTF_8
       else
         body = path.content
       end

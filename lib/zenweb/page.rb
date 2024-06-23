@@ -311,8 +311,7 @@ module Zenweb
       end
       @layout
     rescue => e
-      e.message.concat " for page #{path.inspect}"
-      raise e
+      raise e.exception "%s for page %p" % [e.message, path]
     end
 
     ##
