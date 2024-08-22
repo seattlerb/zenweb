@@ -3,7 +3,7 @@ require 'zenweb'
 task :default => :generate
 
 def website
-  return $website if defined?($website)
+  return $website if defined?($website) && $website
   $website = Zenweb::Site.new
   $website.scan
   $website.wire
@@ -153,18 +153,16 @@ task :run do
 
       warn "NOTE: No file found for #{url}" unless task
 
-      newer = task && task.needed?
+      if task then
+        if task.needed? then
+          unless system "#{Gem.ruby} -S rake -q clean generate" then
+            warn "WARNING: couldn't run 'rake clean generate' properly, exited: %p" % [$?]
+          end
+        end
 
-      if newer then
-        system "rake clean generate"
-      end
-
-      if task && newer then
-        @@site = nil
+        @@site = $website = nil
         Rake.application = Rake::Application.new # reset
       end
-
-      task.clear_timestamp if task && target_path =~ /(html|css|js)$/
 
       super
     end
