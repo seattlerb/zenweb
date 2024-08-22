@@ -1,3 +1,12 @@
+=== 3.11.1 / 2024-08-22
+
+* 4 bug fixes:
+
+  * Deleted long dead (~2.0) code.
+  * Fixed 2.7 (only?!) frozen string literal bug.
+  * Modified 'rake run' task to regenerate more consistently.
+  * Removed ancient Enumerable#chunk implementation.
+
 === 3.11.0 / 2023-09-28
 
 * 1 minor enhancement:
