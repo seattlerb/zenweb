@@ -10,24 +10,6 @@ def File.each_parent dir, file
 end
 
 module Enumerable
-  def chunk
-    bin, result, prev = [], [], Object.new
-
-    each do |o|
-      curr = yield o
-
-      if prev != curr then
-        bin = []
-        result << [curr, bin]
-        prev = curr
-      end
-
-      bin << o
-    end
-
-    result
-  end unless [].respond_to? :chunk
-
   def multi_group_by
     r = Hash.new { |h,k| h[k] = [] }
     each do |o|
