@@ -359,7 +359,7 @@ class TestZenwebPage < Minitest::Test
       assert_nil page.method_missing("wtf")
     end
 
-    assert_includes e.message, "undefined method `wtf'"
+    assert_match(/undefined method .wtf'/, e.message)
   end
 
   def test_method_missing_render
@@ -367,7 +367,7 @@ class TestZenwebPage < Minitest::Test
       assert_nil page.render_wtf
     end
 
-    assert_match(/undefined method `render_wtf' for.*?Zenweb::Page/,  e.message)
+    assert_match(/undefined method .render_wtf' for.*?Zenweb::Page/,  e.message)
   end
 
   def test_layout_nil_string

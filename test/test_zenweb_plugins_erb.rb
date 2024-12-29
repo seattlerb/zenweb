@@ -49,13 +49,17 @@ class TestZenwebPageErb < Minitest::Test
     assert e.backtrace.grep('Page["blog/2012-01-02-page1.html.md"]:1')
   end
 
+  def prism? # yuck! but prism is injecting ansi codes everywhere!
+    RubyVM::InstructionSequence.compile("").to_a[4][:parser] == :prism
+  end
+
   def test_erb_syntax_error
     e = assert_raises SyntaxError do
       page.erb "this is {{ 1 + }} content", page
     end
 
     # in 2.5 this changes from concat to <<, but the syntax error stays
-    assert_includes e.message, "(( 1 + ).to_s)"
+    assert_includes e.message, "(( 1 + ).to_s)" unless prism?
     assert e.backtrace.grep('Page["blog/2012-01-02-page1.html.md"]:1')
   end
 end
