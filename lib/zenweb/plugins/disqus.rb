@@ -5,7 +5,7 @@ class Zenweb::Page
 
   def disqus shortname
     '<div id="disqus_thread"></div>' +
-      run_js_script("http://#{shortname}.disqus.com/embed.js")
+      run_js_script("https://#{shortname}.disqus.com/embed.js")
   end
 
   ##
@@ -13,6 +13,6 @@ class Zenweb::Page
   # disqus comment counts.
 
   def disqus_counts shortname
-    run_js_script "http://#{shortname}.disqus.com/count.js"
+    run_js_script "https://#{shortname}.disqus.com/count.js"
   end
 end

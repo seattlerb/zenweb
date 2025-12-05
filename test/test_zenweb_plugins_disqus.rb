@@ -23,7 +23,7 @@ class TestZenwebPageDisqus < Minitest::Test
           var s   = document.createElement('script');
           s.type  = 'text/javascript';
           s.async = true;
-          s.src   = 'http://myshortname.disqus.com/#{name}.js';
+          s.src   = 'https://myshortname.disqus.com/#{name}.js';
           (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(s);
         })();
       </script>
