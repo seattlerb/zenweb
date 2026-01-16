@@ -166,9 +166,9 @@ class TestZenwebSite < Minitest::Test
 
     assert_equal exp, site.pages.keys.sort
 
-    exp = [Zenweb::Page]
+    exp = [Zenweb::Binary, Zenweb::Page]
 
-    assert_equal exp, site.pages.values.map(&:class).uniq
+    assert_equal exp, site.pages.values.map(&:class).uniq.sort_by(&:name)
   end
 
   def test_pages_by_date
@@ -278,7 +278,7 @@ class TestZenwebSite < Minitest::Test
       assert_task "css/colors.css.less",              %w[_config.yml]
       assert_task "css/styles.css",                   %w[_config.yml]
       assert_task "css/syntax.css",                   %w[_config.yml]
-      assert_task "img/bg.png",                       %w[_config.yml]
+      assert_task "img/bg.png"
       assert_task "js/jquery.js",                     %w[_config.yml]
       assert_task "js/site.js",                       %w[_config.yml]
       assert_task "sitemap.xml.erb",                  %w[_config.yml]

@@ -147,14 +147,6 @@ class TestZenwebPage < Minitest::Test
     assert_equal exp, top.sitemap(:title_dated)
   end
 
-  def test_binary
-    page = Zenweb::Page.new site, "blah"
-    refute_predicate page, :binary?
-
-    page = Zenweb::Page.new site, "blah", site.config
-    assert_predicate page, :binary?
-  end
-
   def test_body
     assert_equal "Not really much here to see.", page.body
   end
@@ -256,18 +248,12 @@ class TestZenwebPage < Minitest::Test
   end
 
   def test_generate_binary
-    page = Zenweb::Page.new site, "blah", site.config
+    page = Zenweb::Binary.new site, "blah", site.config
+    def page.cp(...) = puts "copy!" # just shows it got called
+    def page.date    = Time.now
 
-    def page.render
-      "woot"
-    end
-
-    def page.open path, mode
-      yield $stdout
-    end
-
-    out = "woot"
-    err = "Rendering .site/blah\n"
+    out = "copy!\n"
+    err = "Copying .site/blah\n"
 
     assert_output out, err do
       page.generate

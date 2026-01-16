@@ -197,7 +197,7 @@ module Zenweb
         when /\.yml$/ then
           @configs[path] = Config.new self, path
         when /\.(?:#{self.class.binary_files.join("|")})$/ then
-          @pages[path] = Page.new self, path, self.config
+          @pages[path] = Binary.new self, path, self.config
         when /\.(?:#{self.class.text_files.join("|")})$/, renderers_re then
           @pages[path] = Page.new self, path
         else

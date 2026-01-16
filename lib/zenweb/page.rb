@@ -31,11 +31,13 @@ module Zenweb
 
     attr_accessor :parent
 
-    ##
-    # Is this file a binary file? Defaults to true if config passed to Page.new.
-
-    attr_accessor :binary
+    # :stopdoc:
+    def binary = warn "Page#binary is deprecated. Use Zenweb::Binary instead."
+    def binary= o
+      warn "Page#binary= is deprecated. Use Zenweb::Binary instead."
+    end
     alias binary? binary
+    # :startdoc:
 
     ##
     # Returns a regexp that will match file extensions for all known
@@ -98,11 +100,7 @@ module Zenweb
       @body ||= begin
                   thing = File.file?(path) ? path : self
                   _, body = Zenweb::Config.split thing
-                  if self.binary? then
-                    body
-                  else
-                    body.strip
-                  end
+                  body.strip
                 end
     end
 
@@ -271,11 +269,7 @@ module Zenweb
       content = self.render
 
       open url_path, "w" do |f|
-        if binary? then
-          f.print content
-        else
-          f.puts content
-        end
+        f.puts content
       end
     end
 
@@ -502,6 +496,29 @@ module Zenweb
   class FakePage < Page
     attr_accessor :content
     attr_accessor :date
+  end
+
+  ##
+  # A file representing a binary. This file is not rendered in any
+  # way, and doesn't have the usual dependencies because its content
+  # would not be modified to changes in config or the like.
+
+  class Binary < Page
+    def generate
+      warn "Copying #{url_path}"
+      cp path, url_path, preserve:true, verbose: Rake.application.options.trace
+      # touch url_path, mtime: date, verbose: Rake.application.options.trace
+    end
+
+    def wire
+      file self.path
+      directory url_dir
+      file url_path => url_dir
+      file url_path => path do
+        self.generate
+      end
+      task :site => url_path
+    end
   end
 
   ##
