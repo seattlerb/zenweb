@@ -151,6 +151,16 @@ class TestZenwebPage < Minitest::Test
     assert_equal "Not really much here to see.", page.body
   end
 
+  def test_change_frequency
+    assert_equal "yearly", page.change_frequency
+  end
+
+  def test_change_frequency__config
+    page.config.h["change_frequency"] = "daily"
+
+    assert_equal "daily", page.change_frequency
+  end
+
   def test_breadcrumbs
     site.scan
     self.page = site.pages[page.path]

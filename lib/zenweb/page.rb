@@ -191,6 +191,8 @@ module Zenweb
     end
 
     def change_frequency
+      return config["change_frequency"] if config["change_frequency"]
+
       days_old = (Time.now - self.date).to_i / 86400
 
       case days_old
