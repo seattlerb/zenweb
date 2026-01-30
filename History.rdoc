@@ -1,3 +1,15 @@
+=== 3.12.0 / 2026-01-29
+
+* 2 minor enhancements:
+
+  * Added Binary subclass of Page: copies file and preserves dates.
+  * Disabled Page#binary and friends.
+
+* 2 bug fixes:
+
+  * Added ability to specify change_frequency in config to force a page's value.
+  * Fixed disqus urls to use https.
+
 === 3.11.1 / 2024-08-22
 
 * 4 bug fixes:
