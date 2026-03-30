@@ -506,10 +506,13 @@ module Zenweb
   # would not be modified to changes in config or the like.
 
   class Binary < Page
+    def date = File.stat(path).mtime
+
     def generate
-      warn "Copying #{url_path}"
-      cp path, url_path, preserve:true, verbose: Rake.application.options.trace
-      # touch url_path, mtime: date, verbose: Rake.application.options.trace
+      warn "Linking #{url_path}"
+      verbose = Rake.application.options.trace
+      ln path, url_path, verbose: verbose
+      touch url_path, mtime: date, verbose: verbose
     end
 
     def wire

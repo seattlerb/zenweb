@@ -259,11 +259,13 @@ class TestZenwebPage < Minitest::Test
 
   def test_generate_binary
     page = Zenweb::Binary.new site, "blah", site.config
-    def page.cp(...) = puts "copy!" # just shows it got called
-    def page.date    = Time.now
+    def page.ln(...)      = puts "link!" # just shows it got called
+    def page.mkdir_p(...) = puts "mkdir!"
+    def page.touch(...)   = puts "touch!"
+    def page.date         = Time.now
 
-    out = "copy!\n"
-    err = "Copying .site/blah\n"
+    out = "link!\ntouch!\n"
+    err = "Linking .site/blah\n"
 
     assert_output out, err do
       page.generate
