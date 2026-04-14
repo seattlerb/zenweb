@@ -1,3 +1,9 @@
+=== 3.12.1 / 2026-04-14
+
+* 1 bug fix:
+
+  * Make Binary pages hard link instead of copy to save some disk.
+
 === 3.12.0 / 2026-01-29
 
 * 2 minor enhancements:
