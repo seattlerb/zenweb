@@ -33,11 +33,7 @@ class Zenweb::Page
         gsub(/%\}/,  "%>").
         gsub(/\\([{}%])/, '\1')
 
-      @erb = if RUBY_VERSION >= "2.6.0" then
-               ERB.new(content, trim_mode:"-")
-             else
-               ERB.new(content, nil, "-")
-             end
+      @erb = ERB.new(content, trim_mode:"-")
     end
 
     @erb.filename = source.inspect
