@@ -372,10 +372,12 @@ module Zenweb
     end
 
     ##
-    # Stupid helper method to make declaring stylesheets cleaner
+    # Stupid helper method to make declaring stylesheets cleaner. Can
+    # be declared by name (implying the location is in
+    # "/css/$name.css") or using full href keyword.
 
-    def stylesheet name
-      link_head rel:"stylesheet", type:"text/css", href:"/css/#{name}.css"
+    def stylesheet name=nil, href:"/css/#{name}.css"
+      link_head rel:"stylesheet", type:"text/css", href:href
     end
 
     ##
