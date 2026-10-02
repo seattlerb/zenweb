@@ -192,9 +192,9 @@ module Zenweb
         when /^_layout/ then
           name = File.basename(path).sub(/\..+$/, '')
           @layouts[name] = Page.new self, path
-        when /^_/ then
+        when /^_/ then # TODO: what is this about given reject above?
           next
-        when /\.yml$/ then
+        when /\.yml$/ then # TODO: AND THIS!??
           @configs[path] = Config.new self, path
         when /\.(?:#{self.class.binary_files.join("|")})$/ then
           @pages[path] = Binary.new self, path, self.config
@@ -220,11 +220,11 @@ module Zenweb
     end
 
     def self.binary_files
-      @binary_files ||= %w[png jpg gif eot svg ttf woff2? ico pdf m4a t?gz]
+      @binary_files ||= %w[png jpe?g gif eot ttf woff2? ico pdf m4a t?gz]
     end
 
     def self.text_files
-      @text_files ||= %w[txt html css js]
+      @text_files ||= %w[txt html css js svg]
     end
 
     def stale_pages
